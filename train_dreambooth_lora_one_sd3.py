@@ -437,7 +437,7 @@ def parse_args(input_args=None):
     parser.add_argument(
         "--checkpointing_steps",
         type=int,
-        default=500,
+        default=5,
         help=(
             "Save a checkpoint of the training state every X updates. These checkpoints can be used both as final"
             " checkpoints in case they are better than the last checkpoint, and are also suitable for resuming"
@@ -681,6 +681,14 @@ def parse_args(input_args=None):
         help=(
             "Choose prior generation precision between fp32, fp16 and bf16 (bfloat16). Bf16 requires PyTorch >="
             " 1.10.and an Nvidia Ampere GPU.  Default to  fp16 if a GPU is available else fp32."
+        ),
+    )
+    parser.add_argument(
+        "--time_step",
+        default=None,
+        type=float,
+        help=(
+            "The time step to use for the FlowMatch Euler Discrete Scheduler. If not specified, the scheduler will"
         ),
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
@@ -1346,13 +1354,7 @@ def main(args):
                 args.pretrained_model_name_or_path, subfolder="transformer"
             )
             transformer_.add_adapter(transformer_lora_config)
-            if args.train_text_encoder:
-                text_encoder_one_ = text_encoder_cls_one.from_pretrained(
-                    args.pretrained_model_name_or_path, subfolder="text_encoder"
-                )
-                text_encoder_two_ = text_encoder_cls_two.from_pretrained(
-                    args.pretrained_model_name_or_path, subfolder="text_encoder_2"
-                )
+        
 
         lora_state_dict = StableDiffusion3Pipeline.lora_state_dict(input_dir)
 
@@ -1408,11 +1410,45 @@ def main(args):
         # only upcast trainable parameters (LoRA) into fp32
         cast_training_params(models, dtype=torch.float32)
 
+    
+    # Add lora One here
+    from lora_one_utils import reinit_lora
+    from lora_one_utils import estimate_gradient
+    import yaml
+    with open('/dcs/pg24/u5649209/data/workspace/diffusers/config/gradient.yaml', 'r') as f:
+        init_conf = yaml.safe_load(f)
+    # Construct Temp Set
+    # Dataset and DataLoaders creation:
+    train_dataset = DreamBoothDataset(
+        instance_data_root=args.instance_data_dir,
+        instance_prompt=args.instance_prompt,
+        class_prompt=args.class_prompt,
+        class_data_root=args.class_data_dir if args.with_prior_preservation else None,
+        class_num=args.num_class_images,
+        size=args.resolution,
+        repeats=args.repeats,
+        center_crop=args.center_crop,
+    )
+    train_dataloader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=args.train_batch_size,
+        shuffle=True,
+        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
+        num_workers=args.dataloader_num_workers,
+    )
+    temp_dataloader = train_dataloader
+    # Calculate named_grad
+    named_grads = None
+    named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
+                                    , [text_encoder_one, text_encoder_two, text_encoder_three]\
+                                    , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
+    additional_info = {
+        "named_grads": named_grads,}
+    reinit_lora(transformer, init_conf, additional_info)
     transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
     if args.train_text_encoder:
         text_lora_parameters_one = list(filter(lambda p: p.requires_grad, text_encoder_one.parameters()))
         text_lora_parameters_two = list(filter(lambda p: p.requires_grad, text_encoder_two.parameters()))
-
     # Optimization parameters
     transformer_parameters_with_lr = {"params": transformer_lora_parameters, "lr": args.learning_rate}
     if args.train_text_encoder:
@@ -1503,25 +1539,17 @@ def main(args):
             safeguard_warmup=args.prodigy_safeguard_warmup,
         )
 
-    # Dataset and DataLoaders creation:
-    train_dataset = DreamBoothDataset(
-        instance_data_root=args.instance_data_dir,
-        instance_prompt=args.instance_prompt,
-        class_prompt=args.class_prompt,
-        class_data_root=args.class_data_dir if args.with_prior_preservation else None,
-        class_num=args.num_class_images,
-        size=args.resolution,
-        repeats=args.repeats,
-        center_crop=args.center_crop,
-    )
+    
 
-    train_dataloader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=args.train_batch_size,
-        shuffle=True,
-        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
-        num_workers=args.dataloader_num_workers,
-    )
+    
+    
+    if args.train_text_encoder:
+        text_encoder_one_ = text_encoder_cls_one.from_pretrained(
+            args.pretrained_model_name_or_path, subfolder="text_encoder"
+        )
+        text_encoder_two_ = text_encoder_cls_two.from_pretrained(
+            args.pretrained_model_name_or_path, subfolder="text_encoder_2"
+        )
 
     if not args.train_text_encoder:
         tokenizers = [tokenizer_one, tokenizer_two, tokenizer_three]
@@ -1717,39 +1745,6 @@ def main(args):
             # set top parameter requires_grad = True for gradient checkpointing works
             accelerator.unwrap_model(text_encoder_one).text_model.embeddings.requires_grad_(True)
             accelerator.unwrap_model(text_encoder_two).text_model.embeddings.requires_grad_(True)
-
-        if accelerator.is_main_process:
-            if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
-                if not args.train_text_encoder:
-                    # create pipeline
-                    text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-                        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
-                    )
-                    text_encoder_one.to(weight_dtype)
-                    text_encoder_two.to(weight_dtype)
-                pipeline = StableDiffusion3Pipeline.from_pretrained(
-                    args.pretrained_model_name_or_path,
-                    vae=vae,
-                    text_encoder=accelerator.unwrap_model(text_encoder_one),
-                    text_encoder_2=accelerator.unwrap_model(text_encoder_two),
-                    text_encoder_3=accelerator.unwrap_model(text_encoder_three),
-                    transformer=accelerator.unwrap_model(transformer),
-                    revision=args.revision,
-                    variant=args.variant,
-                    torch_dtype=weight_dtype,
-                ).to(accelerator.device)
-                pipeline_args = {"prompt": args.validation_prompt}
-                images = log_validation(
-                    pipeline=pipeline,
-                    args=args,
-                    accelerator=accelerator,
-                    pipeline_args=pipeline_args,
-                    epoch=epoch,
-                    torch_dtype=weight_dtype,
-                )
-                if not args.train_text_encoder:
-                    del text_encoder_one, text_encoder_two, text_encoder_three
-                    free_memory()
         for step, batch in enumerate(train_dataloader):
             models_to_accumulate = [transformer]
             if args.train_text_encoder:
@@ -1885,7 +1880,7 @@ def main(args):
                 global_step += 1
 
                 if accelerator.is_main_process or accelerator.distributed_type == DistributedType.DEEPSPEED:
-                    if global_step % args.checkpointing_steps == 0:
+                    if global_step % args.checkpointing_steps == 0 or global_step == 1:
                         # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
                         if args.checkpoints_total_limit is not None:
                             checkpoints = os.listdir(args.output_dir)

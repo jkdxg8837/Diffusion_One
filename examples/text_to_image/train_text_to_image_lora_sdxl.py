@@ -1080,6 +1080,9 @@ def main(args):
         disable=not accelerator.is_local_main_process,
     )
 
+    previous_input_ids1 = None
+    previous_input_ids2 = None
+    ratio = 0.15
     for epoch in range(first_epoch, args.num_train_epochs):
         unet.train()
         if args.train_text_encoder:
@@ -1133,12 +1136,27 @@ def main(args):
 
                 # Predict the noise residual
                 unet_added_conditions = {"time_ids": add_time_ids}
-                prompt_embeds, pooled_prompt_embeds = encode_prompt(
-                    text_encoders=[text_encoder_one, text_encoder_two],
-                    tokenizers=None,
-                    prompt=None,
-                    text_input_ids_list=[batch["input_ids_one"], batch["input_ids_two"]],
-                )
+
+
+                random_float = random.random()
+                if random_float > ratio and previous_input_ids1 is not None:
+                    prompt_embeds, pooled_prompt_embeds = encode_prompt(
+                        text_encoders=[text_encoder_one, text_encoder_two],
+                        tokenizers=None,
+                        prompt=None,
+                        text_input_ids_list=[previous_input_ids1, previous_input_ids2],
+                    )
+                else:
+                    prompt_embeds, pooled_prompt_embeds = encode_prompt(
+                        text_encoders=[text_encoder_one, text_encoder_two],
+                        tokenizers=None,
+                        prompt=None,
+                        text_input_ids_list=[batch["input_ids_one"], batch["input_ids_two"]],
+                    )
+                
+                previous_input_ids1 = batch["input_ids_one"]
+                previous_input_ids2 = batch["input_ids_two"]
+
                 unet_added_conditions.update({"text_embeds": pooled_prompt_embeds})
                 model_pred = unet(
                     noisy_model_input,

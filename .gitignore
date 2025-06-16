@@ -176,3 +176,7 @@ tags
 
 # wandb
 wandb
+
+slurm
+
+joboutput
