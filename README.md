@@ -35,6 +35,10 @@ limitations under the License.
 - Interchangeable noise [schedulers](https://huggingface.co/docs/diffusers/api/schedulers/overview) for different diffusion speeds and output quality.
 - Pretrained [models](https://huggingface.co/docs/diffusers/api/models/overview) that can be used as building blocks, and combined with schedulers, for creating your own end-to-end diffusion systems.
 
+## LoRA-One training
+
+<pre><code>```python import os import subprocess # 设置环境变量 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers" os.environ["INSTANCE_DIR"] = "dog" os.environ["OUTPUT_DIR"] = "trained-sd3-lora-one" # 构造命令 cmd = [ "accelerate", "launch", "/dcs/pg24/u5649209/data/workspace/diffusers/train_dreambooth_lora_one_sd3.py", "--pretrained_model_name_or_path", os.environ.get("MODEL_NAME"), # 使用 os.environ.get 提供默认值以防环境变量未设置 "--instance_data_dir", os.environ.get("INSTANCE_DIR"), # 使用 os.environ.get 提供默认值 "--output_dir", os.environ.get("OUTPUT_DIR"), # 使用 os.environ.get 提供默认值 "--mixed_precision", "fp16", "--instance_prompt", "a photo of sks dog", "--resolution", "512", "--train_batch_size", "1", "--gradient_accumulation_steps", "4", "--learning_rate", "4e-4", "--report_to", "wandb", "--lr_scheduler", "constant", "--lr_warmup_steps", "0", "--max_train_steps", "100", "--validation_prompt", "A photo of sks dog in a bucket", "--validation_epochs", "25", "--seed", "0", "--time_step", "0.2" # "--push_to_hub" ] # 运行命令 subprocess.run(cmd) ```</code></pre>
+
 ## Installation
 
 We recommend installing 🤗 Diffusers in a virtual environment from PyPI or Conda. For more details about installing [PyTorch](https://pytorch.org/get-started/locally/) and [Flax](https://flax.readthedocs.io/en/latest/#installation), please refer to their official documentation.
