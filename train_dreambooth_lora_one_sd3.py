@@ -1802,6 +1802,8 @@ def main(args):
                     logit_std=args.logit_std,
                     mode_scale=args.mode_scale,
                 )
+                if args.time_step:
+                    u = torch.tensor([args.time_step])
                 indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
                 timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
 
