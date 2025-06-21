@@ -17,13 +17,14 @@ def get_record_gradient_hook(model, record_dict):
         for n, p in model.named_parameters():
             if p.requires_grad and p.grad is not None:
                 if n not in record_dict:
-                    record_dict[n] = p.grad.cpu()
+                    record_dict[n] = [p.grad.cpu()]
                 else:
-                    record_dict[n] += p.grad.cpu()
+                    record_dict[n].append(p.grad.cpu())
                 p.grad = None
         return grad
 
     return record_gradient_hook
+
 
 
 def estimate_gradient(
@@ -62,90 +63,128 @@ def estimate_gradient(
     weight_dtype = torch.float16
     # deal with time step
     # time_step = args.time_step
-    for batch in tqdm(dataloader, desc="Estimating gradient"):
-        num += 1
-        # print(batch)
-        # batch = {k: v.to(transformer.device) for k, v in batch.items()}
-        # Calculate diffusion model loss
-        prompts = batch["prompts"]
-        pixel_values = batch["pixel_values"].to(dtype=vae.dtype)
-        pixel_values = pixel_values.to(vae.device)
-        model_input = vae.encode(pixel_values).latent_dist.sample()
-        model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
-        model_input = model_input.to(dtype=weight_dtype)
+    if args.re_init_schedule == "multi":
+        epochs = args.re_init_samples // len(dataloader)
+        print("********************************")
+        print("len of dataloader is : ", len(dataloader))
+        print(f"Reinitializing LoRA modules every {epochs} epochs")
+        print("********************************")
+    else:
+        epochs = 1
+    from tqdm import tqdm
+    for epoch in range(epochs):
+        for batch in tqdm(dataloader, desc="Estimating gradient"):
+            num += 1
+            # print(batch)
+            # batch = {k: v.to(transformer.device) for k, v in batch.items()}
+            # Calculate diffusion model loss
+            prompts = batch["prompts"]
+            pixel_values = batch["pixel_values"].to(dtype=vae.dtype)
+            pixel_values = pixel_values.to(vae.device)
+            model_input = vae.encode(pixel_values).latent_dist.sample()
+            model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
+            model_input = model_input.to(dtype=weight_dtype)
 
-        # Sample noise that we'll add to the latents
-        noise = torch.randn_like(model_input)
-        bsz = model_input.shape[0]
+            # Sample noise that we'll add to the latents
+            noise = torch.randn_like(model_input)
+            bsz = model_input.shape[0]
 
-        # Sample a random timestep for each image
-        # for weighting schemes where we sample timesteps non-uniformly
-        u = compute_density_for_timestep_sampling(
-            weighting_scheme=args.weighting_scheme,
-            batch_size=bsz,
-            logit_mean=args.logit_mean,
-            logit_std=args.logit_std,
-            mode_scale=args.mode_scale,
-        )
-        if args.time_step:
-            # assert args.time_step.dtype == torch.float32, "time_step should be float32"
-            u = torch.tensor([args.time_step])
+            # Sample a random timestep for each image
+            # for weighting schemes where we sample timesteps non-uniformly
+            u = compute_density_for_timestep_sampling(
+                weighting_scheme=args.weighting_scheme,
+                batch_size=bsz,
+                logit_mean=args.logit_mean,
+                logit_std=args.logit_std,
+                mode_scale=args.mode_scale,
+            )
 
-            pass
-        print(u)
-        indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
-        timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-        print("current timesteps[indices]")
-        print("u is set to ", u)
-        # print(noise_scheduler_copy.timesteps[-1])
-        # print(indices)
-        print("noise level is set to", noise_scheduler_copy.timesteps[indices])
-        # print(noise_scheduler_copy.timesteps[indices])
-        # Add noise according to flow matching.
-        # zt = (1 - texp) * x + texp * z1
-        sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
-        noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
-        def compute_text_embeddings(prompt, text_encoders, tokenizers):
-            with torch.no_grad():
-                from train_dreambooth_lora_one_sd3 import encode_prompt
-                prompt_embeds, pooled_prompt_embeds = encode_prompt(
-                    text_encoders, tokenizers, prompt, args.max_sequence_length
-                )
-                prompt_embeds = prompt_embeds.to(accelerator.device)
-                pooled_prompt_embeds = pooled_prompt_embeds.to(accelerator.device)
-            return prompt_embeds, pooled_prompt_embeds
-        instance_prompt_hidden_states, instance_pooled_prompt_embeds = compute_text_embeddings(
-            args.instance_prompt, text_encoders, tokenizers
-        )
-        prompt_embeds = instance_prompt_hidden_states
-        pooled_prompt_embeds = instance_pooled_prompt_embeds
+            if args.re_init_schedule == "multi":
+                pass
+            elif args.time_step:
+                # assert args.time_step.dtype == torch.float32, "time_step should be float32"
+                u = torch.tensor([args.time_step])
+            indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
+            timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
+            print("current timesteps[indices]")
+            print("u is set to ", u)
+            # print(noise_scheduler_copy.timesteps[-1])
+            # print(indices)
+            print("noise level is set to", noise_scheduler_copy.timesteps[indices])
+            # print(noise_scheduler_copy.timesteps[indices])
+            # Add noise according to flow matching.
+            # zt = (1 - texp) * x + texp * z1
+            sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
+            noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
+            def compute_text_embeddings(prompt, text_encoders, tokenizers):
+                with torch.no_grad():
+                    from train_dreambooth_lora_one_sd3 import encode_prompt
+                    prompt_embeds, pooled_prompt_embeds = encode_prompt(
+                        text_encoders, tokenizers, prompt, args.max_sequence_length
+                    )
+                    prompt_embeds = prompt_embeds.to(accelerator.device)
+                    pooled_prompt_embeds = pooled_prompt_embeds.to(accelerator.device)
+                return prompt_embeds, pooled_prompt_embeds
+            instance_prompt_hidden_states, instance_pooled_prompt_embeds = compute_text_embeddings(
+                args.instance_prompt, text_encoders, tokenizers
+            )
+            prompt_embeds = instance_prompt_hidden_states
+            pooled_prompt_embeds = instance_pooled_prompt_embeds
 
-        # Predict the noise residual
-        model_pred = transformer(
-            hidden_states=noisy_model_input,
-            timestep=timesteps,
-            encoder_hidden_states=prompt_embeds,
-            pooled_projections=pooled_prompt_embeds,
-            return_dict=False,
-        )[0]
+            # Predict the noise residual
+            model_pred = transformer(
+                hidden_states=noisy_model_input,
+                timestep=timesteps,
+                encoder_hidden_states=prompt_embeds,
+                pooled_projections=pooled_prompt_embeds,
+                return_dict=False,
+            )[0]
 
-        # model_pred.loss.backward()
-        from diffusers.training_utils import compute_loss_weighting_for_sd3
-        weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
-        target = noise - model_input
-        loss = torch.mean(
-                    (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
-                    1,
-                )
-        loss = loss.mean()
-        loss.backward()
-        get_record_gradient_hook(transformer, named_grads)(None)  # get gradient of last layer
-        # make sure the gradient is cleared
-        for n, p in transformer.named_parameters():
-            if p.grad is not None:
-                p.grad = None
+            # model_pred.loss.backward()
+            from diffusers.training_utils import compute_loss_weighting_for_sd3
+            weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
+            target = noise - model_input
+            loss = torch.mean(
+                        (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
+                        1,
+                    )
+            loss = loss.mean()
+            loss.backward()
+            get_record_gradient_hook(transformer, named_grads)(None)  # get gradient of last layer
+            # make sure the gradient is cleared
+            for n, p in transformer.named_parameters():
+                if p.grad is not None:
+                    p.grad = None
+
     for n, g in named_grads.items():
-        named_grads[n] /= num
+        g_list = named_grads[n]
+        for i in range(len(g_list)):
+            g_list[i] /= num
+        # named_grads[n] /= num
+    # Using batch size
+    if args.re_init_bsz:
+        batch_size = args.re_init_bsz
+        from tqdm import tqdm
+        for key in tqdm(named_grads.keys()):
+            data_list = named_grads[key]
+            prev_tensor = None
+            for i in range(0, len(data_list), batch_size):
+                # 获取当前批次的数据
+                current_batch = data_list[i : i + batch_size]
+                current_batch_tensor = torch.cat(current_batch, dim=0)
+                # print(data_list[0].shape)
+                # print(batch_size)
+                # print(len(data_list))
+                # print(current_batch_tensor.shape)
+                if prev_tensor is not None:
+                    prev_tensor += current_batch_tensor
+                    prev_tensor /= 2
+                else:
+                    prev_tensor = current_batch_tensor
+                # 计算平均值并添加到新列表
+            named_grads[key] = prev_tensor
+            print(key)
+        
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
@@ -252,7 +291,8 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             )
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
-        # print(named_grad)
+        print("*************************")
+        print(named_grad)
         grad_name = name + ".base_layer.weight"
         # grad_name = ".".join(name.split(".")[2:]) + ".weight"
         grads = named_grad[grad_name]

@@ -47,8 +47,6 @@ class compute_metrics():
             generated_images_smaller.append(image_smaller)
             generated_images.append(image)
         generated_images = np.array([np.array(img) for img in generated_images])
-        generated_images_smaller = np.array([np.array(img) for img in generated_images_smaller])
-        generated_images_smaller_tensor = torch.from_numpy(generated_images_smaller).permute(0, 3, 1, 2)
         generated_images_tensor = torch.from_numpy(generated_images).permute(0, 3, 1, 2)
         sd_clip_score1, sd_clip_score2 = self.calculate_clip_score(generated_images, self.real_images_tensor, self.prompt_list)
         print(f"CLIP score1: {sd_clip_score1}")

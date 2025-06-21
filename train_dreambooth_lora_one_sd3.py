@@ -691,6 +691,22 @@ def parse_args(input_args=None):
             "The time step to use for the FlowMatch Euler Discrete Scheduler. If not specified, the scheduler will"
         ),
     )
+    parser.add_argument(
+        "--re_init_schedule",
+        type=str,
+        default="multi",
+        choices=["single", "multi"],
+    )
+    parser.add_argument(
+        "--re_init_bsz",
+        type=int,
+        default="1",
+    )
+    parser.add_argument(
+        "--re_init_samples",
+        type=int,
+        default="256",
+    )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
     if input_args is not None:
@@ -1664,11 +1680,14 @@ def main(args):
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
     num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+    # print("********************************")
+    # print("train_loader length :", len(train_dataloader))
+    # print("num update steps per epoch :", num_update_steps_per_epoch)
     if overrode_max_train_steps:
         args.max_train_steps = args.num_train_epochs * num_update_steps_per_epoch
     # Afterwards we recalculate our number of training epochs
     args.num_train_epochs = math.ceil(args.max_train_steps / num_update_steps_per_epoch)
-
+    print("num_train_epochs:", args.num_train_epochs)
     # We need to initialize the trackers we use, and also store our configuration.
     # The trackers initializes automatically on the main process.
     if accelerator.is_main_process:
