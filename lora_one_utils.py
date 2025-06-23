@@ -1,6 +1,7 @@
 import torch
 from tqdm import tqdm
 import math
+import itertools
 from peft.tuners.lora.layer import Linear as LoraLinear
 import logging
 log = logging.getLogger(__name__)
@@ -26,6 +27,11 @@ def get_record_gradient_hook(model, record_dict):
     return record_gradient_hook
 
 
+def print_gpu_memory_usage(device_id=0):
+    allocated = torch.cuda.memory_allocated(device_id)
+    total = torch.cuda.get_device_properties(device_id).total_memory
+    ratio = allocated / total
+    print(f"显存占用：{ratio:.2%} （{allocated / (1024 ** 2):.2f} MB / {total / (1024 ** 2):.2f} MB）")
 
 def estimate_gradient(
     models, dataloader, args, noise_scheduler_copy, accelerator, text_encoders, tokenizers, batch_size: int = 4
@@ -106,11 +112,11 @@ def estimate_gradient(
                 u = torch.tensor([args.time_step])
             indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
             timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-            print("current timesteps[indices]")
+            # print("current timesteps[indices]")
             print("u is set to ", u)
             # print(noise_scheduler_copy.timesteps[-1])
             # print(indices)
-            print("noise level is set to", noise_scheduler_copy.timesteps[indices])
+            # print("noise level is set to", noise_scheduler_copy.timesteps[indices])
             # print(noise_scheduler_copy.timesteps[indices])
             # Add noise according to flow matching.
             # zt = (1 - texp) * x + texp * z1
@@ -149,13 +155,20 @@ def estimate_gradient(
                         1,
                     )
             loss = loss.mean()
-            loss.backward()
+            print(loss.item())
+            # loss.backward()
+            accelerator.backward(loss)
+            print_gpu_memory_usage(0)
+            if accelerator.sync_gradients:
+                transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
+                params_to_clip = (transformer_lora_parameters)
+                accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
             get_record_gradient_hook(transformer, named_grads)(None)  # get gradient of last layer
             # make sure the gradient is cleared
             for n, p in transformer.named_parameters():
                 if p.grad is not None:
                     p.grad = None
-
+        torch.cuda.empty_cache()
     for n, g in named_grads.items():
         g_list = named_grads[n]
         for i in range(len(g_list)):

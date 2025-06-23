@@ -103,5 +103,5 @@ class compute_metrics():
         return clip_score_list
     def compute_DINO(self):
         pass
-cm_matrics = compute_metrics(img_path="/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-fixed_0.5/checkpoint-1/output")
+cm_matrics = compute_metrics(img_path="/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-multi-timestep_20bsz1/checkpoint-100/output")
 cm_matrics.compute_clip()

@@ -177,6 +177,16 @@ tags
 # wandb
 wandb
 
-slurm
+slurm/dog
+
+slurm/full-dog
+
+slurm/trained-*
+
+slurm/wandb
+
+*.png
 
 joboutput
+
+transformer_only
