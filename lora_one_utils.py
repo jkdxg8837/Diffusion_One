@@ -165,25 +165,30 @@ def estimate_gradient(
     if args.re_init_bsz:
         batch_size = args.re_init_bsz
         from tqdm import tqdm
-        for key in tqdm(named_grads.keys()):
-            data_list = named_grads[key]
-            prev_tensor = None
-            for i in range(0, len(data_list), batch_size):
-                # 获取当前批次的数据
-                current_batch = data_list[i : i + batch_size]
-                current_batch_tensor = torch.cat(current_batch, dim=0)
-                # print(data_list[0].shape)
-                # print(batch_size)
-                # print(len(data_list))
-                # print(current_batch_tensor.shape)
-                if prev_tensor is not None:
-                    prev_tensor += current_batch_tensor
-                    prev_tensor /= 2
-                else:
-                    prev_tensor = current_batch_tensor
-                # 计算平均值并添加到新列表
-            named_grads[key] = prev_tensor
-            print(key)
+        for key in tqdm(named_grads.keys(),
+                        desc="Merging gradient in list",):
+            try:
+                data_list = named_grads[key]
+                prev_tensor = None
+                for i in range(0, len(data_list), batch_size):
+                    # 获取当前批次的数据
+                    current_batch = data_list[i : i + batch_size]
+                    current_batch_tensor = torch.cat(current_batch, dim=0)
+                    # print(data_list[0].shape)
+                    # print(batch_size)
+                    # print(len(data_list))
+                    # print(current_batch_tensor.shape)
+                    if prev_tensor is not None:
+                        prev_tensor += current_batch_tensor
+                        prev_tensor /= 2
+                    else:
+                        prev_tensor = current_batch_tensor
+                    # 计算平均值并添加到新列表
+                named_grads[key] = prev_tensor
+            except Exception as e:
+                log.error(f"Error processing key {key}: {e}")
+                # print(e)
+                continue
         
     for hook in hooks:
         hook.remove()
@@ -292,7 +297,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
         print("*************************")
-        print(named_grad)
+        # print(named_grad)
         grad_name = name + ".base_layer.weight"
         # grad_name = ".".join(name.split(".")[2:]) + ".weight"
         grads = named_grad[grad_name]
