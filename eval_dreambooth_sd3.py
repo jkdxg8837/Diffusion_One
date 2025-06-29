@@ -44,7 +44,35 @@ from torchvision.transforms.functional import crop
 from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, PretrainedConfig, T5TokenizerFast
 unique_token = "sks"
-class_token = "dog"
+class_token = "car"
+# prompt_list = [
+# 'a {0} {1} in the jungle'.format(unique_token, class_token),
+# 'a {0} {1} in the snow'.format(unique_token, class_token),
+# 'a {0} {1} on the beach'.format(unique_token, class_token),
+# 'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
+# 'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
+# 'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
+# 'a {0} {1} with a city in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
+# 'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
+# 'a {0} {1} wearing a red hat'.format(unique_token, class_token),
+# 'a {0} {1} wearing a santa hat'.format(unique_token, class_token),
+# 'a {0} {1} wearing a rainbow scarf'.format(unique_token, class_token),
+# 'a {0} {1} wearing a black top hat and a monocle'.format(unique_token, class_token),
+# 'a {0} {1} in a chef outfit'.format(unique_token, class_token),
+# 'a {0} {1} in a firefighter outfit'.format(unique_token, class_token),
+# 'a {0} {1} in a police outfit'.format(unique_token, class_token),
+# 'a {0} {1} wearing pink glasses'.format(unique_token, class_token),
+# 'a {0} {1} wearing a yellow shirt'.format(unique_token, class_token),
+# 'a {0} {1} in a purple wizard outfit'.format(unique_token, class_token),
+# 'a red {0} {1}'.format(unique_token, class_token),
+# 'a purple {0} {1}'.format(unique_token, class_token),
+# 'a shiny {0} {1}'.format(unique_token, class_token),
+# 'a wet {0} {1}'.format(unique_token, class_token),
+# 'a cube shaped {0} {1}'.format(unique_token, class_token)
+# ]
+
 prompt_list = [
 'a {0} {1} in the jungle'.format(unique_token, class_token),
 'a {0} {1} in the snow'.format(unique_token, class_token),
@@ -56,16 +84,6 @@ prompt_list = [
 'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
 'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
 'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
-'a {0} {1} wearing a red hat'.format(unique_token, class_token),
-'a {0} {1} wearing a santa hat'.format(unique_token, class_token),
-'a {0} {1} wearing a rainbow scarf'.format(unique_token, class_token),
-'a {0} {1} wearing a black top hat and a monocle'.format(unique_token, class_token),
-'a {0} {1} in a chef outfit'.format(unique_token, class_token),
-'a {0} {1} in a firefighter outfit'.format(unique_token, class_token),
-'a {0} {1} in a police outfit'.format(unique_token, class_token),
-'a {0} {1} wearing pink glasses'.format(unique_token, class_token),
-'a {0} {1} wearing a yellow shirt'.format(unique_token, class_token),
-'a {0} {1} in a purple wizard outfit'.format(unique_token, class_token),
 'a red {0} {1}'.format(unique_token, class_token),
 'a purple {0} {1}'.format(unique_token, class_token),
 'a shiny {0} {1}'.format(unique_token, class_token),
@@ -239,7 +257,7 @@ def log_validation(
         images = [pipeline(**pipeline_args, generator=generator).images[0] for _ in range(args.num_validation_images)]
     idx = 0
     for image in images:
-        save_path = os.path.join(args.output_dir, "output", str(prompt_number))
+        save_path = os.path.join(args.output_dir, "output_scale"+str(args.lora_scale), str(prompt_number))
         if not os.path.exists(save_path):
             os.makedirs(save_path)
         image.save(os.path.join(save_path, str(idx) + '.png'))
@@ -499,6 +517,12 @@ def parse_args(input_args=None):
         help="Initial learning rate (after the potential warmup period) to use.",
     )
 
+    parser.add_argument(
+        "--lora_scale",
+        type=float,
+        default=1.0,
+        help="The strength of lora parameter in evaluation",
+    )
     parser.add_argument(
         "--text_encoder_lr",
         type=float,
@@ -1777,7 +1801,8 @@ def main(args):
             torch_dtype=weight_dtype,
         )
         # load attention processors
-        pipeline.load_lora_weights(args.output_dir)
+
+        pipeline.load_lora_weights(args.output_dir, lora_scale = args.lora_scale)
 
         # run inference
         images = []

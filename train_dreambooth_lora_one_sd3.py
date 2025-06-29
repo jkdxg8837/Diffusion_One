@@ -227,6 +227,23 @@ def log_validation(
 
     return images
 
+from typing import List
+def find_all_linear_modules(model) -> List[str]:
+    r"""
+    Finds all available modules to apply lora.
+    """
+    linear_cls = torch.nn.Linear
+
+    output_layer_names = ["lm_head", "embed_tokens"]
+
+    module_names = set()
+    for name, module in model.named_modules():
+        if isinstance(module, linear_cls) and not any(
+            [output_layer in name for output_layer in output_layer_names]
+        ):
+            module_names.add(name.split(".")[-1])
+    return list(module_names)
+
 
 def import_model_class_from_model_name_or_path(
     pretrained_model_name_or_path: str, revision: str, subfolder: str = "text_encoder"
@@ -576,6 +593,7 @@ def parse_args(input_args=None):
     parser.add_argument(
         "--lora_layers",
         type=str,
+        # default="time_text_embed.timestep_embedder.linear_1,time_text_embed.timestep_embedder.linear_2,time_text_embed.text_embedder.linear_1,time_text_embed.text_embedder.linear_2,pos_embed.proj,context_embedder,norm1.linear,norm2.linear,attn.to_k,attn.to_q,attn.to_v,attn.to_out.0,attn.add_k_proj,attn.add_q_proj,attn.add_v_proj,attn.to_add_out,ff.net.0.proj,ff.net.2,norm_out.linear,proj_out",
         default=None,
         help=(
             "The transformer block layers to apply LoRA training on. Please specify the layers in a comma seperated string."
@@ -706,6 +724,23 @@ def parse_args(input_args=None):
         "--re_init_samples",
         type=int,
         default="256",
+    )
+    parser.add_argument(
+        "--noise_samples",
+        type=int,
+        default="1",
+    )
+    parser.add_argument(
+        "--fixed_noise",
+        default=False,
+        action="store_true",
+        help=(
+        "Whether the noise is fixed ")
+    )
+    parser.add_argument(
+        "--baseline",
+        action="store_true",
+        default=False,
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
@@ -1287,6 +1322,9 @@ def main(args):
         ]
 
     # now we will add new LoRA weights to the attention layers
+    if args.lora_layers == "all":
+        target_modules = find_all_linear_modules(transformer)
+        print("target modules are: ", target_modules)
     transformer_lora_config = LoraConfig(
         r=args.rank,
         lora_alpha=args.rank,
@@ -1452,15 +1490,39 @@ def main(args):
         collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
         num_workers=args.dataloader_num_workers,
     )
-    temp_dataloader = train_dataloader
-    # Calculate named_grad
-    named_grads = None
-    named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
-                                    , [text_encoder_one, text_encoder_two, text_encoder_three]\
-                                    , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
-    additional_info = {
-        "named_grads": named_grads,}
-    reinit_lora(transformer, init_conf, additional_info)
+    if not args.baseline:
+        temp_dataloader = train_dataloader
+        # Calculate named_grad
+        named_grads = None
+        # if accelerator.is_main_process:
+        named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
+                                        , [text_encoder_one, text_encoder_two, text_encoder_three]\
+                                        , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
+    
+        additional_info = {
+            "named_grads": named_grads,}
+        # Save raw initialized lora weights
+        trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
+
+        # 从 state_dict 中筛选出这些参数
+        filtered_state_dict = {
+            key: value for key, value in transformer.state_dict().items() if key in trainable_keys
+        }
+        torch.save(filtered_state_dict, os.path.join(args.output_dir, "raw_lora_weights.pth"))
+
+        reinit_lora(transformer, init_conf, additional_info)
+        # accelerator.wait_for_everyone()
+    # Save reinitialized lora weights
+    # Save raw initialized lora weights
+    trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
+
+    # 从 state_dict 中筛选出这些参数
+    filtered_state_dict = {
+        key: value for key, value in transformer.state_dict().items() if key in trainable_keys
+    }
+    torch.save(filtered_state_dict, os.path.join(args.output_dir, "reinitialized_lora_weights.pth"))
+
+
     transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
     if args.train_text_encoder:
         text_lora_parameters_one = list(filter(lambda p: p.requires_grad, text_encoder_one.parameters()))
@@ -1809,7 +1871,19 @@ def main(args):
                 model_input = model_input.to(dtype=weight_dtype)
 
                 # Sample noise that we'll add to the latents
-                noise = torch.randn_like(model_input)
+                if not args.fixed_noise:
+                    noise = torch.randn_like(model_input)
+                else:
+                    noise_tensor = torch.load("/dcs/pg24/u5649209/data/workspace/diffusers/noise.pt")
+                    sample_number = args.noise_samples
+                    # Randomly sample 'sample_number' indices from the noise tensor's first dimension
+                    total_samples = noise_tensor.shape[0]
+                    if sample_number > total_samples:
+                        raise ValueError(f"Requested {sample_number} samples, but noise tensor only has {total_samples} samples.")
+                    indices = torch.randperm(total_samples)[:sample_number]
+                    # Select the noise samples based on the random indices
+                    noise_bank = noise_tensor[indices].to(model_input.device, dtype=model_input.dtype)
+                    noise = noise_bank[torch.randperm(noise_bank.shape[0])[:model_input.shape[0]]]
                 bsz = model_input.shape[0]
 
                 # Sample a random timestep for each image
@@ -1881,6 +1955,7 @@ def main(args):
                     loss = loss + args.prior_loss_weight * prior_loss
 
                 accelerator.backward(loss)
+                print(loss.item())
                 if accelerator.sync_gradients:
                     params_to_clip = (
                         itertools.chain(

@@ -90,9 +90,21 @@ def estimate_gradient(
             model_input = vae.encode(pixel_values).latent_dist.sample()
             model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
             model_input = model_input.to(dtype=weight_dtype)
-
+            
             # Sample noise that we'll add to the latents
-            noise = torch.randn_like(model_input)
+            if not args.fixed_noise:
+                noise = torch.randn_like(model_input)
+            else:
+                noise_tensor = torch.load("/dcs/pg24/u5649209/data/workspace/diffusers/noise.pt")
+                sample_number = args.noise_samples
+                # Randomly sample 'sample_number' indices from the noise tensor's first dimension
+                total_samples = noise_tensor.shape[0]
+                if sample_number > total_samples:
+                    raise ValueError(f"Requested {sample_number} samples, but noise tensor only has {total_samples} samples.")
+                indices = torch.randperm(total_samples)[:sample_number]
+                # Select the noise samples based on the random indices
+                noise_bank = noise_tensor[indices].to(model_input.device, dtype=model_input.dtype)
+                noise = noise_bank[torch.randperm(noise_bank.shape[0])[:model_input.shape[0]]]
             bsz = model_input.shape[0]
 
             # Sample a random timestep for each image
@@ -112,13 +124,8 @@ def estimate_gradient(
                 u = torch.tensor([args.time_step])
             indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
             timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-            # print("current timesteps[indices]")
+
             print("u is set to ", u)
-            # print(noise_scheduler_copy.timesteps[-1])
-            # print(indices)
-            # print("noise level is set to", noise_scheduler_copy.timesteps[indices])
-            # print(noise_scheduler_copy.timesteps[indices])
-            # Add noise according to flow matching.
             # zt = (1 - texp) * x + texp * z1
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
@@ -145,11 +152,12 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
-
+            model_pred = model_pred * (-sigmas) + noisy_model_input
+            
             # model_pred.loss.backward()
             from diffusers.training_utils import compute_loss_weighting_for_sd3
             weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
-            target = noise - model_input
+            target = model_input
             loss = torch.mean(
                         (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
                         1,
@@ -158,7 +166,7 @@ def estimate_gradient(
             print(loss.item())
             # loss.backward()
             accelerator.backward(loss)
-            print_gpu_memory_usage(0)
+            # print_gpu_memory_usage(0)
             if accelerator.sync_gradients:
                 transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
                 params_to_clip = (transformer_lora_parameters)
@@ -173,7 +181,16 @@ def estimate_gradient(
         g_list = named_grads[n]
         for i in range(len(g_list)):
             g_list[i] /= num
-        # named_grads[n] /= num
+        named_grads[n] = g_list
+    # for key in tqdm(named_grads.keys(),
+    #                 desc="Merging gradient in list",):
+    #     try:
+    #         tensors = named_grads[key]
+    #         named_grads[key] = torch.stack(tensors, dim=0).mean(dim=0)
+    #     except Exception as e:
+    #         log.error(f"Error processing key {key}: {e}")
+    #         # print(e)
+    #         continue
     # Using batch size
     if args.re_init_bsz:
         batch_size = args.re_init_bsz
@@ -186,14 +203,14 @@ def estimate_gradient(
                 for i in range(0, len(data_list), batch_size):
                     # 获取当前批次的数据
                     current_batch = data_list[i : i + batch_size]
-                    current_batch_tensor = torch.cat(current_batch, dim=0)
+                    current_batch_tensor = torch.cat([current_batch], dim=0)
                     # print(data_list[0].shape)
                     # print(batch_size)
                     # print(len(data_list))
                     # print(current_batch_tensor.shape)
                     if prev_tensor is not None:
                         prev_tensor += current_batch_tensor
-                        prev_tensor /= 2
+                        # prev_tensor /= 2
                     else:
                         prev_tensor = current_batch_tensor
                     # 计算平均值并添加到新列表
@@ -217,6 +234,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     Reinitialize the lora model with the given configuration.
     """
     lora_r = min(module.lora_A.default.weight.shape)
+    
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
     init_mode = init_config['mode']
@@ -309,8 +327,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             )
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
-        print("*************************")
-        # print(named_grad)
+
         grad_name = name + ".base_layer.weight"
         # grad_name = ".".join(name.split(".")[2:]) + ".weight"
         grads = named_grad[grad_name]

@@ -190,3 +190,9 @@ slurm/wandb
 joboutput
 
 transformer_only
+
+slurm/before_627
+
+slurm/car
+
+*.pt
