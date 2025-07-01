@@ -302,6 +302,12 @@ def parse_args(input_args=None):
         help="Revision of pretrained model identifier from huggingface.co/models.",
     )
     parser.add_argument(
+        "--lora_scale",
+        type=float,
+        default=1.0,
+        help="The strength of lora parameter in evaluation",
+    )
+    parser.add_argument(
         "--variant",
         type=str,
         default=None,

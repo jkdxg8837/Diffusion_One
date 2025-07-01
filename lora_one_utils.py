@@ -50,9 +50,7 @@ def estimate_gradient(
     Estimate the gradient of the model on the given dataset
     """
     transformer, vae = models[0], models[1]
-    for name, param in transformer.named_parameters():
-        param.requires_grad = not param.requires_grad
-        # print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
+    # print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
     log.info("Estimating gradient")
     transformer.train()
     
@@ -203,7 +201,7 @@ def estimate_gradient(
                 for i in range(0, len(data_list), batch_size):
                     # 获取当前批次的数据
                     current_batch = data_list[i : i + batch_size]
-                    current_batch_tensor = torch.cat([current_batch], dim=0)
+                    current_batch_tensor = torch.cat(current_batch, dim=0)
                     # print(data_list[0].shape)
                     # print(batch_size)
                     # print(len(data_list))
@@ -223,8 +221,7 @@ def estimate_gradient(
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    for name, param in transformer.named_parameters():
-        param.requires_grad = not param.requires_grad
+    del transformer
     return named_grads
 
 
@@ -234,9 +231,9 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     Reinitialize the lora model with the given configuration.
     """
     lora_r = min(module.lora_A.default.weight.shape)
-    
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
+    print(f"Reinitializing {name} with LoRA rank {lora_r}, lora_A dim: {a_dim}, lora_B dim: {b_dim}")
     init_mode = init_config['mode']
     if init_mode == "simple":
         match init_config.lora_A:

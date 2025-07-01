@@ -195,7 +195,6 @@ def log_validation(
         f"Running validation... \n Generating {args.num_validation_images} images with prompt:"
         f" {args.validation_prompt}."
     )
-    print(accelerator.device)
     pipeline = pipeline.to(accelerator.device)
     pipeline.set_progress_bar_config(disable=True)
 
@@ -1296,7 +1295,8 @@ def main(args):
     text_encoder_one.to(accelerator.device, dtype=weight_dtype)
     text_encoder_two.to(accelerator.device, dtype=weight_dtype)
     text_encoder_three.to(accelerator.device, dtype=weight_dtype)
-    print(accelerator.device)
+    transformer_wo_lora = copy.deepcopy(transformer)
+    transformer_wo_lora.requires_grad_(True)
     if args.gradient_checkpointing:
         transformer.enable_gradient_checkpointing()
         if args.train_text_encoder:
@@ -1495,7 +1495,8 @@ def main(args):
         # Calculate named_grad
         named_grads = None
         # if accelerator.is_main_process:
-        named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
+        # Using w/o lora parameter to estimate gradient
+        named_grads = estimate_gradient([transformer_wo_lora, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
                                         , [text_encoder_one, text_encoder_two, text_encoder_three]\
                                         , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
     
@@ -1871,6 +1872,8 @@ def main(args):
                 model_input = model_input.to(dtype=weight_dtype)
 
                 # Sample noise that we'll add to the latents
+                print(f"fixed_noise: {args.fixed_noise}")
+                print(f"noise_samples: {args.noise_samples}")
                 if not args.fixed_noise:
                     noise = torch.randn_like(model_input)
                 else:
@@ -1880,9 +1883,9 @@ def main(args):
                     total_samples = noise_tensor.shape[0]
                     if sample_number > total_samples:
                         raise ValueError(f"Requested {sample_number} samples, but noise tensor only has {total_samples} samples.")
-                    indices = torch.randperm(total_samples)[:sample_number]
+                    # indices = torch.randperm(total_samples)[:sample_number]
                     # Select the noise samples based on the random indices
-                    noise_bank = noise_tensor[indices].to(model_input.device, dtype=model_input.dtype)
+                    noise_bank = noise_tensor[:sample_number].to(model_input.device, dtype=model_input.dtype)
                     noise = noise_bank[torch.randperm(noise_bank.shape[0])[:model_input.shape[0]]]
                 bsz = model_input.shape[0]
 
@@ -1904,7 +1907,11 @@ def main(args):
                 # zt = (1 - texp) * x + texp * z1
                 sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
                 noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
-
+                # if accelerator.is_main_process:
+                #     print(f"sigmas: {sigmas}")
+                #     print(f"noisy_model_input shape: {noisy_model_input.shape}")
+                #     print(f"model_input shape: {model_input.shape}")
+                #     print(f"noise shape: {noise.shape}")
                 # Predict the noise residual
                 model_pred = transformer(
                     hidden_states=noisy_model_input,
