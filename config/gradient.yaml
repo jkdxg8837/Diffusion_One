@@ -5,4 +5,5 @@ direction: LoRA-One
 max_length: 1024
 dtype: fp32
 scale: stable
-stable_gamma: 128
+stable_gamma: 9
+# gamma = 9 has better result, raw is 128

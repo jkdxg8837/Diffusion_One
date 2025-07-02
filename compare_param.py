@@ -125,7 +125,7 @@ lora1_A = lora_state_dict2[loraA_key].float().cpu().numpy()
 lora1_B = lora_state_dict2[loraB_key].float().cpu().numpy()
 lora2_A = re_init_weights["transformer_blocks.0.attn.to_q.lora_A.default.weight"].float().cpu().numpy()
 lora2_B = re_init_weights["transformer_blocks.0.attn.to_q.lora_B.default.weight"].float().cpu().numpy()
-
+# transformer_blocks.0.attn.to_q.base_layer.weight
 angle_A = calculate_angle(lora1_A, lora2_A)
 angle_B = calculate_angle(lora1_B, lora2_B)
 print(f"Angle between lora_A of pipeline 2 and re_init_weights: {angle_A} radians")

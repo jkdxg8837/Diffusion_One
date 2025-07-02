@@ -1264,19 +1264,6 @@ def main(args):
             "attn.to_out.0",
             "attn.to_q",
             "attn.to_v",
-            # add
-            # "ff.net.0.proj",
-            # "ff.net.2",
-            # "norm_out.linear",
-            # "proj_out",
-            # "norm1.linear",
-            # "norm2.linear",
-            # "pos_embed.proj",
-            # "context_embedder",
-            # "time_text_embed.timestep_embedder.linear_1",
-            # "time_text_embed.timestep_embedder.linear_2",
-            # "time_text_embed.text_embedder.linear_1",
-            # "time_text_embed.text_embedder.linear_2",
         ]
     if args.lora_blocks is not None:
         target_blocks = [int(block.strip()) for block in args.lora_blocks.split(",")]
@@ -1455,13 +1442,7 @@ def main(args):
     }
     torch.save(filtered_state_dict, os.path.join(args.output_dir, "reinitialized_lora_weights.pth"))
 
-    if args.reinit_only:
-        StableDiffusion3Pipeline.save_lora_weights(
-            save_directory=args.output_dir,
-            transformer_lora_layers=transformer_lora_layers,
-            text_encoder_lora_layers=text_encoder_lora_layers,
-            text_encoder_2_lora_layers=text_encoder_2_lora_layers,
-        )
+    if args.re_init_only:
         accelerator.end_training()
         logger.info("Re-initialization finished, exiting now.")
         return

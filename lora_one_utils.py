@@ -151,8 +151,7 @@ def estimate_gradient(
                 return_dict=False,
             )[0]
             model_pred = model_pred * (-sigmas) + noisy_model_input
-            
-            # model_pred.loss.backward()
+
             from diffusers.training_utils import compute_loss_weighting_for_sd3
             weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
             target = model_input
@@ -330,7 +329,9 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         grads = named_grad[grad_name]
         # grads = named_grad[name]
         if init_config['direction'] == "LoRA-One":
-            U, S, V = torch.svd_lowrank(-grads.cuda().float(), q=512, niter=16)
+            # Using full svd for LoRA-One
+            # U, S, V = torch.svd_lowrank(-grads.cuda().float(), q=512, niter=16)
+            U, S, V = torch.linalg.svd(-grads.cuda().float())
         else:
             U, S, V = torch.svd_lowrank(grads.cuda().float(), q=512, niter=16)
         V = V.T
@@ -432,7 +433,6 @@ def reinit_lora_modules(name, module, init_config, additional_info):
           except:
               breakpoint()
 
-
 def reinit_lora(model, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
@@ -442,8 +442,8 @@ def reinit_lora(model, init_config, additional_info):
         desc="Reinitializing Lora",
         total=len(list(model.named_modules())),
     ):
-        
-        if isinstance(module, LoraLinear):
+        from peft.tuners.lora import LoraLayer
+        if hasattr(module, 'lora_A') and hasattr(module, 'lora_B'):
             # print(name)
             reinit_lora_modules(name, module, init_config, additional_info)
 
