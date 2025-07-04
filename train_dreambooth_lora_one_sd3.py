@@ -72,7 +72,7 @@ if is_wandb_available():
     import wandb
 
 # Will error if the minimal version of diffusers is not installed. Remove at your own risks.
-check_min_version("0.33.0.dev0")
+# ßß
 
 logger = get_logger(__name__)
 
@@ -705,7 +705,7 @@ def parse_args(input_args=None):
     parser.add_argument(
         "--re_init_samples",
         type=int,
-        default="256",
+        default="1",
     )
     parser.add_argument("--local_rank", type=int, default=-1, help="For distributed training: local_rank")
 
@@ -753,7 +753,7 @@ class DreamBoothDataset(Dataset):
         class_data_root=None,
         class_num=None,
         size=1024,
-        repeats=1,
+        repeats=11,
         center_crop=False,
     ):
         self.size = size
@@ -1181,6 +1181,7 @@ def main(args):
 
     # Handle the repository creation
     if accelerator.is_main_process:
+        print('output_dir', args.output_dir)
         if args.output_dir is not None:
             os.makedirs(args.output_dir, exist_ok=True)
 
@@ -1271,29 +1272,45 @@ def main(args):
         target_modules = [layer.strip() for layer in args.lora_layers.split(",")]
     else:
         target_modules = [
+            # "time_text_embed.timestep_embedder.linear_1",
+            # "time_text_embed.timestep_embedder.linear_2",
+            # "time_text_embed.text_embedder.linear_1",
+            # "time_text_embed.text_embedder.linear_2",
+            # "pos_embed.proj,context_embedder",
+            # "norm1.linear",
+            # "norm2.linear",
+            "attn.to_k",
+            "attn.to_q",
+            "attn.to_v",
+            "attn.to_out.0",
             "attn.add_k_proj",
             "attn.add_q_proj",
             "attn.add_v_proj",
             "attn.to_add_out",
-            "attn.to_k",
-            "attn.to_out.0",
-            "attn.to_q",
-            "attn.to_v",
+            "ff.net.0.proj",
+            "ff.net.2",
+            "norm_out.linear",
+            "proj_out"
         ]
+        # target_modules = [
+        #     "attn.add_k_proj",
+        #     "attn.add_q_proj",
+        #     "attn.add_v_proj",
+        #     "attn.to_add_out",
+        #     "attn.to_k",
+        #     "attn.to_out.0",
+        #     "attn.to_q",
+        #     "attn.to_v",
+        # ]
+
     if args.lora_blocks is not None:
         target_blocks = [int(block.strip()) for block in args.lora_blocks.split(",")]
         target_modules = [
             f"transformer_blocks.{block}.{module}" for block in target_blocks for module in target_modules
         ]
 
-    # now we will add new LoRA weights to the attention layers
-    transformer_lora_config = LoraConfig(
-        r=args.rank,
-        lora_alpha=args.rank,
-        init_lora_weights="gaussian",
-        target_modules=target_modules,
-    )
-    transformer.add_adapter(transformer_lora_config)
+    # transformer_ori = transformer_ori
+   
 
     if args.train_text_encoder:
         text_lora_config = LoraConfig(
@@ -1431,7 +1448,7 @@ def main(args):
     from lora_one_utils import reinit_lora
     from lora_one_utils import estimate_gradient
     import yaml
-    with open('/dcs/pg24/u5649209/data/workspace/diffusers/config/gradient.yaml', 'r') as f:
+    with open('config/gradient.yaml', 'r') as f:
         init_conf = yaml.safe_load(f)
     # Construct Temp Set
     # Dataset and DataLoaders creation:
@@ -1452,7 +1469,14 @@ def main(args):
         collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
         num_workers=args.dataloader_num_workers,
     )
-    temp_dataloader = train_dataloader
+    temp_dataloader = torch.utils.data.DataLoader(
+        train_dataset,
+        batch_size=32,
+        shuffle=True,
+        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
+        num_workers=args.dataloader_num_workers,
+        drop_last=True
+    )
     # Calculate named_grad
     named_grads = None
     named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
@@ -1460,6 +1484,18 @@ def main(args):
                                     , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
     additional_info = {
         "named_grads": named_grads,}
+
+
+    # now we will add new LoRA weights to the attention layers
+    transformer_lora_config = LoraConfig(
+        r=args.rank,
+        lora_alpha=args.rank,
+        init_lora_weights="gaussian",
+        target_modules=target_modules,
+    )
+
+    transformer.add_adapter(transformer_lora_config)
+
     reinit_lora(transformer, init_conf, additional_info)
     transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
     if args.train_text_encoder:
@@ -1755,6 +1791,29 @@ def main(args):
             sigma = sigma.unsqueeze(-1)
         return sigma
 
+    if args.checkpoints_total_limit is not None:
+        checkpoints = os.listdir(args.output_dir)
+        checkpoints = [d for d in checkpoints if d.startswith("checkpoint")]
+        checkpoints = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))
+
+        # before we save the new checkpoint, we need to have at _most_ `checkpoints_total_limit - 1` checkpoints
+        if len(checkpoints) >= args.checkpoints_total_limit:
+            num_to_remove = len(checkpoints) - args.checkpoints_total_limit + 1
+            removing_checkpoints = checkpoints[0:num_to_remove]
+
+            logger.info(
+                f"{len(checkpoints)} checkpoints already exist, removing {len(removing_checkpoints)} checkpoints"
+            )
+            logger.info(f"removing checkpoints: {', '.join(removing_checkpoints)}")
+
+            for removing_checkpoint in removing_checkpoints:
+                removing_checkpoint = os.path.join(args.output_dir, removing_checkpoint)
+                shutil.rmtree(removing_checkpoint)
+
+    save_path = os.path.join(args.output_dir, f"checkpoint-{0}")
+    accelerator.save_state(save_path)
+    logger.info(f"Saved state to {save_path}")
+
     for epoch in range(first_epoch, args.num_train_epochs):
         transformer.train()
         if args.train_text_encoder:
@@ -1933,38 +1992,38 @@ def main(args):
             if global_step >= args.max_train_steps:
                 break
 
-        if accelerator.is_main_process:
-            if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
-                if not args.train_text_encoder:
-                    # create pipeline
-                    text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-                        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
-                    )
-                    text_encoder_one.to(weight_dtype)
-                    text_encoder_two.to(weight_dtype)
-                pipeline = StableDiffusion3Pipeline.from_pretrained(
-                    args.pretrained_model_name_or_path,
-                    vae=vae,
-                    text_encoder=accelerator.unwrap_model(text_encoder_one),
-                    text_encoder_2=accelerator.unwrap_model(text_encoder_two),
-                    text_encoder_3=accelerator.unwrap_model(text_encoder_three),
-                    transformer=accelerator.unwrap_model(transformer),
-                    revision=args.revision,
-                    variant=args.variant,
-                    torch_dtype=weight_dtype,
-                ).to(accelerator.device)
-                pipeline_args = {"prompt": args.validation_prompt}
-                images = log_validation(
-                    pipeline=pipeline,
-                    args=args,
-                    accelerator=accelerator,
-                    pipeline_args=pipeline_args,
-                    epoch=epoch,
-                    torch_dtype=weight_dtype,
-                )
-                if not args.train_text_encoder:
-                    del text_encoder_one, text_encoder_two, text_encoder_three
-                    free_memory()
+        # if accelerator.is_main_process:
+        #     if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
+        #         if not args.train_text_encoder:
+        #             # create pipeline
+        #             text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
+        #                 text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
+        #             )
+        #             text_encoder_one.to(weight_dtype)
+        #             text_encoder_two.to(weight_dtype)
+        #         pipeline = StableDiffusion3Pipeline.from_pretrained(
+        #             args.pretrained_model_name_or_path,
+        #             vae=vae,
+        #             text_encoder=accelerator.unwrap_model(text_encoder_one),
+        #             text_encoder_2=accelerator.unwrap_model(text_encoder_two),
+        #             text_encoder_3=accelerator.unwrap_model(text_encoder_three),
+        #             transformer=accelerator.unwrap_model(transformer),
+        #             revision=args.revision,
+        #             variant=args.variant,
+        #             torch_dtype=weight_dtype,
+        #         ).to(accelerator.device)
+        #         pipeline_args = {"prompt": args.validation_prompt}
+        #         images = log_validation(
+        #             pipeline=pipeline,
+        #             args=args,
+        #             accelerator=accelerator,
+        #             pipeline_args=pipeline_args,
+        #             epoch=epoch,
+        #             torch_dtype=weight_dtype,
+        #         )
+        #         if not args.train_text_encoder:
+        #             del text_encoder_one, text_encoder_two, text_encoder_three
+        #             free_memory()
 
     # Save the lora layers
     accelerator.wait_for_everyone()
@@ -2005,34 +2064,34 @@ def main(args):
 
         # run inference
         images = []
-        if args.validation_prompt and args.num_validation_images > 0:
-            pipeline_args = {"prompt": args.validation_prompt}
-            images = log_validation(
-                pipeline=pipeline,
-                args=args,
-                accelerator=accelerator,
-                pipeline_args=pipeline_args,
-                epoch=epoch,
-                is_final_validation=True,
-                torch_dtype=weight_dtype,
-            )
+        # if args.validation_prompt and args.num_validation_images > 0:
+        #     pipeline_args = {"prompt": args.validation_prompt}
+        #     images = log_validation(
+        #         pipeline=pipeline,
+        #         args=args,
+        #         accelerator=accelerator,
+        #         pipeline_args=pipeline_args,
+        #         epoch=epoch,
+        #         is_final_validation=True,
+        #         torch_dtype=weight_dtype,
+        #     )
 
-        if args.push_to_hub:
-            save_model_card(
-                repo_id,
-                images=images,
-                base_model=args.pretrained_model_name_or_path,
-                instance_prompt=args.instance_prompt,
-                validation_prompt=args.validation_prompt,
-                train_text_encoder=args.train_text_encoder,
-                repo_folder=args.output_dir,
-            )
-            upload_folder(
-                repo_id=repo_id,
-                folder_path=args.output_dir,
-                commit_message="End of training",
-                ignore_patterns=["step_*", "epoch_*"],
-            )
+        # if args.push_to_hub:
+        #     save_model_card(
+        #         repo_id,
+        #         images=images,
+        #         base_model=args.pretrained_model_name_or_path,
+        #         instance_prompt=args.instance_prompt,
+        #         validation_prompt=args.validation_prompt,
+        #         train_text_encoder=args.train_text_encoder,
+        #         repo_folder=args.output_dir,
+        #     )
+        #     upload_folder(
+        #         repo_id=repo_id,
+        #         folder_path=args.output_dir,
+        #         commit_message="End of training",
+        #         ignore_patterns=["step_*", "epoch_*"],
+        #     )
 
     accelerator.end_training()
 
