@@ -12,6 +12,20 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
+def get_record_gradient_hook(model, record_dict):
+    def record_gradient_hook(grad):
+        for n, p in model.named_parameters():
+            if "base_layer.weight" not in n:
+                continue
+            if p.requires_grad and p.grad is not None:
+                if n not in record_dict:
+                    record_dict[n] = [p.grad.cpu()]
+                else:
+                    record_dict[n].append(p.grad.cpu())
+                p.grad = None
+        return grad
+
+    return record_gradient_hook
 
 import argparse
 import copy
@@ -730,11 +744,6 @@ def parse_args(input_args=None):
         default="1",
     )
     parser.add_argument(
-        "--stable_gamma",
-        type=int,
-        default="1",
-    )
-    parser.add_argument(
         "--fixed_noise",
         default=False,
         action="store_true",
@@ -1302,7 +1311,7 @@ def main(args):
         init_lora_weights="gaussian",
         target_modules=target_modules,
     )
-    # transformer.add_adapter(transformer_lora_config)
+    transformer.add_adapter(transformer_lora_config)
 
     def unwrap_model(model):
         model = accelerator.unwrap_model(model)
@@ -1430,38 +1439,13 @@ def main(args):
         collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
         num_workers=args.dataloader_num_workers,
     )
-    temp_dataloader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=16,
-        shuffle=True,
-        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
-        num_workers=args.dataloader_num_workers,
-    )
     if not args.baseline:
-        # Calculate named_grad
-        named_grads = None
-        # if accelerator.is_main_process:
-        # Using w/o lora parameter to estimate gradient
-        named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
-                                        , [text_encoder_one, text_encoder_two, text_encoder_three]\
-                                        , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
-        transformer.add_adapter(transformer_lora_config)
-        additional_info = {
-            "named_grads": named_grads,}
-        # Save raw initialized lora weights
-        trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
-
-        # 从 state_dict 中筛选出这些参数
-        filtered_state_dict = {
-            key: value for key, value in transformer.state_dict().items() if key in trainable_keys
-        }
-        torch.save(filtered_state_dict, os.path.join(args.output_dir, "raw_lora_weights.pth"))
-        init_conf['stable_gamma'] = args.stable_gamma
-        reinit_lora(transformer, init_conf, additional_info)
+        pass
+        # accelerator.wait_for_everyone()
     # Save reinitialized lora weights
     # Save raw initialized lora weights
     trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
-    
+
     # 从 state_dict 中筛选出这些参数
     filtered_state_dict = {
         key: value for key, value in transformer.state_dict().items() if key in trainable_keys
@@ -1633,7 +1617,7 @@ def main(args):
     )
 
     # We need to recalculate our total training steps as the size of the training dataloader may have changed.
-    num_update_steps_per_epoch = math.ceil(len(train_dataloader) / args.gradient_accumulation_steps)
+    num_update_steps_per_epoch = math.ceil(len(train_dataloader) / 1.0)
     # print("********************************")
     # print("train_loader length :", len(train_dataloader))
     # print("num update steps per epoch :", num_update_steps_per_epoch)
@@ -1663,32 +1647,7 @@ def main(args):
     first_epoch = 0
 
     # Potentially load in the weights and states from a previous save
-    if args.resume_from_checkpoint:
-        if args.resume_from_checkpoint != "latest":
-            path = os.path.basename(args.resume_from_checkpoint)
-        else:
-            # Get the mos recent checkpoint
-            dirs = os.listdir(args.output_dir)
-            dirs = [d for d in dirs if d.startswith("checkpoint")]
-            dirs = sorted(dirs, key=lambda x: int(x.split("-")[1]))
-            path = dirs[-1] if len(dirs) > 0 else None
-
-        if path is None:
-            accelerator.print(
-                f"Checkpoint '{args.resume_from_checkpoint}' does not exist. Starting a new training run."
-            )
-            args.resume_from_checkpoint = None
-            initial_global_step = 0
-        else:
-            accelerator.print(f"Resuming from checkpoint {path}")
-            accelerator.load_state(os.path.join(args.output_dir, path))
-            global_step = int(path.split("-")[1])
-
-            initial_global_step = global_step
-            first_epoch = global_step // num_update_steps_per_epoch
-
-    else:
-        initial_global_step = 0
+    initial_global_step = 0
 
     progress_bar = tqdm(
         range(0, args.max_train_steps),
@@ -1708,9 +1667,20 @@ def main(args):
         while len(sigma.shape) < n_dim:
             sigma = sigma.unsqueeze(-1)
         return sigma
-
+    hooks = []
+    all_named_grads = {}
+    named_grads = {}
+    for name, param in transformer.named_parameters():
+        if param.requires_grad == True:
+            # print("adding hook to grad params")
+            hook = param.register_hook(get_record_gradient_hook(transformer, named_grads))
+            hooks.append(hook)
+        num = 0
     for epoch in range(first_epoch, args.num_train_epochs):
         transformer.train()
+        # Cal gradient for un-lora layers
+        for name, param in transformer.named_parameters():
+            param.requires_grad = not param.requires_grad
         for step, batch in enumerate(train_dataloader):
             models_to_accumulate = [transformer]
             with accelerator.accumulate(models_to_accumulate):
@@ -1780,6 +1750,11 @@ def main(args):
                     logit_std=args.logit_std,
                     mode_scale=args.mode_scale,
                 )
+                if args.re_init_schedule == "multi":
+                    pass
+                elif args.time_step:
+                    # assert args.time_step.dtype == torch.float32, "time_step should be float32"
+                    u = torch.tensor([args.time_step])
                 # if args.time_step:
                     # u = torch.tensor([args.time_step])
                 indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
@@ -1827,8 +1802,9 @@ def main(args):
 
 
                 accelerator.backward(loss)
-                print(loss.item())
+                get_record_gradient_hook(transformer, named_grads)(None)
                 if accelerator.sync_gradients:
+
                     params_to_clip = (
                         itertools.chain(
                             transformer_lora_parameters, transformer_lora_parameters, transformer_lora_parameters
@@ -1836,43 +1812,19 @@ def main(args):
                         if args.train_text_encoder
                         else transformer_lora_parameters
                     )
-                    accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
-
-                optimizer.step()
-                lr_scheduler.step()
-                optimizer.zero_grad()
-
-            # Checks if the accelerator has performed an optimization step behind the scenes
+                    # accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
+                for n, p in transformer.named_parameters():
+                    if p.grad is not None:
+                        p.grad = None
+                    
+                # optimizer.step()
+                # lr_scheduler.step()
+                # optimizer.zero_grad()
+        
+            
             if accelerator.sync_gradients:
                 progress_bar.update(1)
                 global_step += 1
-
-                if accelerator.is_main_process or accelerator.distributed_type == DistributedType.DEEPSPEED:
-                    if global_step % args.checkpointing_steps == 0 or global_step == 1:
-                        # _before_ saving state, check if this save would set us over the `checkpoints_total_limit`
-                        if args.checkpoints_total_limit is not None:
-                            checkpoints = os.listdir(args.output_dir)
-                            checkpoints = [d for d in checkpoints if d.startswith("checkpoint")]
-                            checkpoints = sorted(checkpoints, key=lambda x: int(x.split("-")[1]))
-
-                            # before we save the new checkpoint, we need to have at _most_ `checkpoints_total_limit - 1` checkpoints
-                            if len(checkpoints) >= args.checkpoints_total_limit:
-                                num_to_remove = len(checkpoints) - args.checkpoints_total_limit + 1
-                                removing_checkpoints = checkpoints[0:num_to_remove]
-
-                                logger.info(
-                                    f"{len(checkpoints)} checkpoints already exist, removing {len(removing_checkpoints)} checkpoints"
-                                )
-                                logger.info(f"removing checkpoints: {', '.join(removing_checkpoints)}")
-
-                                for removing_checkpoint in removing_checkpoints:
-                                    removing_checkpoint = os.path.join(args.output_dir, removing_checkpoint)
-                                    shutil.rmtree(removing_checkpoint)
-
-                        save_path = os.path.join(args.output_dir, f"checkpoint-{global_step}")
-                        accelerator.save_state(save_path)
-                        logger.info(f"Saved state to {save_path}")
-
             logs = {"loss": loss.detach().item(), "lr": lr_scheduler.get_last_lr()[0]}
             progress_bar.set_postfix(**logs)
             accelerator.log(logs, step=global_step)
@@ -1880,101 +1832,22 @@ def main(args):
             if global_step >= args.max_train_steps:
                 break
 
-        if accelerator.is_main_process:
-            if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
-                if not args.train_text_encoder:
-                    # create pipeline
-                    text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-                        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
-                    )
-                    text_encoder_one.to(weight_dtype)
-                    text_encoder_two.to(weight_dtype)
-                pipeline = StableDiffusion3Pipeline.from_pretrained(
-                    args.pretrained_model_name_or_path,
-                    vae=vae,
-                    text_encoder=accelerator.unwrap_model(text_encoder_one),
-                    text_encoder_2=accelerator.unwrap_model(text_encoder_two),
-                    text_encoder_3=accelerator.unwrap_model(text_encoder_three),
-                    transformer=accelerator.unwrap_model(transformer),
-                    revision=args.revision,
-                    variant=args.variant,
-                    torch_dtype=weight_dtype,
-                ).to(accelerator.device)
-                pipeline_args = {"prompt": args.validation_prompt}
-                images = log_validation(
-                    pipeline=pipeline,
-                    args=args,
-                    accelerator=accelerator,
-                    pipeline_args=pipeline_args,
-                    epoch=epoch,
-                    torch_dtype=weight_dtype,
-                )
-                if not args.train_text_encoder:
-                    del text_encoder_one, text_encoder_two, text_encoder_three
-                    free_memory()
+    
+    
+    # Save named_grads which is a dict
+    for key in named_grads.keys():
+        # named_grads[key] is a list of tensors, we need to average them
+        if isinstance(named_grads[key], list):
+            named_grads[key] = torch.stack(named_grads[key], dim=0)
+        named_grads[key] /= args.max_train_steps
+    torch.save(named_grads, os.path.join(args.output_dir, "named_grads.pth"))
 
+    for name, param in transformer.named_parameters():
+        param.requires_grad = not param.requires_grad
+    torch.cuda.empty_cache()
     # Save the lora layers
     accelerator.wait_for_everyone()
-    if accelerator.is_main_process:
-        transformer = unwrap_model(transformer)
-        if args.upcast_before_saving:
-            transformer.to(torch.float32)
-        else:
-            transformer = transformer.to(weight_dtype)
-        transformer_lora_layers = get_peft_model_state_dict(transformer)
-
-
-        text_encoder_lora_layers = None
-        text_encoder_2_lora_layers = None
-
-        StableDiffusion3Pipeline.save_lora_weights(
-            save_directory=args.output_dir,
-            transformer_lora_layers=transformer_lora_layers,
-            text_encoder_lora_layers=text_encoder_lora_layers,
-            text_encoder_2_lora_layers=text_encoder_2_lora_layers,
-        )
-
-        # Final inference
-        # Load previous pipeline
-        pipeline = StableDiffusion3Pipeline.from_pretrained(
-            args.pretrained_model_name_or_path,
-            revision=args.revision,
-            variant=args.variant,
-            torch_dtype=weight_dtype,
-        )
-        # load attention processors
-        pipeline.load_lora_weights(args.output_dir)
-
-        # run inference
-        images = []
-        if args.validation_prompt and args.num_validation_images > 0:
-            pipeline_args = {"prompt": args.validation_prompt}
-            images = log_validation(
-                pipeline=pipeline,
-                args=args,
-                accelerator=accelerator,
-                pipeline_args=pipeline_args,
-                epoch=epoch,
-                is_final_validation=True,
-                torch_dtype=weight_dtype,
-            )
-
-        if args.push_to_hub:
-            save_model_card(
-                repo_id,
-                images=images,
-                base_model=args.pretrained_model_name_or_path,
-                instance_prompt=args.instance_prompt,
-                validation_prompt=args.validation_prompt,
-                train_text_encoder=args.train_text_encoder,
-                repo_folder=args.output_dir,
-            )
-            upload_folder(
-                repo_id=repo_id,
-                folder_path=args.output_dir,
-                commit_message="End of training",
-                ignore_patterns=["step_*", "epoch_*"],
-            )
+    
 
     accelerator.end_training()
 

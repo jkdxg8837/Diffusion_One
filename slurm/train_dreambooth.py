@@ -4,20 +4,22 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "car"
-os.environ["OUTPUT_DIR"] = "trained-sd3-lora-car-lichuan-reinit-only"
+os.environ["OUTPUT_DIR"] = "trained-sd3-lora-car-lichuan"
 
 time_step = 0.2
 re_init_schedule = "multi"
 re_init_bsz = 1
-re_init_samples = 20
+re_init_samples = 32
 noise_samples = 1
-
+stable_gamma = 1
+stable_gamma_list = [1, 4, 9, 16, 25, 36, 49, 64, 81, 100]
 # 构造命令
 cmd = [
     "accelerate", "launch", "/dcs/pg24/u5649209/data/workspace/diffusers/train_dreambooth_lora_one_sd3.py",
     "--pretrained_model_name_or_path", os.environ.get("MODEL_NAME"), # 使用 os.environ.get 提供默认值以防环境变量未设置
     "--instance_data_dir", os.environ.get("INSTANCE_DIR"),   # 使用 os.environ.get 提供默认值
     "--output_dir", os.environ.get("OUTPUT_DIR"),       # 使用 os.environ.get 提供默认值
+    "--stable_gamma", str(stable_gamma),
     "--mixed_precision", "fp16",
     "--instance_prompt", "a photo of sks car",
     "--resolution", "512",
@@ -34,12 +36,12 @@ cmd = [
     "--seed", "0",
     "--time_step", str(time_step),
     "--re_init_schedule", re_init_schedule,
-    "--re_init_bsz", str(re_init_bsz),
+    # "--re_init_bsz", str(re_init_bsz),
     "--re_init_samples", str(re_init_samples),
     # "--baseline",
     # "--fixed_noise",
     # "--noise_samples", str(noise_samples),
-    "--reinit_only"
+    # "--reinit_only"
             # "--push_to_hub"
 ]
 
@@ -69,7 +71,15 @@ eval_cmd = [
 #     eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8]
 #     subprocess.run(eval_cmd)
 # exit()
-subprocess.run(cmd)
-eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8]
-subprocess.run(eval_cmd)
+for stable_gamma in stable_gamma_list:
+    cmd[8] = os.environ.get("OUTPUT_DIR") + "_" + "stable_gamma" + str(stable_gamma)
+    cmd[cmd.index("--stable_gamma") + 1] = str(stable_gamma)
+    subprocess.run(cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-1"
+    subprocess.run(eval_cmd)
 
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8]
+    subprocess.run(eval_cmd)
+# reinit_weights
+# eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/reinit_weights"
+# subprocess.run(eval_cmd)

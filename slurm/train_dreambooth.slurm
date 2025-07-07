@@ -21,4 +21,3 @@ conda activate py39
 
 ## Execute your program(s) ##
 python train_dreambooth.py
-python eval_dreambooth.py

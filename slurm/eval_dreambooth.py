@@ -4,7 +4,7 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "car"
-os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-car-r4-baseline_noise_samples1"
+os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-car-lichuan/checkpoint-1"
 
 # 构造命令``
 cmd = [

@@ -730,11 +730,6 @@ def parse_args(input_args=None):
         default="1",
     )
     parser.add_argument(
-        "--stable_gamma",
-        type=int,
-        default="1",
-    )
-    parser.add_argument(
         "--fixed_noise",
         default=False,
         action="store_true",
@@ -1302,7 +1297,7 @@ def main(args):
         init_lora_weights="gaussian",
         target_modules=target_modules,
     )
-    # transformer.add_adapter(transformer_lora_config)
+    transformer.add_adapter(transformer_lora_config)
 
     def unwrap_model(model):
         model = accelerator.unwrap_model(model)
@@ -1430,38 +1425,20 @@ def main(args):
         collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
         num_workers=args.dataloader_num_workers,
     )
-    temp_dataloader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=16,
-        shuffle=True,
-        collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
-        num_workers=args.dataloader_num_workers,
-    )
     if not args.baseline:
-        # Calculate named_grad
-        named_grads = None
-        # if accelerator.is_main_process:
-        # Using w/o lora parameter to estimate gradient
-        named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
-                                        , [text_encoder_one, text_encoder_two, text_encoder_three]\
-                                        , [tokenizer_one, tokenizer_two, tokenizer_three], init_conf['bsz'])
-        transformer.add_adapter(transformer_lora_config)
         additional_info = {
-            "named_grads": named_grads,}
-        # Save raw initialized lora weights
-        trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
-
-        # 从 state_dict 中筛选出这些参数
-        filtered_state_dict = {
-            key: value for key, value in transformer.state_dict().items() if key in trainable_keys
-        }
-        torch.save(filtered_state_dict, os.path.join(args.output_dir, "raw_lora_weights.pth"))
-        init_conf['stable_gamma'] = args.stable_gamma
+            "named_grads": None,}
+        # Load named_grads from "named_grads.pth"
+        named_grads_path = os.path.join(args.output_dir, "named_grads.pth")
+        if os.path.exists(named_grads_path):
+            named_grads = torch.load(named_grads_path)
+            additional_info["named_grads"] = named_grads
         reinit_lora(transformer, init_conf, additional_info)
+        # accelerator.wait_for_everyone()
     # Save reinitialized lora weights
     # Save raw initialized lora weights
     trainable_keys = {name for name, param in transformer.named_parameters() if param.requires_grad}
-    
+
     # 从 state_dict 中筛选出这些参数
     filtered_state_dict = {
         key: value for key, value in transformer.state_dict().items() if key in trainable_keys
