@@ -3,15 +3,16 @@ import subprocess
 
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
-os.environ["INSTANCE_DIR"] = "car"
-os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-car-lichuan/checkpoint-1"
+os.environ["INSTANCE_DIR"] = "dog"
+os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/past_expr/dog-reinit_75_rank32_w_s0/trained-sd3-lora-dog-lichuan-r32-reinit_stable_gamma49/checkpoint-0"
 
 # 构造命令``
 cmd = [
     "accelerate", "launch", "/dcs/pg24/u5649209/data/workspace/diffusers/eval_dreambooth_sd3.py",
     "--pretrained_model_name_or_path", os.environ.get("MODEL_NAME"), # 使用 os.environ.get 提供默认值以防环境变量未设置
     "--instance_data_dir", os.environ.get("INSTANCE_DIR"),   # 使用 os.environ.get 提供默认值
-    "--instance_prompt", "a photo of sks car",
+    "--instance_prompt", "a photo of sks dog",
+    "--rank","32",
     "--resolution", "64",
     "--train_batch_size", "1",
     "--gradient_accumulation_steps", "1",
@@ -20,7 +21,7 @@ cmd = [
     "--lr_scheduler", "constant",
     "--lr_warmup_steps", "0",
     "--output_dir", os.environ.get("OUTPUT_DIR"),       # 使用 os.environ.get 提供默认值
-    "--lora_scale", "2.0",
+    "--lora_scale", "5.7",
     # "--push_to_hub"
 ]
 

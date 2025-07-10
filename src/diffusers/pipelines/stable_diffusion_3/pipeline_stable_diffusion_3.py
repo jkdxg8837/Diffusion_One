@@ -656,8 +656,23 @@ class StableDiffusion3Pipeline(DiffusionPipeline, SD3LoraLoaderMixin, FromSingle
                 f" size of {batch_size}. Make sure the batch size matches the length of the generators."
             )
 
+        
+        # if not args.fixed_noise:
         latents = randn_tensor(shape, generator=generator, device=device, dtype=dtype)
+        # # else:
+        # # Try to train a fixed noise sample
+        # noise_tensor = torch.load("/dcs/pg24/u5649209/data/workspace/diffusers/noise.pt")
+        # sample_number = 1
+        # # Randomly sample 'sample_number' indices from the noise tensor's first dimension
+        # total_samples = noise_tensor.shape[0]
+        # if sample_number > total_samples:
+        #     raise ValueError(f"Requested {sample_number} samples, but noise tensor only has {total_samples} samples.")
+        # # indices = torch.randperm(total_samples)[:sample_number]
+        # # Select the noise samples based on the random indices
+        # noise_bank = noise_tensor[:sample_number].to(latents.device, dtype=latents.dtype)
+        # noise = noise_bank[torch.randperm(noise_bank.shape[0])[:1]]
 
+        # latents = noise.repeat(latents.shape[0], 1, 1, 1)
         return latents
 
     @property

@@ -197,4 +197,17 @@ slurm/before_627
 
 slurm/before_0701
 
+slurm/before_0707
+
+slurm/car-*
+
+slurm/dog-*
+
+slurm/past_expr
+
+*.jpeg
+
+*.jpg
+
+slurm/baseline
 *.pt

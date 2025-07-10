@@ -44,13 +44,15 @@ from torchvision.transforms.functional import crop
 from tqdm.auto import tqdm
 from transformers import CLIPTokenizer, PretrainedConfig, T5TokenizerFast
 unique_token = "sks"
-class_token = "car"
-# prompt_list = [
-# 'a {0} {1} in the jungle'.format(unique_token, class_token),
-# 'a {0} {1} in the snow'.format(unique_token, class_token),
-# 'a {0} {1} on the beach'.format(unique_token, class_token),
-# 'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
-# 'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
+class_token = "dog"
+prompt_list = [
+# Extra evaluation prompts
+'a photo of {0} {1}'.format(unique_token, class_token),
+'a {0} {1} in the jungle'.format(unique_token, class_token),
+'a {0} {1} in the snow'.format(unique_token, class_token),
+'a {0} {1} on the beach'.format(unique_token, class_token),
+'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
+'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
 # 'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
 # 'a {0} {1} with a city in the background'.format(unique_token, class_token),
 # 'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
@@ -71,25 +73,25 @@ class_token = "car"
 # 'a shiny {0} {1}'.format(unique_token, class_token),
 # 'a wet {0} {1}'.format(unique_token, class_token),
 # 'a cube shaped {0} {1}'.format(unique_token, class_token)
-# ]
-
-prompt_list = [
-'a {0} {1} in the jungle'.format(unique_token, class_token),
-'a {0} {1} in the snow'.format(unique_token, class_token),
-'a {0} {1} on the beach'.format(unique_token, class_token),
-'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
-'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
-'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
-'a {0} {1} with a city in the background'.format(unique_token, class_token),
-'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
-'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
-'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
-'a red {0} {1}'.format(unique_token, class_token),
-'a purple {0} {1}'.format(unique_token, class_token),
-'a shiny {0} {1}'.format(unique_token, class_token),
-'a wet {0} {1}'.format(unique_token, class_token),
-'a cube shaped {0} {1}'.format(unique_token, class_token)
 ]
+
+# prompt_list = [
+# 'a {0} {1} in the jungle'.format(unique_token, class_token),
+# 'a {0} {1} in the snow'.format(unique_token, class_token),
+# 'a {0} {1} on the beach'.format(unique_token, class_token),
+# 'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
+# 'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
+# 'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
+# 'a {0} {1} with a city in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
+# 'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
+# 'a red {0} {1}'.format(unique_token, class_token),
+# 'a purple {0} {1}'.format(unique_token, class_token),
+# 'a shiny {0} {1}'.format(unique_token, class_token),
+# 'a wet {0} {1}'.format(unique_token, class_token),
+# 'a cube shaped {0} {1}'.format(unique_token, class_token)
+# ]
 
 import diffusers
 from diffusers import (
