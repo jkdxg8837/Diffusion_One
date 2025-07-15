@@ -4,6 +4,7 @@ import math
 import itertools
 from peft.tuners.lora.layer import Linear as LoraLinear
 import logging
+import utils
 log = logging.getLogger(__name__)
 from typing import Tuple, List, Dict
 from diffusers.training_utils import (
@@ -17,15 +18,149 @@ def get_record_gradient_hook(model, record_dict):
     def record_gradient_hook(grad):
         for n, p in model.named_parameters():
             if p.requires_grad and p.grad is not None:
+                # print(p.grad.shape)
                 if n not in record_dict:
                     record_dict[n] = [p.grad.cpu()]
+                    
                 else:
                     record_dict[n].append(p.grad.cpu())
                 p.grad = None
+                # Estimate gradient scale and variance
+                # grads = torch.stack(record_dict[n], dim=0)
+                # record_dict[n + "_scale"] = grads.abs().mean().item()
+                # record_dict[n + "_var"] = grads.var().item()
         return grad
 
     return record_gradient_hook
 
+import torch
+import numpy as np
+from scipy.stats import norm
+
+def kde_from_params(means, stds, weights, num_points=1000):
+    """Create a KDE-like density from mixture of Gaussians."""
+    x = np.linspace(0, 1, num_points)
+    pdf = np.zeros_like(x)
+    for mu, std, w in zip(means, stds, weights):
+        pdf += w * np.exp(-(x - mu)**2 / (2 * std**2)) / (std * np.sqrt(2 * np.pi))
+    pdf /= np.trapz(pdf, x)  # Normalize to make it a proper density
+    return x, pdf
+
+def sample_from_kde(x, pdf, n_samples=32):
+    shift=2.0
+    n_samples = n_samples+2
+    cdf = np.cumsum(pdf)
+    cdf = cdf / cdf[-1]
+    # inv_cdf = np.interp(np.linspace(0, 1, n_samples), cdf, x)
+    # return torch.tensor(inv_cdf, dtype=torch.float32)[1:-1]  # Exclude the first and last points to avoid 0 and 1
+        # Draw random uniform samples and invert CDF
+    uniform_samples = np.random.rand(n_samples)
+    inv_cdf = np.interp(uniform_samples, cdf, x)
+    samples = torch.tensor(inv_cdf, dtype=torch.float32)[1:-1]
+
+    samples = (shift*samples)/(1+(shift-1) * samples)
+
+    return samples
+
+
+def sample_with_matched_distribution(n=32, mean=0.0, std=1.0):
+    shift=2.0
+    # Get evenly spaced quantiles (excluding 0 and 1)
+    quantiles = np.linspace(1 / (n + 1), n / (n + 1), n)
+    # Compute quantile-matched normal values
+    samples = norm.ppf(quantiles, loc=mean, scale=std)
+    # Convert to torch tensor
+    samples = torch.tensor(samples, dtype=torch.float32)
+    samples = torch.nn.functional.sigmoid(samples)
+    # samples = (shift*samples)/(1+(shift-1) * samples)
+    # Center to mean=0 and std=1
+    # samples = (samples - samples.mean()) / samples.std()
+    # samples = 0.1 + 0.85 * samples 
+    samples = (shift*samples)/(1+(shift-1) * samples)
+    return samples
+
+def evenly_sample_0_2_to_0_8(n=32):
+    """Evenly samples n values from 0.2 to 0.8 (inclusive)."""
+    return torch.linspace(0.2, 0.8, steps=n)
+
+def generate_u2_like_samples_v2(n=32):
+    # torch.manual_seed(seed)
+
+    # Define weights and centers for mixture components
+    weights = torch.tensor([0.3, 0.5, 0.2])
+    means = torch.tensor([-0.5, 0.5, 1.5])  # in normal space
+    stds = torch.tensor([0.3, 0.2, 0.15])
+
+    samples = []
+    for _ in range(n):
+        # Choose a component
+        idx = torch.multinomial(weights, num_samples=1).item()
+        sample = torch.normal(means[idx], stds[idx], size=(1,))
+        samples.append(sample)
+
+    samples = torch.stack(samples).squeeze()
+    samples = torch.sigmoid(samples)  # squash to (0, 1)
+
+    # Rescale to [0.2, 0.75]
+    samples = 0.15 + (0.75 - 0.15) * samples
+
+    return samples
+    
+def generate_u2_like_samples_v3(n=32):
+    # torch.manual_seed(seed)
+    
+    # Define clusters (observed empirically)
+    components = [
+        {"mean": 0.26, "std": 0.025, "weight": 0.2},  # cluster 1
+        {"mean": 0.45, "std": 0.06,  "weight": 0.5},  # cluster 2
+        {"mean": 0.66, "std": 0.04,  "weight": 0.3},  # cluster 3
+    ]
+
+    weights = torch.tensor([c["weight"] for c in components])
+    weights = weights / weights.sum()
+
+    samples = []
+    for _ in range(n):
+        # Choose component
+        idx = torch.multinomial(weights, num_samples=1).item()
+        c = components[idx]
+
+        # Truncated normal to ensure values in [0.2, 0.8]
+        for _ in range(10):  # retry loop
+            s = torch.normal(mean=c["mean"], std=c["std"], size=(1,))
+            if 0.2 <= s <= 0.8:
+                samples.append(s)
+                break
+
+    return torch.cat(samples)
+
+
+def sample_like_u2(n_samples=32, seed=None):
+    """
+    Generate a tensor of samples mimicking the multimodal distribution of u2.
+    Peaks and weights are adjusted based on visual distribution analysis.
+    """
+    if seed is not None:
+        np.random.seed(seed)
+
+    # Approximate peak centers, standard deviations, and their weights
+    peak_centers = [0.30, 0.45, 0.63, 0.75]
+    peak_stds    = [0.03, 0.035, 0.03, 0.02]
+    peak_weights = [0.2, 0.45, 0.25, 0.1]  # Should sum to 1
+
+    # Sample count per peak based on weights
+    counts = np.random.multinomial(n_samples, peak_weights)
+
+    # Generate and clip samples
+    samples = []
+    for center, std, count in zip(peak_centers, peak_stds, counts):
+        s = np.random.normal(loc=center, scale=std, size=count)
+        samples.extend(s)
+
+    samples = np.clip(samples, 0.0, 1.0)
+    samples = np.sort(samples)
+
+    return torch.tensor(samples, dtype=torch.float32)
 
 def print_gpu_memory_usage(device_id=0):
     allocated = torch.cuda.memory_allocated(device_id)
@@ -36,6 +171,10 @@ def print_gpu_memory_usage(device_id=0):
 def estimate_gradient(
     models, dataloader, args, noise_scheduler_copy, accelerator, text_encoders, tokenizers, batch_size: int = 4
 ) -> Dict[str, List[torch.Tensor]]:
+    named_grads = torch.load("/home/u5649209/workspace/Diffusion_One/named_grads/raw.pt")
+    return named_grads
+    
+    # Using flowmatching noise scheduler inside sigma corresponding to the timesteps
     def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
         sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)
         schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)
@@ -50,9 +189,20 @@ def estimate_gradient(
     Estimate the gradient of the model on the given dataset
     """
     transformer, vae = models[0], models[1]
-    # print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
+    # for name, param in transformer.named_parameters():
+    #     param.requires_grad = not param.requires_grad
+    #     # print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
     log.info("Estimating gradient")
     transformer.train()
+    for name, param in transformer.named_parameters():
+        if "transformer_blocks.0" in name and "weight" in name:
+            param.requires_grad = True
+
+    # Debug: Check if transformer parameters require gradients
+    grad_params = [p for p in transformer.parameters() if p.requires_grad]
+    log.info(f"Number of parameters requiring gradients: {len(grad_params)}")
+    if len(grad_params) == 0:
+        log.warning("No parameters require gradients! This will cause the backward pass to fail.")
     
     named_grads = {}
     hooks = []
@@ -67,65 +217,53 @@ def estimate_gradient(
     weight_dtype = torch.float16
     # deal with time step
     # time_step = args.time_step
-    if args.re_init_schedule == "multi":
-        epochs = args.re_init_samples // len(dataloader)
-        print("********************************")
-        print("len of dataloader is : ", len(dataloader))
-        print(f"Reinitializing LoRA modules every {epochs} epochs")
-        print("********************************")
-    else:
-        epochs = 1
+    # if args.re_init_schedule == "multi":
+    #     epochs = args.re_init_samples // len(dataloader)
+    #     print("********************************")
+    #     print("len of dataloader is : ", len(dataloader))
+    #     print(f"Reinitializing LoRA modules every {epochs} epochs")
+    #     print("********************************")
+    # else:
+    #     epochs = args.re_init_samples // len(dataloader)
+
+    epochs = 1
+
+    transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
     from tqdm import tqdm
     for epoch in range(epochs):
+        print(epoch)
         for batch in tqdm(dataloader, desc="Estimating gradient"):
+            print(batch)
             num += 1
-            # print(batch)
+            
             # batch = {k: v.to(transformer.device) for k, v in batch.items()}
             # Calculate diffusion model loss
             prompts = batch["prompts"]
             pixel_values = batch["pixel_values"].to(dtype=vae.dtype)
             pixel_values = pixel_values.to(vae.device)
-            model_input = vae.encode(pixel_values).latent_dist.sample()
-            model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
-            model_input = model_input.to(dtype=weight_dtype)
-            
+            print(pixel_values.shape)
+            with torch.no_grad():
+                model_input = vae.encode(pixel_values).latent_dist.sample()
+                model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
+                model_input = model_input.to(dtype=weight_dtype)
+
             # Sample noise that we'll add to the latents
-            if not args.fixed_noise:
-                noise = torch.randn_like(model_input)
-            else:
-                noise_tensor = torch.load("/dcs/pg24/u5649209/data/workspace/diffusers/noise.pt")
-                sample_number = args.noise_samples
-                # Randomly sample 'sample_number' indices from the noise tensor's first dimension
-                total_samples = noise_tensor.shape[0]
-                if sample_number > total_samples:
-                    raise ValueError(f"Requested {sample_number} samples, but noise tensor only has {total_samples} samples.")
-                indices = torch.randperm(total_samples)[:sample_number]
-                # Select the noise samples based on the random indices
-                noise_bank = noise_tensor[indices].to(model_input.device, dtype=model_input.dtype)
-                noise = noise_bank[torch.randperm(noise_bank.shape[0])[:model_input.shape[0]]]
+            noise = torch.randn_like(model_input)
             bsz = model_input.shape[0]
 
-            # Sample a random timestep for each image
-            # for weighting schemes where we sample timesteps non-uniformly
-            u = compute_density_for_timestep_sampling(
-                weighting_scheme=args.weighting_scheme,
-                batch_size=bsz,
-                logit_mean=args.logit_mean,
-                logit_std=args.logit_std,
-                mode_scale=args.mode_scale,
-            )
+            print(noise[0][0][0][:])
 
-            if args.re_init_schedule == "multi":
-                pass
-            elif args.time_step:
-                # assert args.time_step.dtype == torch.float32, "time_step should be float32"
-                u = torch.tensor([args.time_step])
+            u = sample_with_matched_distribution(n=bsz, mean=0, std=1.0)
+       
+            print("u is set to ", u)
+            
             indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
             timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-
-            print("u is set to ", u)
-            # zt = (1 - texp) * x + texp * z1
+            print("timesteps is ", timesteps)
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
+            sigmas = sigmas.detach()
+            # print(timesteps)
+            print(sigmas)
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
             def compute_text_embeddings(prompt, text_encoders, tokenizers):
                 with torch.no_grad():
@@ -150,78 +288,63 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
-            model_pred = model_pred * (-sigmas) + noisy_model_input
+            print("precondition outputs is ", args.precondition_outputs)
+            if args.precondition_outputs:
+                # model_pred = model_pred * (-sigmas) + noisy_model_input
+                model_pred = model_pred * (-sigmas.detach()) + noisy_model_input
 
-            from diffusers.training_utils import compute_loss_weighting_for_sd3
+            # model_pred.loss.backward()
+            # from diffusers.training_utils import compute_loss_weighting_for_sd3
             weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
-            target = model_input
+            weighting = weighting.detach()
+            print(weighting)
+            # flow matching loss
+            if args.precondition_outputs:
+                target = model_input.detach()  
+            else:
+                target = noise - model_input.detach()  
             loss = torch.mean(
-                        (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
-                        1,
-                    )
+                    (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
+                    1,
+                )
             loss = loss.mean()
             print(loss.item())
             # loss.backward()
             accelerator.backward(loss)
-            # print_gpu_memory_usage(0)
             if accelerator.sync_gradients:
-                transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
-                params_to_clip = (transformer_lora_parameters)
+                params_to_clip = (
+                    itertools.chain(
+                        transformer_lora_parameters, text_lora_parameters_one, text_lora_parameters_two
+                    )
+                    if args.train_text_encoder
+                    else transformer_lora_parameters
+                )
                 accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
+
+            print_gpu_memory_usage(0)
             get_record_gradient_hook(transformer, named_grads)(None)  # get gradient of last layer
             # make sure the gradient is cleared
             for n, p in transformer.named_parameters():
                 if p.grad is not None:
                     p.grad = None
         torch.cuda.empty_cache()
-    for n, g in named_grads.items():
-        g_list = named_grads[n]
-        for i in range(len(g_list)):
-            g_list[i] /= num
-        named_grads[n] = g_list
-    # for key in tqdm(named_grads.keys(),
-    #                 desc="Merging gradient in list",):
-    #     try:
-    #         tensors = named_grads[key]
-    #         named_grads[key] = torch.stack(tensors, dim=0).mean(dim=0)
-    #     except Exception as e:
-    #         log.error(f"Error processing key {key}: {e}")
-    #         # print(e)
-    #         continue
-    # Using batch size
-    if args.re_init_bsz:
-        batch_size = args.re_init_bsz
-        from tqdm import tqdm
-        for key in tqdm(named_grads.keys(),
-                        desc="Merging gradient in list",):
-            try:
-                data_list = named_grads[key]
-                prev_tensor = None
-                for i in range(0, len(data_list), batch_size):
-                    # 获取当前批次的数据
-                    current_batch = data_list[i : i + batch_size]
-                    current_batch_tensor = torch.cat(current_batch, dim=0)
-                    # print(data_list[0].shape)
-                    # print(batch_size)
-                    # print(len(data_list))
-                    # print(current_batch_tensor.shape)
-                    if prev_tensor is not None:
-                        prev_tensor += current_batch_tensor
-                        # prev_tensor /= 2
-                    else:
-                        prev_tensor = current_batch_tensor
-                    # 计算平均值并添加到新列表
-                named_grads[key] = prev_tensor
-            except Exception as e:
-                log.error(f"Error processing key {key}: {e}")
-                # print(e)
-                continue
-        
+
+    from tqdm import tqdm
+    
+    for key in tqdm(named_grads.keys(), desc="Computing gradient averages"):
+        try:
+            # Stack all tensors in the list along dim=0 and compute mean
+            # named_grads[key] size = epochs* [input_dim, output_dim]
+            tensors = named_grads[key]
+            named_grads[key] = torch.stack(tensors, dim=0).mean(dim=0)
+        except Exception as e:
+            log.error(f"Error processing key {key}: {e}")
+
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    del transformer
     return named_grads
+
 
 
 @torch.no_grad()
@@ -232,8 +355,10 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     lora_r = min(module.lora_A.default.weight.shape)
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
-    print(f"Reinitializing {name} with LoRA rank {lora_r}, lora_A dim: {a_dim}, lora_B dim: {b_dim}")
     init_mode = init_config['mode']
+    he_value_pretrained = utils._calculate_he(module.weight.float())
+
+
     if init_mode == "simple":
         match init_config.lora_A:
             case "gaussian":
@@ -323,22 +448,47 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             )
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
-
-        grad_name = name + ".base_layer.weight"
-        # grad_name = ".".join(name.split(".")[2:]) + ".weight"
+        print("*************************")
+        # print(named_grad)
+        # grad_name = name + ".base_layer.weight"
+        # # grad_name = ".".join(name.split(".")[2:]) + ".weight"
+        # print(named_grad.keys())
+        print(named_grad.keys())
+        grad_name = name + '.weight'
+        print(grad_name)
+        if grad_name not in named_grad:
+            log.warning(f"Gradient for {grad_name} not found in named_grad. Skipping SVD initialization.")
+            return
         grads = named_grad[grad_name]
         # grads = named_grad[name]
-        if init_config['direction'] == "LoRA-One":
-            # Using full svd for LoRA-One
-            # U, S, V = torch.svd_lowrank(-grads.cuda().float(), q=512, niter=16)
-            U, S, V = torch.linalg.svd(-grads.cuda().float())
-        else:
-            U, S, V = torch.svd_lowrank(grads.cuda().float(), q=512, niter=16)
-        V = V.T
-        if init_config['direction'] == "LoRA-One":
+        # if init_config['direction'] == "LoRA-One":
+        #     grads = -grads.cuda().float()
+        #     grads = grads * grads.numel()**0.5
+        #     U, S, V = torch.svd_lowrank(grads, q=512, niter=32)
+        # else:
+        #     U, S, V = torch.svd_lowrank(grads.cuda().float(), q=512, niter=32)
+        
+        if init_config['direction'] == 'LoRA-One':
+            # V = V.T
+            grads = -grads.cuda().float()
+            m, n = grads.shape
+            print(m,n)
+            U, S, V = torch.linalg.svd(grads)
+            print(grads.numel()**0.5)
+            rank = (S > 1e-5).sum().item()
+            print("Rank of A:", rank)
+            print(torch.sqrt(S[0]))
+            print(S[0], S[1])
+            # B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r])) / torch.sqrt(S[0])
+            # A = torch.diag(torch.sqrt(S[:lora_r])) @ V[:lora_r, :] / torch.sqrt(S[0])
             B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r])) / torch.sqrt(S[0])
             A = torch.diag(torch.sqrt(S[:lora_r])) @ V[:lora_r, :] / torch.sqrt(S[0])
+            # B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r]))
+            # A = torch.diag(torch.sqrt(S[:lora_r])) @ V[:lora_r, :]
         elif init_config['direction'] == "LoRA-GA":
+            m, n = grads.shape
+            print(m,n)
+            U, S, V = torch.linalg.svd(grads)
             B = U[:, lora_r : 2 * lora_r]
             A = V[:lora_r, :]
         scaling_factor = module.scaling["default"]
@@ -356,7 +506,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
           else:
             m, n = grads.shape # m: feature_out, n: feature_in
             # the scale of output is only related to the feature_out
-            gamma = init_config.stable_gamma
+            gamma = init_config["stable_gamma"]
             B = B * m**0.25 / gamma**0.5
             A = A * m**0.25 / gamma**0.5
         elif init_config["scale"] == "weightS":
@@ -378,7 +528,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         module.lora_A.default.weight = torch.nn.Parameter(A.contiguous().cuda())
         # if peft_conf.get("dora", False):
         #    module.lora_magnitude_vector.default.weight = torch.nn.Parameter(mag_vec.contiguous().cuda())
-
+        he_lora_weights = utils._calculate_he(torch.matmul(B, A).float())
     with torch.no_grad():
         # if peft_conf.get("dora", False): #DoRA uses fp16
         #         module.lora_A.default.weight.data = module.lora_A.default.weight.data.to(
@@ -433,6 +583,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
           except:
               breakpoint()
 
+from peft.tuners.lora import LoraLayer
 def reinit_lora(model, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
@@ -442,9 +593,9 @@ def reinit_lora(model, init_config, additional_info):
         desc="Reinitializing Lora",
         total=len(list(model.named_modules())),
     ):
-        from peft.tuners.lora import LoraLayer
-        if hasattr(module, 'lora_A') and hasattr(module, 'lora_B'):
-            # print(name)
+        
+        if isinstance(module, LoraLayer):
+            print(name)
             reinit_lora_modules(name, module, init_config, additional_info)
 
     return model
