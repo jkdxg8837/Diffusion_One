@@ -719,6 +719,11 @@ def parse_args(input_args=None):
         default="1",
     )
     parser.add_argument(
+        "--direction",
+        type=str,
+        default="LoRA-One",
+    )
+    parser.add_argument(
         "--fixed_noise",
         default=False,
         action="store_true",
@@ -1468,6 +1473,7 @@ def main(args):
 
     transformer.add_adapter(transformer_lora_config)
     if not args.baseline:
+        init_conf['direction'] = args.direction
         init_conf['stable_gamma'] = args.stable_gamma
         reinit_lora(transformer, init_conf, additional_info)
     

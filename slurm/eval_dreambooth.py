@@ -4,7 +4,7 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
-os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/past_expr/dog-reinit_75_rank32_w_s0/trained-sd3-lora-dog-lichuan-r32-reinit_stable_gamma49/checkpoint-0"
+os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-dog-r32-singlecard-wnumel-reinit80-randomseed-loraga_stable_gamma144"
 
 # 构造命令``
 cmd = [
@@ -21,7 +21,7 @@ cmd = [
     "--lr_scheduler", "constant",
     "--lr_warmup_steps", "0",
     "--output_dir", os.environ.get("OUTPUT_DIR"),       # 使用 os.environ.get 提供默认值
-    "--lora_scale", "5.7",
+    "--lora_scale", "1.0",
     # "--push_to_hub"
 ]
 

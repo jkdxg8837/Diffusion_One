@@ -4,7 +4,7 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
-os.environ["OUTPUT_DIR"] = "trained-sd3-lora-dog-lichuan-r32-singlecard-reinit80-randomseed-woprecondition"
+os.environ["OUTPUT_DIR"] = "trained-sd3-lora-dog-r32-singlecard-real-fixedseed-loraga"
 
 time_step = 0.2
 re_init_schedule = "multi"
@@ -13,7 +13,7 @@ re_init_samples = 32
 noise_samples = 1
 stable_gamma = 1
 # stable_gamma_list = [289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024,]
-stable_gamma_list = [25, 49, 81, 121, 169, 225, 289, 361, 441, 529, 625, 729, 841, 961]
+stable_gamma_list = [361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024]
 # 构造命令
 
 cmd = [
@@ -39,15 +39,16 @@ cmd = [
     "--report_to", "wandb",
     "--lr_scheduler", "constant",
     "--lr_warmup_steps", "0",
-    "--max_train_steps", "100",
+    "--max_train_steps", "50",
     "--validation_prompt", "A photo of sks dog in front of a building",
     "--validation_epochs", "25",
-    # "--seed", "0",
+    "--seed", "0",
     "--time_step", str(time_step),
     "--re_init_schedule", re_init_schedule,
     # "--re_init_bsz", str(re_init_bsz),
     "--re_init_samples", str(re_init_samples),
     "--repeats","8",
+    "--direction", "LoRA-GA",
     # "--baseline",
     # "--fixed_noise",
     # "--noise_samples", str(noise_samples),
@@ -108,7 +109,7 @@ for stable_gamma in stable_gamma_list:
     subprocess.run(cmd)
     eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-0"
     subprocess.run(eval_cmd)
-    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-50"
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-30"
     subprocess.run(eval_cmd)
 
     eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8]

@@ -116,6 +116,8 @@ def calculate_angle(v1, v2):
     angle = np.arccos(np.clip(cos_theta, -1.0, 1.0))  # Clip to avoid numerical errors
     return angle
 
+
+#  (W+LoraA * LoraB) * W = W^2 + LoraA * LoraB * W
 angle_A = calculate_angle(lora1_A, lora2_A)
 angle_B = calculate_angle(lora1_B, lora2_B)
 print(f"Angle between lora_A of pipeline 1 and re_init_weights: {angle_A} radians")

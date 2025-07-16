@@ -332,7 +332,6 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
-            args.precondition_outputs = 0
             print("precondition outputs is ", args.precondition_outputs)
             if args.precondition_outputs:
                 # model_pred = model_pred * (-sigmas) + noisy_model_input
@@ -387,7 +386,7 @@ def estimate_gradient(
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    torch.save(named_grads, "/dcs/pg24/u5649209/data/workspace/diffusers/named_grads.pt")
+    torch.save(named_grads, "/dcs/pg24/u5649209/data/workspace/diffusers/named_grads_"+str(args.repeats)+".pt")
     return named_grads
 
 
@@ -495,7 +494,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         # grad_name = name + ".base_layer.weight"
         # # grad_name = ".".join(name.split(".")[2:]) + ".weight"
         # print(named_grad.keys())
-        print(named_grad.keys())
+        # print(named_grad.keys())
         grad_name = name + '.weight'
         print(grad_name)
         grads = named_grad[grad_name]
