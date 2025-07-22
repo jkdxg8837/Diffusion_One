@@ -210,4 +210,11 @@ slurm/past_expr
 *.jpg
 
 slurm/baseline
+
 *.pt
+
+*.safetensors
+
+*.pkl
+
+*.bin

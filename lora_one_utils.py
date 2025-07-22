@@ -397,15 +397,35 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
     """
+    reinit_start = init_config.get("reinit_pos_start", 10)
+    reinit_end = init_config.get("reinit_pos_end", 13)
+    print(name)
     lora_r = min(module.lora_A.default.weight.shape)
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
-    init_mode = init_config['mode']
+
+    
+    try:
+        layer_num_str = name.split(".")[1]
+        layer_num = int(layer_num_str)
+    except Exception:
+        # If not convertible to int, skip assigning layer_num
+        layer_num = -1
+
+    if layer_num > reinit_start and layer_num < reinit_end:
+        init_mode = init_config['mode']
+        
+    else:
+        init_mode = "simple"
+        init_config["lora_A"] = "kaiming"
+        init_config["lora_B"] = "zeros"
+        # print(1)
+
     if init_mode == "simple":
-        match init_config.lora_A:
+        match init_config["lora_A"]:
             case "gaussian":
                 torch.nn.init.normal_(
-                    module.lora_A.default.weight, mean=0.0, std=init_config.lora_A_std
+                    module.lora_A.default.weight, mean=0.0, std=init_config["lora_A_std"]
                 )
             case "kaiming":
                 # https://github.com/microsoft/LoRA/blob/a0a92e0f26c067cf94747bdbf1ce73793fa44d19/loralib/layers.py#L124
@@ -425,11 +445,11 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             case "orthogonal":
                 torch.nn.init.orthogonal_(module.lora_A.default.weight)
             case _:
-                raise ValueError(f"Unknown lora_A initialization: {init_config.lora_A}")
-        match init_config.lora_B:
+                raise ValueError(f"Unknown lora_A initialization: {init_config['lora_A']}")
+        match init_config['lora_B']:
             case "gaussian":
                 torch.nn.init.normal_(
-                    module.lora_B.default.weight, mean=0.0, std=init_config.lora_B_std
+                    module.lora_B.default.weight, mean=0.0, std=init_config['lora_B_std']
                 )
             case "kaiming":
                 torch.nn.init.kaiming_normal_(module.lora_B.default.weight)
@@ -449,10 +469,11 @@ def reinit_lora_modules(name, module, init_config, additional_info):
                 torch.nn.init.orthogonal_(module.lora_B.default.weight)
             case _:
                 raise ValueError(f"Unknown lora_B initialization: {init_config.lora_B}")
-        if init_config.get("scale", "") == "stable":
-            gamma = init_config.stable_gamma
-            module.lora_B.default.weight.data *= (m**0.25) / gamma**0.5
-            module.lora_A.default.weight.data *= (n**0.25) / gamma**0.5
+    # if init_config.get("scale", "") == "stable":
+    #     # gamma = init_config.stable_gamma
+    #     gamma = 1
+    #     module.lora_B.default.weight.data *= (m**0.25) / gamma**0.5
+    #     module.lora_A.default.weight.data *= (n**0.25) / gamma**0.5
     elif init_mode == "svd":
         U, S, V = torch.svd_lowrank(module.weight.float(), q=4 * lora_r, niter=4)
         V = V.T
@@ -494,8 +515,6 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         # print(named_grad)
         # grad_name = name + ".base_layer.weight"
         # # grad_name = ".".join(name.split(".")[2:]) + ".weight"
-        # print(named_grad.keys())
-        print(named_grad.keys())
         grad_name = name + '.weight'
         print(grad_name)
         grads = named_grad[grad_name]

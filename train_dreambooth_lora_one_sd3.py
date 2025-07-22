@@ -250,6 +250,14 @@ def import_model_class_from_model_name_or_path(
 def parse_args(input_args=None):
     parser = argparse.ArgumentParser(description="Simple example of a training script.")
     parser.add_argument(
+        "--reinit_depth",
+        type=str,
+        default=None,
+        # low for 0-10 layers, medium for 10-20 layers, high for 20+ layers
+        choices=["low", "medium", "high"],
+        help="Path to pretrained model or model identifier from huggingface.co/models.",
+    )
+    parser.add_argument(
         "--pretrained_model_name_or_path",
         type=str,
         default=None,
@@ -1475,6 +1483,13 @@ def main(args):
     if not args.baseline:
         init_conf['direction'] = args.direction
         init_conf['stable_gamma'] = args.stable_gamma
+        reinit_depth = args.reinit_depth
+        if reinit_depth.lower() == "medium":
+            init_conf['reinit_pos_start'] = 10
+            init_conf['reinit_pos_end'] = 13
+        else:
+            init_conf['reinit_pos_start'] = 0
+            init_conf['reinit_pos_end'] = 23
         reinit_lora(transformer, init_conf, additional_info)
     
     # Make sure the trainable params are in float32.

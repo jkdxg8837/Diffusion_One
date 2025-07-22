@@ -4,7 +4,7 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
-os.environ["OUTPUT_DIR"] = "trained-sd3-lora-dog-lichuan-r32-singlecard-reinit80-randomseed-woprecondition"
+os.environ["OUTPUT_DIR"] = "sd3-dog-singlecard-reinit80-randomseed-woprecondition-POSmedium"
 
 time_step = 0.2
 re_init_schedule = "multi"
@@ -13,7 +13,8 @@ re_init_samples = 32
 noise_samples = 1
 stable_gamma = 1
 # stable_gamma_list = [289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024,]
-stable_gamma_list = [25, 49, 81, 121, 169, 225, 289, 361, 441, 529, 625, 729, 841, 961]
+# stable_gamma_list = [25]
+stable_gamma_list = [49, 81, 121, 169, 225, 289, 361, 441, 529, 625, 729, 841, 961]
 # 构造命令
 
 cmd = [
@@ -48,6 +49,7 @@ cmd = [
     # "--re_init_bsz", str(re_init_bsz),
     "--re_init_samples", str(re_init_samples),
     "--repeats","8",
+    "--reinit_depth", "medium",
     # "--baseline",
     # "--fixed_noise",
     # "--noise_samples", str(noise_samples),

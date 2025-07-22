@@ -332,6 +332,7 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
+            args.precondition_outputs = 0
             print("precondition outputs is ", args.precondition_outputs)
             if args.precondition_outputs:
                 # model_pred = model_pred * (-sigmas) + noisy_model_input

@@ -7,7 +7,7 @@
 #SBATCH --gres=gpu:2     # Number of GPUs to use 
 # 80GB of system RAM will be allocated with 1 GPU specified
 
-#SBATCH --time=1-00:00:00      # Job time limit set to 2 days (48 hours)
+#SBATCH --time=2-00:00:00      # Job time limit set to 2 days (48 hours)
 #SBATCH --output=../joboutput/joboutput_%j.out # Standard out from your job
 #SBATCH --error=../joboutput/joboutput_%j.err  # Standard error from your job
 
@@ -18,4 +18,4 @@ source ~/.bashrc
 conda activate /dcs/large/u5649209/envs/omini
 
 ## Execute your program(s) ##
-python train_dreambooth.py
+python ../f_named_grads/visualization_last.py
