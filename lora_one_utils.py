@@ -387,7 +387,7 @@ def estimate_gradient(
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    torch.save(named_grads, "/dcs/pg24/u5649209/data/workspace/diffusers/named_grads.pt")
+    torch.save(named_grads, "./named_grads.pt")
     return named_grads
 
 
@@ -397,10 +397,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
     """
-    layer_ranges = [(i, i + 1) for i in range(0, 24, 2)]
-    # print("Layer ranges:", layer_ranges)
-    largest_layer = [(10,11), (12,13), (22, 23), (20,21), (6, 7)]
-    
+
     reinit_start = init_config.get("reinit_pos_start", 10)
     reinit_end = init_config.get("reinit_pos_end", 13)
     print(name)
@@ -412,17 +409,21 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     try:
         layer_num_str = name.split(".")[1]
         layer_num = int(layer_num_str)
+    except (ValueError, IndexError):
+        # Using extra layers for reinit, not only the numbered layers
+        layer_num = reinit_start
     except Exception:
         # If not convertible to int, skip assigning layer_num
         layer_num = -1
-
-    if (layer_num > reinit_start and layer_num < reinit_end):
+    inited_signal = False
+    if (layer_num >= reinit_start and layer_num <= reinit_end):
         init_mode = init_config['mode']
-        
+        inited_signal = True
     else:
         init_mode = "simple"
         init_config["lora_A"] = "kaiming"
         init_config["lora_B"] = "zeros"
+        inited_signal = False 
         # print(1)
 
     if init_mode == "simple":
@@ -647,12 +648,14 @@ def reinit_lora_modules(name, module, init_config, additional_info):
                 module.weight.data -= offset
             except:
                 breakpoint()
+        return inited_signal
 
 from peft.tuners.lora import LoraLayer
 def reinit_lora(model, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
     """
+    inited_modules = []
     for name, module in tqdm(
         model.named_modules(),
         desc="Reinitializing Lora",
@@ -660,7 +663,7 @@ def reinit_lora(model, init_config, additional_info):
     ):
         
         if isinstance(module, LoraLayer):
-            print(name)
-            reinit_lora_modules(name, module, init_config, additional_info)
-
-    return model
+            if_init = reinit_lora_modules(name, module, init_config, additional_info)
+            if if_init:
+                inited_modules.append(name)
+    return model, inited_modules
