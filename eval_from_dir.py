@@ -13,35 +13,34 @@ from torchmetrics.image.fid import FrechetInceptionDistance
 unique_token = "sks"
 class_token = "dog"
 prompt_list = [
+# Extra evaluation prompts
+'a photo of {0} {1}'.format(unique_token, class_token),
 'a {0} {1} in the jungle'.format(unique_token, class_token),
 'a {0} {1} in the snow'.format(unique_token, class_token),
 'a {0} {1} on the beach'.format(unique_token, class_token),
 'a {0} {1} on a cobblestone street'.format(unique_token, class_token),
 'a {0} {1} on top of pink fabric'.format(unique_token, class_token),
-'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
-'a {0} {1} with a city in the background'.format(unique_token, class_token),
-'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
-'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
-'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
-'a {0} {1} wearing a red hat'.format(unique_token, class_token),
-'a {0} {1} wearing a santa hat'.format(unique_token, class_token),
-'a {0} {1} wearing a rainbow scarf'.format(unique_token, class_token),
-'a {0} {1} wearing a black top hat and a monocle'.format(unique_token, class_token),
-'a {0} {1} in a chef outfit'.format(unique_token, class_token),
-'a {0} {1} in a firefighter outfit'.format(unique_token, class_token),
-'a {0} {1} in a police outfit'.format(unique_token, class_token),
-'a {0} {1} wearing pink glasses'.format(unique_token, class_token),
-'a {0} {1} wearing a yellow shirt'.format(unique_token, class_token),
-'a {0} {1} in a purple wizard outfit'.format(unique_token, class_token),
-'a red {0} {1}'.format(unique_token, class_token),
-'a purple {0} {1}'.format(unique_token, class_token),
-'a shiny {0} {1}'.format(unique_token, class_token),
-'a wet {0} {1}'.format(unique_token, class_token),
-'a cube shaped {0} {1}'.format(unique_token, class_token)
+# 'a {0} {1} on top of a wooden floor'.format(unique_token, class_token),
+# 'a {0} {1} with a city in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a mountain in the background'.format(unique_token, class_token),
+# 'a {0} {1} with a blue house in the background'.format(unique_token, class_token),
+# 'a {0} {1} on top of a purple rug in a forest'.format(unique_token, class_token),
+# 'a {0} {1} wearing a red hat'.format(unique_token, class_token),
+# 'a {0} {1} wearing a santa hat'.format(unique_token, class_token),
+# 'a {0} {1} wearing a rainbow scarf'.format(unique_token, class_token),
+# 'a {0} {1} wearing a black top hat and a monocle'.format(unique_token, class_token),
+# 'a {0} {1} in a chef outfit'.format(unique_token, class_token),
+# 'a {0} {1} in a firefighter outfit'.format(unique_token, class_token),
+# 'a {0} {1} in a police outfit'.format(unique_token, class_token),
+# 'a {0} {1} wearing pink glasses'.format(unique_token, class_token),
+# 'a {0} {1} wearing a yellow shirt'.format(unique_token, class_token),
+# 'a {0} {1} in a purple wizard outfit'.format(unique_token, class_token),
+# 'a red {0} {1}'.format(unique_token, class_token),
+# 'a purple {0} {1}'.format(unique_token, class_token),
+# 'a shiny {0} {1}'.format(unique_token, class_token),
+# 'a wet {0} {1}'.format(unique_token, class_token),
+# 'a cube shaped {0} {1}'.format(unique_token, class_token)
 ]
-
-
-
 
 
 
@@ -60,15 +59,12 @@ class compute_metrics():
                 self.ref_images.append(img)
         # repete self.ref_image 20 times to expand the 5 image list to 100 images list
         # repeat self.ref_images 20 times to expand the 5 image list to 100 images list
-        print("*****")
-        print(self.ref_images)
         self.ref_images = self.ref_images * 20
-        self.ref_images = self.ref_images[:100]
+        ref_img_num = len(prompt_list)
+        self.ref_images = self.ref_images[:ref_img_num * 4]
         
     def calculate_clip_score(self, images, prompts):
         # images_int = (images * 255).astype("uint8")
-        print(torch.from_numpy(images).permute(0, 3, 1, 2).shape)
-        print(len(prompts))
         clip_score1 = self.clip_score_fn(torch.from_numpy(images).permute(0, 3, 1, 2), prompts).detach()
         return round(float(clip_score1), 4)
     def compute_clip(self):
@@ -77,7 +73,6 @@ class compute_metrics():
         clip_score_list = []
         img_list_I = []
         for prompt in self.prompt_list:
-            print(prompt)
             img_list = []
             # 25*4 images in one array
             
@@ -96,12 +91,20 @@ class compute_metrics():
                 single_prompt_list.append(prompt)
             clip_score_list.append(self.calculate_clip_score(np.array(img_list), single_prompt_list))
         
-        print(clip_score_list)
         print(f"CLIP scoreT: {np.array(clip_score_list).mean()}")
-        print(np.array(img_list_I).shape)
         print(f"CLIP scoreI: {self.calculate_clip_score(np.array(img_list_I), torch.from_numpy(np.array(self.ref_images)))}")
         return clip_score_list
     def compute_DINO(self):
         pass
-cm_matrics = compute_metrics(img_path="/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-multi-timestep_20bsz1/checkpoint-100/output")
-cm_matrics.compute_clip()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Evaluate images from a directory.")
+    parser.add_argument("--img_path", type=str, required=True, help="Path to the image directory.")
+    args = parser.parse_args()
+    print("******************************************")
+    print(f"CLIP score for {args.img_path}:")
+    cm_matrics = compute_metrics(img_path=args.img_path)
+    cm_matrics.compute_clip()
+    
+# cm_matrics = compute_metrics(img_path="/dcs/pg24/u5649209/data/workspace/diffusers/slurm/trained-sd3-lora-multi-timestep_20bsz1/checkpoint-100/output")
+# cm_matrics.compute_clip()

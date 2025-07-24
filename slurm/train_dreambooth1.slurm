@@ -18,4 +18,4 @@ source ~/.bashrc
 conda activate /dcs/large/u5649209/envs/omini
 
 ## Execute your program(s) ##
-python train_dreambooth.py
+python train_dreambooth1.py

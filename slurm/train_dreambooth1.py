@@ -16,7 +16,7 @@ stable_gamma = 1
 # stable_gamma_list = [289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024,]
 # stable_gamma_list = [25]
 # stable_gamma_list = [49, 81, 121, 169, 225, 289, 361, 441, 529, 625, 729, 841, 961]
-stable_gamma_list = [16, 36, 64, 100, 144, 196, 256, 324, 400]
+stable_gamma_list = [16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 256, 324, 400]
 # 构造命令
 
 cmd = [
@@ -42,9 +42,9 @@ cmd = [
     "--report_to", "wandb",
     "--lr_scheduler", "constant",
     "--lr_warmup_steps", "0",
-    "--max_train_steps", "100",
+    "--max_train_steps", "500",
     "--validation_prompt", "A photo of sks dog in front of a building",
-    "--validation_epochs", "25",
+    "--validation_epochs", "100",
     # "--seed", "0",
     "--time_step", str(time_step),
     "--re_init_schedule", re_init_schedule,
@@ -130,7 +130,22 @@ for stable_gamma in stable_gamma_list:
     subprocess.run(eval_cmd)
     eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-50"
     subprocess.run(eval_cmd)
-
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-100"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-150"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-200"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-250"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-300"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-350"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-400"
+    subprocess.run(eval_cmd)
+    eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8] + "/checkpoint-450"
+    subprocess.run(eval_cmd)
     eval_cmd[eval_cmd.index("--output_dir") + 1] = cmd[8]
     subprocess.run(eval_cmd)
 
@@ -141,6 +156,22 @@ for stable_gamma in stable_gamma_list:
     subprocess.run(clip_score_cmd)
 
     clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-50/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-100/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-150/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-200/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-250/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-300/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-350/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-400/output_scale{lora_scale}"
+    subprocess.run(clip_score_cmd)
+    clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/checkpoint-450/output_scale{lora_scale}"
     subprocess.run(clip_score_cmd)
 
     clip_score_cmd[clip_score_cmd.index("--img_path") + 1] = cmd[8] + f"/output_scale{lora_scale}"

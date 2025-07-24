@@ -397,6 +397,10 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     r"""
     Reinitialize the lora model with the given configuration.
     """
+    layer_ranges = [(i, i + 1) for i in range(0, 24, 2)]
+    # print("Layer ranges:", layer_ranges)
+    largest_layer = [(10,11), (12,13), (22, 23), (20,21), (6, 7)]
+    
     reinit_start = init_config.get("reinit_pos_start", 10)
     reinit_end = init_config.get("reinit_pos_end", 13)
     print(name)
@@ -412,7 +416,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         # If not convertible to int, skip assigning layer_num
         layer_num = -1
 
-    if layer_num > reinit_start and layer_num < reinit_end:
+    if (layer_num > reinit_start and layer_num < reinit_end):
         init_mode = init_config['mode']
         
     else:
