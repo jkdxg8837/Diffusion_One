@@ -185,7 +185,7 @@ slurm/trained-*
 
 slurm/wandb
 
-*.png
+slurm/**/*.png
 
 joboutput
 
@@ -205,17 +205,20 @@ slurm/dog-*
 
 slurm/past_expr
 
-*.jpeg
+slurm/car4reinit
 
-*.jpg
+slurm/dog4reinit
 
 slurm/baseline
+
 *.pt
-
-*.pth
-
-*.bin
 
 *.safetensors
 
 *.pkl
+
+*.bin
+
+*.png
+
+*.npy

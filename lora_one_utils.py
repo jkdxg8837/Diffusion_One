@@ -449,13 +449,8 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
         print("*************************")
-        # print(named_grad)
-        # grad_name = name + ".base_layer.weight"
-        # # grad_name = ".".join(name.split(".")[2:]) + ".weight"
-        # print(named_grad.keys())
-        print(named_grad.keys())
         grad_name = name + '.weight'
-        print(grad_name)
+        # print(grad_name)
         if grad_name not in named_grad:
             log.warning(f"Gradient for {grad_name} not found in named_grad. Skipping SVD initialization.")
             return
@@ -472,13 +467,13 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             # V = V.T
             grads = -grads.cuda().float()
             m, n = grads.shape
-            print(m,n)
             U, S, V = torch.linalg.svd(grads)
             print(grads.numel()**0.5)
             rank = (S > 1e-5).sum().item()
-            print("Rank of A:", rank)
-            print(torch.sqrt(S[0]))
-            print(S[0], S[1])
+            # print("Rank of A:", rank)
+
+            print("Name:", name, "Mean of S0~S5:", S[:5].mean().item())
+
             # B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r])) / torch.sqrt(S[0])
             # A = torch.diag(torch.sqrt(S[:lora_r])) @ V[:lora_r, :] / torch.sqrt(S[0])
             B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r])) / torch.sqrt(S[0])
