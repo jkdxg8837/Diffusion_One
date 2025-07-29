@@ -172,6 +172,7 @@ def estimate_gradient(
 ) -> Dict[str, List[torch.Tensor]]:
     # named_grads = torch.load("/home/u5649209/workspace/Diffusion_One/named_grads/wo_sigmas/120.pt")
     # return named_grads
+    
     # Using flowmatching noise scheduler inside sigma corresponding to the timesteps
     def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
         sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)
@@ -286,7 +287,6 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
-            args.precondition_outputs = 0
             print("precondition outputs is ", args.precondition_outputs)
             if args.precondition_outputs:
                 # model_pred = model_pred * (-sigmas) + noisy_model_input
@@ -342,10 +342,6 @@ def estimate_gradient(
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    for named_keys in named_grads.keys():
-        if "transformer_blocks" not in named_keys:
-            del named_grads[named_keys]
-    torch.save(named_grads, args.output_dir+"named_grads.pt")
     return named_grads
 
 
@@ -362,6 +358,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
     init_mode = init_config['mode']
+    # he_value_pretrained = utils._calculate_he(module.weight.float())
     try:
         layer_num_str = name.split(".")[1]
         layer_num = int(layer_num_str)
