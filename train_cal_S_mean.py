@@ -169,7 +169,7 @@ Please adhere to the licensing terms as described [here]({license_url}).
     model_card.save(os.path.join(repo_folder, "README.md"))
 
 
-def load_text_encoders(class_one, class_two, class_three):
+def load_text_encoders(class_one, class_two, class_three, args = None):
     text_encoder_one = class_one.from_pretrained(
         args.pretrained_model_name_or_path, subfolder="text_encoder", revision=args.revision, variant=args.variant
     )
@@ -796,6 +796,7 @@ class DreamBoothDataset(Dataset):
         size=1024,
         repeats=11,
         center_crop=False,
+        args = None,
     ):
         self.size = size
         self.center_crop = center_crop
@@ -1222,7 +1223,7 @@ def main(args):
     )
     noise_scheduler_copy = copy.deepcopy(noise_scheduler)
     text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
+        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three, args=args
     )
     vae = AutoencoderKL.from_pretrained(
         args.pretrained_model_name_or_path,
@@ -1426,8 +1427,8 @@ def main(args):
 
     
     # Add lora One here
-    from lora_one_utils import reinit_lora
-    from lora_one_utils import estimate_gradient
+    from lora_one_utils_1 import reinit_lora
+    from lora_one_utils_1 import estimate_gradient
     import yaml
     with open('../config/gradient.yaml', 'r') as f:
         init_conf = yaml.safe_load(f)
@@ -1442,6 +1443,7 @@ def main(args):
         size=args.resolution,
         repeats=args.repeats,
         center_crop=args.center_crop,
+        args = args
     )
     temp_dataset = DreamBoothDataset(
         instance_data_root=args.instance_data_dir+"4reinit",
@@ -1452,6 +1454,7 @@ def main(args):
         size=args.resolution,
         repeats=args.repeats,
         center_crop=args.center_crop,
+        args = args
     )
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -1463,7 +1466,7 @@ def main(args):
     if not args.baseline:
         temp_dataloader = torch.utils.data.DataLoader(
             temp_dataset,
-            batch_size=15,
+            batch_size=10,
             shuffle=True,
             collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
             num_workers=args.dataloader_num_workers,
@@ -1488,15 +1491,8 @@ def main(args):
     transformer.add_adapter(transformer_lora_config)
     if not args.baseline:
         init_conf['direction'] = args.direction
-        # init_conf['stable_gamma'] = args.stable_gamma
-        reinit_depth = args.reinit_depth
-        if reinit_depth.lower() == "medium":
-            init_conf['reinit_pos_start'] = 10
-            init_conf['reinit_pos_end'] = 13
-        else:
-            init_conf['reinit_pos_start'] = 0
-            init_conf['reinit_pos_end'] = 23
-        _, inited_modules = reinit_lora(transformer, init_conf, additional_info)
+        init_conf['stable_gamma'] = args.stable_gamma
+        reinit_lora(transformer, init_conf, additional_info)
     
     # Make sure the trainable params are in float32.
     if args.mixed_precision == "fp16":
@@ -1505,36 +1501,31 @@ def main(args):
             models.extend([text_encoder_one, text_encoder_two])
         # only upcast trainable parameters (LoRA) into fp32
         cast_training_params(models, dtype=torch.float32)
-    if args.baseline:
-        transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
-    if not args.baseline:
-        reinit_lora_parameters = []
-        transformer_lora_parameters = []
-        transformer_lora_parameters1 = []
-        test_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
-        for name, param in transformer.named_parameters():
-            if param.requires_grad:
-                transformer_lora_parameters1.append(param)
-        
-        temp_name_list = []
-        temp_name_list1 = []
-        for name, param in transformer.named_parameters():
-            if param.requires_grad:
-                if ".".join(name.split(".")[:-3]) in inited_modules:
-                    reinit_lora_parameters.append(param)
-                    temp_name_list.append(name)
-                else:
-                    transformer_lora_parameters.append(param)
-                    temp_name_list1.append(name)
-            else:
-                pass
-        
+    transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
+    if args.train_text_encoder:
+        text_lora_parameters_one = list(filter(lambda p: p.requires_grad, text_encoder_one.parameters()))
+        text_lora_parameters_two = list(filter(lambda p: p.requires_grad, text_encoder_two.parameters()))
     # Optimization parameters
     transformer_parameters_with_lr = {"params": transformer_lora_parameters, "lr": args.learning_rate}
-    params_to_optimize = [transformer_parameters_with_lr]
-    if not args.baseline:
-        reinit_lora_parameters = {"params": reinit_lora_parameters, "lr": args.learning_rate / args.lr_scale}
-        params_to_optimize.append(reinit_lora_parameters)
+    if args.train_text_encoder:
+        # different learning rate for text encoder and unet
+        text_lora_parameters_one_with_lr = {
+            "params": text_lora_parameters_one,
+            "weight_decay": args.adam_weight_decay_text_encoder,
+            "lr": args.text_encoder_lr if args.text_encoder_lr else args.learning_rate,
+        }
+        text_lora_parameters_two_with_lr = {
+            "params": text_lora_parameters_two,
+            "weight_decay": args.adam_weight_decay_text_encoder,
+            "lr": args.text_encoder_lr if args.text_encoder_lr else args.learning_rate,
+        }
+        params_to_optimize = [
+            transformer_parameters_with_lr,
+            text_lora_parameters_one_with_lr,
+            text_lora_parameters_two_with_lr,
+        ]
+    else:
+        params_to_optimize = [transformer_parameters_with_lr]
 
     # Optimizer creation
     if not (args.optimizer.lower() == "prodigy" or args.optimizer.lower() == "adamw"):
@@ -1885,7 +1876,7 @@ def main(args):
                 if not args.fixed_noise:
                     noise = torch.randn_like(model_input)
                 else:
-                    noise_tensor = torch.load("/dcs/pg24/u5649209/data/workspace/diffusers/noise.pt")
+                    noise_tensor = torch.load("/home/j/jiayang_gu/workspace/Diffusion_One/noise.pt")
                     sample_number = args.noise_samples
                     # Randomly sample 'sample_number' indices from the noise tensor's first dimension
                     total_samples = noise_tensor.shape[0]
@@ -2019,38 +2010,38 @@ def main(args):
             if global_step >= args.max_train_steps:
                 break
 
-        # if accelerator.is_main_process:
-        #     if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
-        #         if not args.train_text_encoder:
-        #             # create pipeline
-        #             text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-        #                 text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
-        #             )
-        #             text_encoder_one.to(weight_dtype)
-        #             text_encoder_two.to(weight_dtype)
-        #         pipeline = StableDiffusion3Pipeline.from_pretrained(
-        #             args.pretrained_model_name_or_path,
-        #             vae=vae,
-        #             text_encoder=accelerator.unwrap_model(text_encoder_one),
-        #             text_encoder_2=accelerator.unwrap_model(text_encoder_two),
-        #             text_encoder_3=accelerator.unwrap_model(text_encoder_three),
-        #             transformer=accelerator.unwrap_model(transformer),
-        #             revision=args.revision,
-        #             variant=args.variant,
-        #             torch_dtype=weight_dtype,
-        #         ).to(accelerator.device)
-        #         pipeline_args = {"prompt": args.validation_prompt}
-        #         images = log_validation(
-        #             pipeline=pipeline,
-        #             args=args,
-        #             accelerator=accelerator,
-        #             pipeline_args=pipeline_args,
-        #             epoch=epoch,
-        #             torch_dtype=weight_dtype,
-        #         )
-        #         if not args.train_text_encoder:
-        #             del text_encoder_one, text_encoder_two, text_encoder_three
-        #             free_memory()
+        if accelerator.is_main_process:
+            if args.validation_prompt is not None and epoch % args.validation_epochs == 0:
+                if not args.train_text_encoder:
+                    # create pipeline
+                    text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
+                        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three, args=args
+                    )
+                    text_encoder_one.to(weight_dtype)
+                    text_encoder_two.to(weight_dtype)
+                pipeline = StableDiffusion3Pipeline.from_pretrained(
+                    args.pretrained_model_name_or_path,
+                    vae=vae,
+                    text_encoder=accelerator.unwrap_model(text_encoder_one),
+                    text_encoder_2=accelerator.unwrap_model(text_encoder_two),
+                    text_encoder_3=accelerator.unwrap_model(text_encoder_three),
+                    transformer=accelerator.unwrap_model(transformer),
+                    revision=args.revision,
+                    variant=args.variant,
+                    torch_dtype=weight_dtype,
+                ).to(accelerator.device)
+                pipeline_args = {"prompt": args.validation_prompt}
+                images = log_validation(
+                    pipeline=pipeline,
+                    args=args,
+                    accelerator=accelerator,
+                    pipeline_args=pipeline_args,
+                    epoch=epoch,
+                    torch_dtype=weight_dtype,
+                )
+                if not args.train_text_encoder:
+                    del text_encoder_one, text_encoder_two, text_encoder_three
+                    free_memory()
 
     # Save the lora layers
     accelerator.wait_for_everyone()
