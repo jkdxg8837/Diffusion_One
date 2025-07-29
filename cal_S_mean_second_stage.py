@@ -51,6 +51,8 @@ def process_pt_file(filepath):
 
     svd_dict = {}
     for name, weights in state_dict.items():
+        if weights is None:
+            continue
         svd_result = svd_weights(weights.float())
         if svd_result is not None:
             svd_dict[name] = svd_result

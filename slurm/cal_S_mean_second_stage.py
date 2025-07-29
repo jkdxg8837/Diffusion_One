@@ -13,7 +13,7 @@ re_init_samples = 32
 noise_samples = 1
 stable_gamma = 1
 # stable_gamma_list = [289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024,]
-stable_gamma_list = [5.5, 6]
+stable_gamma_list = [4, 4.5 ,5]
 # 构造命令
 
 cmd = [
