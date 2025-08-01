@@ -50,11 +50,6 @@ accelerator = Accelerator(
     kwargs_handlers=[kwargs],
 )
 
-
-
-
-
-
 weight_dtype = torch.float32
 if accelerator.mixed_precision == "fp16":
     weight_dtype = torch.float16
@@ -70,7 +65,7 @@ pipeline = StableDiffusion3Pipeline.from_pretrained(
 
 pipeline.load_lora_weights(prev_path, lora_scale = 5.7)
 
-from lora_one_utils_cal import estimate_gradient
+from lora_one_utils_nfn import estimate_nfn, get_group_metrics
 import yaml
 # Construct Temp Set
 # Dataset and DataLoaders creation:
@@ -144,7 +139,7 @@ text_encoder_two.to(accelerator.device, dtype=weight_dtype)
 text_encoder_three.to(accelerator.device, dtype=weight_dtype)
 temp_dataloader = torch.utils.data.DataLoader(
     temp_dataset,
-    batch_size=1,
+    batch_size=5,
     shuffle=True,
     collate_fn=lambda examples: collate_fn(examples, args.with_prior_preservation),
     num_workers=args.dataloader_num_workers,
@@ -161,6 +156,10 @@ for name, param in transformer.named_parameters():
         param.requires_grad = False
     else:
         param.requires_grad = True
-named_grads = estimate_gradient([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
-            , [text_encoder_one, text_encoder_two, text_encoder_three]\
-            , [tokenizer_one, tokenizer_two, tokenizer_three], 1)
+# named_grads = estimate_nfn([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
+#             , [text_encoder_one, text_encoder_two, text_encoder_three]\
+#             , [tokenizer_one, tokenizer_two, tokenizer_three], 1)
+with open("nfn_metrics.json", "r") as f:
+    nfn_metrics = yaml.safe_load(f)
+
+get_group_metrics(nfn_metrics)

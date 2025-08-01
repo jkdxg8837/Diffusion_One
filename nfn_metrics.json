@@ -1,0 +1,5057 @@
+{
+  "time_text_embed.timestep_embedder.linear_1": {
+    "actual": 18.53807830810547,
+    "random": 2.4743802547454834,
+    "nfn": 7.492008664615015
+  },
+  "time_text_embed.timestep_embedder.linear_2": {
+    "actual": 20.994747357468516,
+    "random": 1.2657330852523268,
+    "nfn": 16.587025813015835
+  },
+  "time_text_embed.text_embedder.linear_1": {
+    "actual": 7.4571767769477155,
+    "random": 0.8979198100301614,
+    "nfn": 8.304947383550015
+  },
+  "time_text_embed.text_embedder.linear_2": {
+    "actual": 9.97496587027966,
+    "random": 0.9181595842366265,
+    "nfn": 10.86408729107045
+  },
+  "context_embedder": {
+    "actual": 1.7056589126586914,
+    "random": 0.6121694445610046,
+    "nfn": 2.7862529366878865
+  },
+  "transformer_blocks.0.attn.to_q.base_layer": {
+    "actual": 4.350628668129321,
+    "random": 0.9959720644077942,
+    "nfn": 4.368223591407866
+  },
+  "transformer_blocks.0.attn.to_q.lora_A.default_0": {
+    "actual": 0.13460684377824725,
+    "random": 0.14311349272823395,
+    "nfn": 0.9405601191905753
+  },
+  "transformer_blocks.0.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.to_q": {
+    "actual": 4.350628668129321,
+    "random": 0.9969670123240925,
+    "nfn": 4.363864214511268
+  },
+  "transformer_blocks.0.attn.to_k.base_layer": {
+    "actual": 3.5183371186958996,
+    "random": 0.9966108673010309,
+    "nfn": 3.530301779895372
+  },
+  "transformer_blocks.0.attn.to_k.lora_A.default_0": {
+    "actual": 0.14779894356234446,
+    "random": 0.14302809432987137,
+    "nfn": 1.0333560287915875
+  },
+  "transformer_blocks.0.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.to_k": {
+    "actual": 3.5183371186958996,
+    "random": 0.9961403548546031,
+    "nfn": 3.531969266729925
+  },
+  "transformer_blocks.0.attn.to_v.base_layer": {
+    "actual": 2.3650780189488305,
+    "random": 0.9998892703255623,
+    "nfn": 2.3653399322694653
+  },
+  "transformer_blocks.0.attn.to_v.lora_A.default_0": {
+    "actual": 0.13729315205191456,
+    "random": 0.14302203528978238,
+    "nfn": 0.9599440517941147
+  },
+  "transformer_blocks.0.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.to_v": {
+    "actual": 2.3650780189488305,
+    "random": 0.999194792397291,
+    "nfn": 2.3669839324066944
+  },
+  "transformer_blocks.0.attn.add_q_proj.base_layer": {
+    "actual": 2.5966336043445772,
+    "random": 0.9987248639547271,
+    "nfn": 2.5999488928937735
+  },
+  "transformer_blocks.0.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.1334663328988474,
+    "random": 0.14326373988899466,
+    "nfn": 0.9316127933157504
+  },
+  "transformer_blocks.0.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.add_q_proj": {
+    "actual": 2.5966336043445772,
+    "random": 0.9963111759848226,
+    "nfn": 2.6062475930553384
+  },
+  "transformer_blocks.0.attn.add_k_proj.base_layer": {
+    "actual": 2.071428806717338,
+    "random": 0.9987674962367991,
+    "nfn": 2.073985001035937
+  },
+  "transformer_blocks.0.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.1566749141225742,
+    "random": 0.14345204463489258,
+    "nfn": 1.0921762357680982
+  },
+  "transformer_blocks.0.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.add_k_proj": {
+    "actual": 2.071428806717338,
+    "random": 0.9984850330345786,
+    "nfn": 2.0745717143319484
+  },
+  "transformer_blocks.0.attn.add_v_proj.base_layer": {
+    "actual": 1.3517473156894855,
+    "random": 0.9995690415401366,
+    "nfn": 1.3523301137925525
+  },
+  "transformer_blocks.0.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.1510125586582135,
+    "random": 0.14238233205725534,
+    "nfn": 1.0606130443030513
+  },
+  "transformer_blocks.0.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.add_v_proj": {
+    "actual": 1.3517473156894855,
+    "random": 0.9980124765746267,
+    "nfn": 1.3544392955175728
+  },
+  "transformer_blocks.0.attn.to_add_out.base_layer": {
+    "actual": 1.7661682349938777,
+    "random": 1.0003765242160914,
+    "nfn": 1.7655034801799963
+  },
+  "transformer_blocks.0.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.12271703611062454,
+    "random": 0.14312144978088093,
+    "nfn": 0.8574328746564853
+  },
+  "transformer_blocks.0.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.to_add_out": {
+    "actual": 1.7661682349938777,
+    "random": 0.9985634842203089,
+    "nfn": 1.7687090134013104
+  },
+  "transformer_blocks.0.attn.to_out.0.base_layer": {
+    "actual": 2.096329368802539,
+    "random": 0.9986746396224233,
+    "nfn": 2.0991114479437614
+  },
+  "transformer_blocks.0.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.1255419844682556,
+    "random": 0.14314433543230135,
+    "nfn": 0.8770307542321812
+  },
+  "transformer_blocks.0.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.attn.to_out.0": {
+    "actual": 2.096329368802539,
+    "random": 0.9993834256453624,
+    "nfn": 2.097622709170719
+  },
+  "transformer_blocks.0.ff.net.0.proj.base_layer": {
+    "actual": 4.734026426172332,
+    "random": 1.9973078149705028,
+    "nfn": 2.370203726580946
+  },
+  "transformer_blocks.0.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14661333055119793,
+    "random": 0.1432904458990254,
+    "nfn": 1.0231898549224567
+  },
+  "transformer_blocks.0.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.ff.net.0.proj": {
+    "actual": 4.734026426172332,
+    "random": 1.9970705147337648,
+    "nfn": 2.370485364060086
+  },
+  "transformer_blocks.0.ff.net.2.base_layer": {
+    "actual": 2.035096563662326,
+    "random": 0.4993414565052483,
+    "nfn": 4.075560995686999
+  },
+  "transformer_blocks.0.ff.net.2.lora_A.default_0": {
+    "actual": 0.07207952107299913,
+    "random": 0.0714419226877319,
+    "nfn": 1.0089247092082632
+  },
+  "transformer_blocks.0.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.0.ff.net.2": {
+    "actual": 2.035096563662326,
+    "random": 0.4991818287824221,
+    "nfn": 4.076864273337485
+  },
+  "transformer_blocks.0.ff_context.net.0.proj": {
+    "actual": 5.987154664026053,
+    "random": 2.003231171495082,
+    "nfn": 2.9887487521261105
+  },
+  "transformer_blocks.0.ff_context.net.2": {
+    "actual": 0.4909471796320926,
+    "random": 0.4992868034769758,
+    "nfn": 0.9832969271632918
+  },
+  "transformer_blocks.1.attn.to_q.base_layer": {
+    "actual": 3.9766742525671614,
+    "random": 0.9971478588539773,
+    "nfn": 3.9880487304436034
+  },
+  "transformer_blocks.1.attn.to_q.lora_A.default_0": {
+    "actual": 0.13860584673721654,
+    "random": 0.143366354234598,
+    "nfn": 0.9667948067536711
+  },
+  "transformer_blocks.1.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.to_q": {
+    "actual": 3.9766742525671614,
+    "random": 0.9992328499824282,
+    "nfn": 3.9797273004356213
+  },
+  "transformer_blocks.1.attn.to_k.base_layer": {
+    "actual": 3.001616145200962,
+    "random": 0.9973853537586699,
+    "nfn": 3.00948488354005
+  },
+  "transformer_blocks.1.attn.to_k.lora_A.default_0": {
+    "actual": 0.1397141887371078,
+    "random": 0.1429731371329197,
+    "nfn": 0.9772058691502159
+  },
+  "transformer_blocks.1.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.to_k": {
+    "actual": 3.001616145200962,
+    "random": 0.9967497628866852,
+    "nfn": 3.0114039219914006
+  },
+  "transformer_blocks.1.attn.to_v.base_layer": {
+    "actual": 1.2173945014253302,
+    "random": 0.998785892358515,
+    "nfn": 1.2188743460829194
+  },
+  "transformer_blocks.1.attn.to_v.lora_A.default_0": {
+    "actual": 0.1416059110868169,
+    "random": 0.14326182970968948,
+    "nfn": 0.9884413131800132
+  },
+  "transformer_blocks.1.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.to_v": {
+    "actual": 1.2173945014253302,
+    "random": 0.9990976530879127,
+    "nfn": 1.2184940057287965
+  },
+  "transformer_blocks.1.attn.add_q_proj.base_layer": {
+    "actual": 2.3116556814857296,
+    "random": 0.9981992604771287,
+    "nfn": 2.3158258806771532
+  },
+  "transformer_blocks.1.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14510439840084535,
+    "random": 0.14355473198097893,
+    "nfn": 1.0107949518520347
+  },
+  "transformer_blocks.1.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.add_q_proj": {
+    "actual": 2.3116556814857296,
+    "random": 1.0012694661241448,
+    "nfn": 2.3087248335196047
+  },
+  "transformer_blocks.1.attn.add_k_proj.base_layer": {
+    "actual": 3.156242264267906,
+    "random": 0.9965564576077017,
+    "nfn": 3.167148474301867
+  },
+  "transformer_blocks.1.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.1610272150857681,
+    "random": 0.14334405258704158,
+    "nfn": 1.1233616754904352
+  },
+  "transformer_blocks.1.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.add_k_proj": {
+    "actual": 3.156242264267906,
+    "random": 0.9909421364611549,
+    "nfn": 3.1850923965545097
+  },
+  "transformer_blocks.1.attn.add_v_proj.base_layer": {
+    "actual": 1.9266556115078624,
+    "random": 0.9996245219072164,
+    "nfn": 1.9273793002115764
+  },
+  "transformer_blocks.1.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.15923455439148973,
+    "random": 0.14356024351744542,
+    "nfn": 1.109182810574848
+  },
+  "transformer_blocks.1.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.add_v_proj": {
+    "actual": 1.9266556115078624,
+    "random": 0.9988294979803601,
+    "nfn": 1.9289134085482784
+  },
+  "transformer_blocks.1.attn.to_add_out.base_layer": {
+    "actual": 2.3470330782231046,
+    "random": 0.9972853917639488,
+    "nfn": 2.353421696142354
+  },
+  "transformer_blocks.1.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.1352736666902087,
+    "random": 0.143911862510561,
+    "nfn": 0.939975790253438
+  },
+  "transformer_blocks.1.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.to_add_out": {
+    "actual": 2.3470330782231046,
+    "random": 0.9996134258338004,
+    "nfn": 2.3479407314536522
+  },
+  "transformer_blocks.1.attn.to_out.0.base_layer": {
+    "actual": 1.5528862278366127,
+    "random": 0.9990541448000448,
+    "nfn": 1.5543564239427827
+  },
+  "transformer_blocks.1.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.13638985624202246,
+    "random": 0.14377207875236359,
+    "nfn": 0.9486532950319482
+  },
+  "transformer_blocks.1.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.attn.to_out.0": {
+    "actual": 1.5528862278366127,
+    "random": 0.9993399173574946,
+    "nfn": 1.5539119381349575
+  },
+  "transformer_blocks.1.ff.net.0.proj.base_layer": {
+    "actual": 4.204986280502262,
+    "random": 1.9979108962940582,
+    "nfn": 2.1046915997615945
+  },
+  "transformer_blocks.1.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14800007205975602,
+    "random": 0.14307086044616207,
+    "nfn": 1.0344529389019004
+  },
+  "transformer_blocks.1.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.ff.net.0.proj": {
+    "actual": 4.204986280502262,
+    "random": 1.9985443458185417,
+    "nfn": 2.1040245062863643
+  },
+  "transformer_blocks.1.ff.net.2.base_layer": {
+    "actual": 1.0016494579716528,
+    "random": 0.49970636158626985,
+    "nfn": 2.0044760983070393
+  },
+  "transformer_blocks.1.ff.net.2.lora_A.default_0": {
+    "actual": 0.07532489137897305,
+    "random": 0.07165787028319241,
+    "nfn": 1.0511740173310837
+  },
+  "transformer_blocks.1.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.1.ff.net.2": {
+    "actual": 1.0016494579716528,
+    "random": 0.4996856781160866,
+    "nfn": 2.0045590695095936
+  },
+  "transformer_blocks.1.ff_context.net.0.proj": {
+    "actual": 9.337376926408242,
+    "random": 1.99508237091276,
+    "nfn": 4.680196197681976
+  },
+  "transformer_blocks.1.ff_context.net.2": {
+    "actual": 1.2656304952402178,
+    "random": 0.4988986355753717,
+    "nfn": 2.5368489809169086
+  },
+  "transformer_blocks.2.attn.to_q.base_layer": {
+    "actual": 2.2297045605983614,
+    "random": 0.9984713089437746,
+    "nfn": 2.2331183085841873
+  },
+  "transformer_blocks.2.attn.to_q.lora_A.default_0": {
+    "actual": 0.1490589440656678,
+    "random": 0.1434088283489567,
+    "nfn": 1.0393986603318637
+  },
+  "transformer_blocks.2.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.to_q": {
+    "actual": 2.2297045605983614,
+    "random": 0.9990502514409515,
+    "nfn": 2.2318242324471775
+  },
+  "transformer_blocks.2.attn.to_k.base_layer": {
+    "actual": 2.3415041189746786,
+    "random": 0.9980339873836173,
+    "nfn": 2.3461166138369873
+  },
+  "transformer_blocks.2.attn.to_k.lora_A.default_0": {
+    "actual": 0.14194801568364818,
+    "random": 0.1431379722235332,
+    "nfn": 0.991686646657068
+  },
+  "transformer_blocks.2.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.to_k": {
+    "actual": 2.3415041189746786,
+    "random": 0.9987087065144898,
+    "nfn": 2.3445315973529133
+  },
+  "transformer_blocks.2.attn.to_v.base_layer": {
+    "actual": 1.5601026662500614,
+    "random": 1.0000524994055497,
+    "nfn": 1.5600207660871965
+  },
+  "transformer_blocks.2.attn.to_v.lora_A.default_0": {
+    "actual": 0.1461780043375759,
+    "random": 0.1430133847325469,
+    "nfn": 1.0221281358450975
+  },
+  "transformer_blocks.2.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.to_v": {
+    "actual": 1.5601026662500614,
+    "random": 0.9981931284365567,
+    "nfn": 1.5629266740130827
+  },
+  "transformer_blocks.2.attn.add_q_proj.base_layer": {
+    "actual": 1.9237507762883352,
+    "random": 0.99756016558196,
+    "nfn": 1.9284558893408208
+  },
+  "transformer_blocks.2.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.1412534160879053,
+    "random": 0.1429671632600609,
+    "nfn": 0.9880130014957472
+  },
+  "transformer_blocks.2.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.add_q_proj": {
+    "actual": 1.9237507762883352,
+    "random": 0.9986203272630715,
+    "nfn": 1.926408589699729
+  },
+  "transformer_blocks.2.attn.add_k_proj.base_layer": {
+    "actual": 2.0265247496145147,
+    "random": 1.0003367146193622,
+    "nfn": 2.0258426187882415
+  },
+  "transformer_blocks.2.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.1401858083575279,
+    "random": 0.1422970309928701,
+    "nfn": 0.9851632699529198
+  },
+  "transformer_blocks.2.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.add_k_proj": {
+    "actual": 2.0265247496145147,
+    "random": 0.9992670142084722,
+    "nfn": 2.0280112530480574
+  },
+  "transformer_blocks.2.attn.add_v_proj.base_layer": {
+    "actual": 1.4983441602982726,
+    "random": 1.0001511960585654,
+    "nfn": 1.4981176508142022
+  },
+  "transformer_blocks.2.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13374821209720386,
+    "random": 0.1431759689749346,
+    "nfn": 0.93415265882097
+  },
+  "transformer_blocks.2.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.add_v_proj": {
+    "actual": 1.4983441602982726,
+    "random": 1.0007022037042477,
+    "nfn": 1.4972927557788214
+  },
+  "transformer_blocks.2.attn.to_add_out.base_layer": {
+    "actual": 1.5386219334584563,
+    "random": 0.9995467520593273,
+    "nfn": 1.53931962690939
+  },
+  "transformer_blocks.2.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.13567285766474582,
+    "random": 0.14414183836550465,
+    "nfn": 0.941245506531672
+  },
+  "transformer_blocks.2.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.to_add_out": {
+    "actual": 1.5386219334584563,
+    "random": 0.998349252136199,
+    "nfn": 1.5411660099571558
+  },
+  "transformer_blocks.2.attn.to_out.0.base_layer": {
+    "actual": 1.1442976577879933,
+    "random": 0.9993805056260425,
+    "nfn": 1.1450069831722105
+  },
+  "transformer_blocks.2.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.1545730233823088,
+    "random": 0.14318030033692591,
+    "nfn": 1.0795690679414278
+  },
+  "transformer_blocks.2.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.attn.to_out.0": {
+    "actual": 1.1442976577879933,
+    "random": 0.9996245219072164,
+    "nfn": 1.144727477878144
+  },
+  "transformer_blocks.2.ff.net.0.proj.base_layer": {
+    "actual": 4.698995927730173,
+    "random": 1.999004540863372,
+    "nfn": 2.350667960814472
+  },
+  "transformer_blocks.2.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.1406002320995176,
+    "random": 0.14293776839890632,
+    "nfn": 0.9836464754866944
+  },
+  "transformer_blocks.2.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.ff.net.0.proj": {
+    "actual": 4.698995927730173,
+    "random": 1.999304913517422,
+    "nfn": 2.350314799888689
+  },
+  "transformer_blocks.2.ff.net.2.base_layer": {
+    "actual": 0.6722399371359572,
+    "random": 0.49984637651266345,
+    "nfn": 1.3448930886046468
+  },
+  "transformer_blocks.2.ff.net.2.lora_A.default_0": {
+    "actual": 0.06795025483549032,
+    "random": 0.07181907968315025,
+    "nfn": 0.9461309603975945
+  },
+  "transformer_blocks.2.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.2.ff.net.2": {
+    "actual": 0.6722399371359572,
+    "random": 0.49993830845425447,
+    "nfn": 1.344645780825313
+  },
+  "transformer_blocks.2.ff_context.net.0.proj": {
+    "actual": 4.253859617200726,
+    "random": 2.0010249995648515,
+    "nfn": 2.125840315900992
+  },
+  "transformer_blocks.2.ff_context.net.2": {
+    "actual": 0.618340565849947,
+    "random": 0.5001586725789364,
+    "nfn": 1.2362888014350262
+  },
+  "transformer_blocks.3.attn.to_q.base_layer": {
+    "actual": 3.6834435764382008,
+    "random": 0.997548193502748,
+    "nfn": 3.692496864241029
+  },
+  "transformer_blocks.3.attn.to_q.lora_A.default_0": {
+    "actual": 0.1394324677064645,
+    "random": 0.14312533097322708,
+    "nfn": 0.9741983949196711
+  },
+  "transformer_blocks.3.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.to_q": {
+    "actual": 3.6834435764382008,
+    "random": 0.9971648923000106,
+    "nfn": 3.693916226775849
+  },
+  "transformer_blocks.3.attn.to_k.base_layer": {
+    "actual": 3.5417891565304305,
+    "random": 0.9993320333053306,
+    "nfn": 3.544156535056543
+  },
+  "transformer_blocks.3.attn.to_k.lora_A.default_0": {
+    "actual": 0.15407396774702797,
+    "random": 0.14323445452856456,
+    "nfn": 1.0756767165703258
+  },
+  "transformer_blocks.3.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.to_k": {
+    "actual": 3.5417891565304305,
+    "random": 0.9985881097165742,
+    "nfn": 3.546796844532511
+  },
+  "transformer_blocks.3.attn.to_v.base_layer": {
+    "actual": 0.926137369020774,
+    "random": 0.9994103871570837,
+    "nfn": 0.9266837536632557
+  },
+  "transformer_blocks.3.attn.to_v.lora_A.default_0": {
+    "actual": 0.1407344799877542,
+    "random": 0.1431531806574915,
+    "nfn": 0.9831041080706109
+  },
+  "transformer_blocks.3.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.to_v": {
+    "actual": 0.926137369020774,
+    "random": 0.9995184278719234,
+    "nfn": 0.9265835858500527
+  },
+  "transformer_blocks.3.attn.add_q_proj.base_layer": {
+    "actual": 2.2468608421110368,
+    "random": 0.999302638444176,
+    "nfn": 2.248428809924085
+  },
+  "transformer_blocks.3.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13701449704155721,
+    "random": 0.1441022964372131,
+    "nfn": 0.9508141121210785
+  },
+  "transformer_blocks.3.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.add_q_proj": {
+    "actual": 2.2468608421110368,
+    "random": 0.9985575468476916,
+    "nfn": 2.2501065153471287
+  },
+  "transformer_blocks.3.attn.add_k_proj.base_layer": {
+    "actual": 2.5062364249081117,
+    "random": 1.000423439193166,
+    "nfn": 2.5051756353583365
+  },
+  "transformer_blocks.3.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14171592281469755,
+    "random": 0.1429571256936484,
+    "nfn": 0.9913176564446973
+  },
+  "transformer_blocks.3.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.add_k_proj": {
+    "actual": 2.5062364249081117,
+    "random": 0.9992660408686989,
+    "nfn": 2.5080772511085714
+  },
+  "transformer_blocks.3.attn.add_v_proj.base_layer": {
+    "actual": 1.8800343883769302,
+    "random": 0.9992866756718934,
+    "nfn": 1.8813764199476048
+  },
+  "transformer_blocks.3.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13647212778636322,
+    "random": 0.14335561099684987,
+    "nfn": 0.951983161575462
+  },
+  "transformer_blocks.3.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.add_v_proj": {
+    "actual": 1.8800343883769302,
+    "random": 0.9991142971980366,
+    "nfn": 1.881701016239471
+  },
+  "transformer_blocks.3.attn.to_add_out.base_layer": {
+    "actual": 1.6946269829822773,
+    "random": 0.9990184232303636,
+    "nfn": 1.6962920238273858
+  },
+  "transformer_blocks.3.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.13792081020474664,
+    "random": 0.14290013664991993,
+    "nfn": 0.9651552016540631
+  },
+  "transformer_blocks.3.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.to_add_out": {
+    "actual": 1.6946269829822773,
+    "random": 0.9974120232684591,
+    "nfn": 1.6990240176061713
+  },
+  "transformer_blocks.3.attn.to_out.0.base_layer": {
+    "actual": 1.207221348782436,
+    "random": 0.9995497694126246,
+    "nfn": 1.2077651215825376
+  },
+  "transformer_blocks.3.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14718363465788653,
+    "random": 0.14308828322810468,
+    "nfn": 1.0286211514834742
+  },
+  "transformer_blocks.3.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.attn.to_out.0": {
+    "actual": 1.207221348782436,
+    "random": 0.9997005397435135,
+    "nfn": 1.2075829718889266
+  },
+  "transformer_blocks.3.ff.net.0.proj.base_layer": {
+    "actual": 4.164452129645783,
+    "random": 1.9989054548744472,
+    "nfn": 2.083366234000975
+  },
+  "transformer_blocks.3.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14821691999450687,
+    "random": 0.1437957065753612,
+    "nfn": 1.0307464911466504
+  },
+  "transformer_blocks.3.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.ff.net.0.proj": {
+    "actual": 4.164452129645783,
+    "random": 1.999636043708309,
+    "nfn": 2.082605053429043
+  },
+  "transformer_blocks.3.ff.net.2.base_layer": {
+    "actual": 0.6198013541817612,
+    "random": 0.4997475825256704,
+    "nfn": 1.2402288192157969
+  },
+  "transformer_blocks.3.ff.net.2.lora_A.default_0": {
+    "actual": 0.07209157223606767,
+    "random": 0.0714281073463242,
+    "nfn": 1.009288568805647
+  },
+  "transformer_blocks.3.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.3.ff.net.2": {
+    "actual": 0.6198013541817612,
+    "random": 0.49993490176504785,
+    "nfn": 1.2397641212756265
+  },
+  "transformer_blocks.3.ff_context.net.0.proj": {
+    "actual": 4.3122105579400625,
+    "random": 1.9998599118561748,
+    "nfn": 2.1562563119422067
+  },
+  "transformer_blocks.3.ff_context.net.2": {
+    "actual": 0.8466978540845073,
+    "random": 0.49929011283220515,
+    "nfn": 1.6958033662666465
+  },
+  "transformer_blocks.4.attn.to_q.base_layer": {
+    "actual": 1.9824423859483373,
+    "random": 0.9984759809746866,
+    "nfn": 1.9854682773772165
+  },
+  "transformer_blocks.4.attn.to_q.lora_A.default_0": {
+    "actual": 0.15135199873741528,
+    "random": 0.1428516521624609,
+    "nfn": 1.0595047130801623
+  },
+  "transformer_blocks.4.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.to_q": {
+    "actual": 1.9824423859483373,
+    "random": 0.998681550334814,
+    "nfn": 1.9850595870963188
+  },
+  "transformer_blocks.4.attn.to_k.base_layer": {
+    "actual": 2.199039491039588,
+    "random": 0.9992969930734907,
+    "nfn": 2.20058651860455
+  },
+  "transformer_blocks.4.attn.to_k.lora_A.default_0": {
+    "actual": 0.14232377350314235,
+    "random": 0.14352351210774936,
+    "nfn": 0.9916408218626485
+  },
+  "transformer_blocks.4.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.to_k": {
+    "actual": 2.199039491039588,
+    "random": 0.998870086248908,
+    "nfn": 2.2015270267004574
+  },
+  "transformer_blocks.4.attn.to_v.base_layer": {
+    "actual": 1.330940134021025,
+    "random": 0.9999558467660581,
+    "nfn": 1.3309989019269182
+  },
+  "transformer_blocks.4.attn.to_v.lora_A.default_0": {
+    "actual": 0.1450767068842941,
+    "random": 0.14311104721205345,
+    "nfn": 1.0137352057058744
+  },
+  "transformer_blocks.4.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.to_v": {
+    "actual": 1.330940134021025,
+    "random": 0.9995199852155607,
+    "nfn": 1.3315793117773316
+  },
+  "transformer_blocks.4.attn.add_q_proj.base_layer": {
+    "actual": 2.0579081439260056,
+    "random": 0.9984174832543095,
+    "nfn": 2.0611699799349674
+  },
+  "transformer_blocks.4.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.15140258807213414,
+    "random": 0.14245540554073813,
+    "nfn": 1.0628069008503673
+  },
+  "transformer_blocks.4.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.add_q_proj": {
+    "actual": 2.0579081439260056,
+    "random": 0.9992054018008203,
+    "nfn": 2.0595446543995215
+  },
+  "transformer_blocks.4.attn.add_k_proj.base_layer": {
+    "actual": 2.0857121785550516,
+    "random": 0.9997429773576307,
+    "nfn": 2.0862483916293066
+  },
+  "transformer_blocks.4.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14179150264809665,
+    "random": 0.1437495094363695,
+    "nfn": 0.9863790367288902
+  },
+  "transformer_blocks.4.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.add_k_proj": {
+    "actual": 2.0857121785550516,
+    "random": 1.0005185344890204,
+    "nfn": 2.0846312253678096
+  },
+  "transformer_blocks.4.attn.add_v_proj.base_layer": {
+    "actual": 1.6500388719698775,
+    "random": 0.999984462955394,
+    "nfn": 1.6500645090957582
+  },
+  "transformer_blocks.4.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13223554475547114,
+    "random": 0.14299226325946565,
+    "nfn": 0.9247741223280312
+  },
+  "transformer_blocks.4.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.add_v_proj": {
+    "actual": 1.6500388719698775,
+    "random": 1.0002749075437558,
+    "nfn": 1.649585388502509
+  },
+  "transformer_blocks.4.attn.to_add_out.base_layer": {
+    "actual": 1.423484208995525,
+    "random": 0.9998160751746078,
+    "nfn": 1.4237460712430814
+  },
+  "transformer_blocks.4.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14169023881142878,
+    "random": 0.1445372941486616,
+    "nfn": 0.980302278702516
+  },
+  "transformer_blocks.4.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.to_add_out": {
+    "actual": 1.423484208995525,
+    "random": 0.99974336669354,
+    "nfn": 1.4238496162304402
+  },
+  "transformer_blocks.4.attn.to_out.0.base_layer": {
+    "actual": 1.0281761788161572,
+    "random": 0.9997301292726227,
+    "nfn": 1.0284537283719069
+  },
+  "transformer_blocks.4.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.16108383912708157,
+    "random": 0.14286952511404868,
+    "nfn": 1.127489147867559
+  },
+  "transformer_blocks.4.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.attn.to_out.0": {
+    "actual": 1.0281761788161572,
+    "random": 0.9996650128417869,
+    "nfn": 1.0285207200493298
+  },
+  "transformer_blocks.4.ff.net.0.proj.base_layer": {
+    "actual": 3.65679664813169,
+    "random": 1.9999222056016681,
+    "nfn": 1.8284694464060707
+  },
+  "transformer_blocks.4.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.13390745048412073,
+    "random": 0.14290340950490776,
+    "nfn": 0.9370486746820544
+  },
+  "transformer_blocks.4.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.ff.net.0.proj": {
+    "actual": 3.65679664813169,
+    "random": 1.9987512778543517,
+    "nfn": 1.8295406180088805
+  },
+  "transformer_blocks.4.ff.net.2.base_layer": {
+    "actual": 0.560796864451622,
+    "random": 0.49993777311737914,
+    "nfn": 1.1217333328401131
+  },
+  "transformer_blocks.4.ff.net.2.lora_A.default_0": {
+    "actual": 0.07128829925463245,
+    "random": 0.07178667963544552,
+    "nfn": 0.9930574810905868
+  },
+  "transformer_blocks.4.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.4.ff.net.2": {
+    "actual": 0.560796864451622,
+    "random": 0.49980836759451486,
+    "nfn": 1.1220237611279569
+  },
+  "transformer_blocks.4.ff_context.net.0.proj": {
+    "actual": 5.908528666472336,
+    "random": 1.9980345104452713,
+    "nfn": 2.957170477078293
+  },
+  "transformer_blocks.4.ff_context.net.2": {
+    "actual": 0.75779781722039,
+    "random": 0.4996148676475768,
+    "nfn": 1.5167639441725598
+  },
+  "transformer_blocks.5.attn.to_q.base_layer": {
+    "actual": 1.5349658746018728,
+    "random": 0.999320158560096,
+    "nfn": 1.5360101179321548
+  },
+  "transformer_blocks.5.attn.to_q.lora_A.default_0": {
+    "actual": 0.14762579858341618,
+    "random": 0.14351567672257404,
+    "nfn": 1.0286388355244793
+  },
+  "transformer_blocks.5.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.to_q": {
+    "actual": 1.5349658746018728,
+    "random": 1.0002313019219105,
+    "nfn": 1.5346109161475832
+  },
+  "transformer_blocks.5.attn.to_k.base_layer": {
+    "actual": 1.874311539845657,
+    "random": 0.9992293459592443,
+    "nfn": 1.875757099633966
+  },
+  "transformer_blocks.5.attn.to_k.lora_A.default_0": {
+    "actual": 0.14861738847749648,
+    "random": 0.14308413436732087,
+    "nfn": 1.0386713323223582
+  },
+  "transformer_blocks.5.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.to_k": {
+    "actual": 1.874311539845657,
+    "random": 0.9996225752276697,
+    "nfn": 1.875019218547332
+  },
+  "transformer_blocks.5.attn.to_v.base_layer": {
+    "actual": 1.1482197304046282,
+    "random": 0.9992989397530374,
+    "nfn": 1.1490252663416158
+  },
+  "transformer_blocks.5.attn.to_v.lora_A.default_0": {
+    "actual": 0.134906997430848,
+    "random": 0.14308204168680821,
+    "nfn": 0.942864637940696
+  },
+  "transformer_blocks.5.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.to_v": {
+    "actual": 1.1482197304046282,
+    "random": 0.9995306919530673,
+    "nfn": 1.1487588521779404
+  },
+  "transformer_blocks.5.attn.add_q_proj.base_layer": {
+    "actual": 2.0029714844435573,
+    "random": 0.9967594962844185,
+    "nfn": 2.0094832222917924
+  },
+  "transformer_blocks.5.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.15232002164223385,
+    "random": 0.14276858977955434,
+    "nfn": 1.0669014933706893
+  },
+  "transformer_blocks.5.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.add_q_proj": {
+    "actual": 2.0029714844435573,
+    "random": 0.9985384693881344,
+    "nfn": 2.005903173335826
+  },
+  "transformer_blocks.5.attn.add_k_proj.base_layer": {
+    "actual": 1.8979060746230034,
+    "random": 0.9971492215296599,
+    "nfn": 1.9033320526606365
+  },
+  "transformer_blocks.5.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.1492979719805034,
+    "random": 0.14385971583220483,
+    "nfn": 1.0378024947209101
+  },
+  "transformer_blocks.5.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.add_k_proj": {
+    "actual": 1.8979060746230034,
+    "random": 1.0001705655200548,
+    "nfn": 1.89758241249197
+  },
+  "transformer_blocks.5.attn.add_v_proj.base_layer": {
+    "actual": 1.8447852778216802,
+    "random": 0.9978813677071591,
+    "nfn": 1.8487019975735792
+  },
+  "transformer_blocks.5.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14490184639401532,
+    "random": 0.1428802440183025,
+    "nfn": 1.0141489286332257
+  },
+  "transformer_blocks.5.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.add_v_proj": {
+    "actual": 1.8447852778216802,
+    "random": 0.9988117831964856,
+    "nfn": 1.846979890363163
+  },
+  "transformer_blocks.5.attn.to_add_out.base_layer": {
+    "actual": 1.4131294311509275,
+    "random": 0.999214356526735,
+    "nfn": 1.4142405199850807
+  },
+  "transformer_blocks.5.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14221479594877084,
+    "random": 0.14376273469053963,
+    "nfn": 0.9892326843594006
+  },
+  "transformer_blocks.5.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.to_add_out": {
+    "actual": 1.4131294311509275,
+    "random": 0.9992340179901562,
+    "nfn": 1.4142126926315761
+  },
+  "transformer_blocks.5.attn.to_out.0.base_layer": {
+    "actual": 0.9904991695303123,
+    "random": 0.9995461680554633,
+    "nfn": 0.9909488937937192
+  },
+  "transformer_blocks.5.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14337592946461813,
+    "random": 0.1432344788620589,
+    "nfn": 1.0009875457619073
+  },
+  "transformer_blocks.5.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.attn.to_out.0": {
+    "actual": 0.9904991695303123,
+    "random": 0.9996408740154084,
+    "nfn": 0.9908550113118372
+  },
+  "transformer_blocks.5.ff.net.0.proj.base_layer": {
+    "actual": 3.510191043464943,
+    "random": 1.998022441032082,
+    "nfn": 1.7568326418054383
+  },
+  "transformer_blocks.5.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.15281644926012666,
+    "random": 0.14322305428646945,
+    "nfn": 1.0669821979530534
+  },
+  "transformer_blocks.5.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.ff.net.0.proj": {
+    "actual": 3.510191043464943,
+    "random": 1.9994427384293256,
+    "nfn": 1.7555846816710514
+  },
+  "transformer_blocks.5.ff.net.2.base_layer": {
+    "actual": 0.5469738823266935,
+    "random": 0.4997846181040456,
+    "nfn": 1.0944192008182694
+  },
+  "transformer_blocks.5.ff.net.2.lora_A.default_0": {
+    "actual": 0.07240016352782848,
+    "random": 0.07176113554976918,
+    "nfn": 1.0089049312439615
+  },
+  "transformer_blocks.5.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.5.ff.net.2": {
+    "actual": 0.5469738823266935,
+    "random": 0.4996143809776901,
+    "nfn": 1.0947921099795528
+  },
+  "transformer_blocks.5.ff_context.net.0.proj": {
+    "actual": 5.607039007698712,
+    "random": 1.9977958475328506,
+    "nfn": 2.8066126048980653
+  },
+  "transformer_blocks.5.ff_context.net.2": {
+    "actual": 0.6766386542395917,
+    "random": 0.5005272763510967,
+    "nfn": 1.3518517096058538
+  },
+  "transformer_blocks.6.attn.to_q.base_layer": {
+    "actual": 1.7599199776529608,
+    "random": 0.9994773529334888,
+    "nfn": 1.760840275657628
+  },
+  "transformer_blocks.6.attn.to_q.lora_A.default_0": {
+    "actual": 0.15143739713577786,
+    "random": 0.14316787808806877,
+    "nfn": 1.0577609947017734
+  },
+  "transformer_blocks.6.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.to_q": {
+    "actual": 1.7599199776529608,
+    "random": 0.9989220625928039,
+    "nfn": 1.7618191083745907
+  },
+  "transformer_blocks.6.attn.to_k.base_layer": {
+    "actual": 2.010400402929524,
+    "random": 1.0007696561505395,
+    "nfn": 2.008854275880555
+  },
+  "transformer_blocks.6.attn.to_k.lora_A.default_0": {
+    "actual": 0.15205915441623413,
+    "random": 0.14323074367067876,
+    "nfn": 1.0616376800071217
+  },
+  "transformer_blocks.6.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.to_k": {
+    "actual": 2.010400402929524,
+    "random": 0.9986601368598007,
+    "nfn": 2.0130976783063077
+  },
+  "transformer_blocks.6.attn.to_v.base_layer": {
+    "actual": 1.0902305800590384,
+    "random": 0.9996526514266656,
+    "nfn": 1.0906094016787766
+  },
+  "transformer_blocks.6.attn.to_v.lora_A.default_0": {
+    "actual": 0.1423811032157915,
+    "random": 0.14340666266796104,
+    "nfn": 0.992848592714663
+  },
+  "transformer_blocks.6.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.to_v": {
+    "actual": 1.0902305800590384,
+    "random": 0.9993840096492265,
+    "nfn": 1.0909025655130284
+  },
+  "transformer_blocks.6.attn.add_q_proj.base_layer": {
+    "actual": 2.010278540789903,
+    "random": 1.0000350766236072,
+    "nfn": 2.0102080294794806
+  },
+  "transformer_blocks.6.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14450809395546169,
+    "random": 0.14286418391204253,
+    "nfn": 1.0115068031637044
+  },
+  "transformer_blocks.6.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.add_q_proj": {
+    "actual": 2.010278540789903,
+    "random": 1.0011524706833903,
+    "nfn": 2.0079644206617995
+  },
+  "transformer_blocks.6.attn.add_k_proj.base_layer": {
+    "actual": 1.7213815626677185,
+    "random": 0.9999128251480769,
+    "nfn": 1.7215316369332492
+  },
+  "transformer_blocks.6.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14935165166900258,
+    "random": 0.1420590250847965,
+    "nfn": 1.0513351867637626
+  },
+  "transformer_blocks.6.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.add_k_proj": {
+    "actual": 1.7213815626677185,
+    "random": 1.0000059737643845,
+    "nfn": 1.721371279601276
+  },
+  "transformer_blocks.6.attn.add_v_proj.base_layer": {
+    "actual": 1.639011321673954,
+    "random": 0.9994526301032463,
+    "nfn": 1.6399089584712379
+  },
+  "transformer_blocks.6.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13919149311208226,
+    "random": 0.14393477249547576,
+    "nfn": 0.9670456325378735
+  },
+  "transformer_blocks.6.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.add_v_proj": {
+    "actual": 1.639011321673954,
+    "random": 0.9998674675146396,
+    "nfn": 1.639228572710769
+  },
+  "transformer_blocks.6.attn.to_add_out.base_layer": {
+    "actual": 1.2323845179384818,
+    "random": 1.0002067737596225,
+    "nfn": 1.232129745838592
+  },
+  "transformer_blocks.6.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.13609027442653854,
+    "random": 0.1428711676249162,
+    "nfn": 0.9525384070760887
+  },
+  "transformer_blocks.6.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.to_add_out": {
+    "actual": 1.2323845179384818,
+    "random": 0.9991148812019006,
+    "nfn": 1.2334762909906476
+  },
+  "transformer_blocks.6.attn.to_out.0.base_layer": {
+    "actual": 0.9286450816127824,
+    "random": 1.0000755675581776,
+    "nfn": 0.9285749114741373
+  },
+  "transformer_blocks.6.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.13824590568903897,
+    "random": 0.14297756582888835,
+    "nfn": 0.9669062757334105
+  },
+  "transformer_blocks.6.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.attn.to_out.0": {
+    "actual": 0.9286450816127824,
+    "random": 0.9999339466211581,
+    "nfn": 0.9287064258101593
+  },
+  "transformer_blocks.6.ff.net.0.proj.base_layer": {
+    "actual": 3.6879186033800644,
+    "random": 1.999316009590838,
+    "nfn": 1.8445901426732438
+  },
+  "transformer_blocks.6.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14635212265627756,
+    "random": 0.14300579268231495,
+    "nfn": 1.0233999610169389
+  },
+  "transformer_blocks.6.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.ff.net.0.proj": {
+    "actual": 3.6879186033800644,
+    "random": 1.9996266996464849,
+    "nfn": 1.8443035412720052
+  },
+  "transformer_blocks.6.ff.net.2.base_layer": {
+    "actual": 0.5726872317896144,
+    "random": 0.49999038213212765,
+    "nfn": 1.1453964961235512
+  },
+  "transformer_blocks.6.ff.net.2.lora_A.default_0": {
+    "actual": 0.06866449764453372,
+    "random": 0.07140399285343994,
+    "nfn": 0.9616338652863691
+  },
+  "transformer_blocks.6.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.6.ff.net.2": {
+    "actual": 0.5726872317896144,
+    "random": 0.49988443409780065,
+    "nfn": 1.1456392572479466
+  },
+  "transformer_blocks.6.ff_context.net.0.proj": {
+    "actual": 5.626044440112761,
+    "random": 1.9979107016261035,
+    "nfn": 2.815963914470107
+  },
+  "transformer_blocks.6.ff_context.net.2": {
+    "actual": 0.6600037908434891,
+    "random": 0.5000335497510748,
+    "nfn": 1.3199190157781417
+  },
+  "transformer_blocks.7.attn.to_q.base_layer": {
+    "actual": 1.518852623990298,
+    "random": 1.000703761047885,
+    "nfn": 1.517784466403758
+  },
+  "transformer_blocks.7.attn.to_q.lora_A.default_0": {
+    "actual": 0.14721001216574378,
+    "random": 0.14288053602023448,
+    "nfn": 1.0303013711041522
+  },
+  "transformer_blocks.7.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.to_q": {
+    "actual": 1.518852623990298,
+    "random": 0.9994337473116437,
+    "nfn": 1.519713165655881
+  },
+  "transformer_blocks.7.attn.to_k.base_layer": {
+    "actual": 2.1871001160440087,
+    "random": 0.9997130958265894,
+    "nfn": 2.1877277842756038
+  },
+  "transformer_blocks.7.attn.to_k.lora_A.default_0": {
+    "actual": 0.14830209939142044,
+    "random": 0.14292857033804834,
+    "nfn": 1.0375959057077453
+  },
+  "transformer_blocks.7.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.to_k": {
+    "actual": 2.1871001160440087,
+    "random": 0.9992929050464427,
+    "nfn": 2.188647697786228
+  },
+  "transformer_blocks.7.attn.to_v.base_layer": {
+    "actual": 1.0806730648227756,
+    "random": 0.9994003617574184,
+    "nfn": 1.0813214665266293
+  },
+  "transformer_blocks.7.attn.to_v.lora_A.default_0": {
+    "actual": 0.14319516810196353,
+    "random": 0.14319729728271768,
+    "nfn": 0.9999851311386838
+  },
+  "transformer_blocks.7.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.to_v": {
+    "actual": 1.0806730648227756,
+    "random": 0.9998130578213105,
+    "nfn": 1.0808751259737164
+  },
+  "transformer_blocks.7.attn.add_q_proj.base_layer": {
+    "actual": 2.0801892540132205,
+    "random": 1.0011424452837252,
+    "nfn": 2.077815463536452
+  },
+  "transformer_blocks.7.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13880232753721045,
+    "random": 0.1418716571784304,
+    "nfn": 0.9783654487283553
+  },
+  "transformer_blocks.7.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.add_q_proj": {
+    "actual": 2.0801892540132205,
+    "random": 0.9996872049886188,
+    "nfn": 2.0808401304254995
+  },
+  "transformer_blocks.7.attn.add_k_proj.base_layer": {
+    "actual": 1.8123082389408756,
+    "random": 0.9985857737011182,
+    "nfn": 1.8148748827292112
+  },
+  "transformer_blocks.7.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.13864036379892827,
+    "random": 0.14319934129624168,
+    "nfn": 0.9681634185182313
+  },
+  "transformer_blocks.7.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.add_k_proj": {
+    "actual": 1.8123082389408756,
+    "random": 0.9989060998205213,
+    "nfn": 1.8142928942635375
+  },
+  "transformer_blocks.7.attn.add_v_proj.base_layer": {
+    "actual": 1.5919169580792056,
+    "random": 0.9993395280215852,
+    "nfn": 1.5929690695121
+  },
+  "transformer_blocks.7.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.1396669452578598,
+    "random": 0.14320968303133333,
+    "nfn": 0.9752618838441365
+  },
+  "transformer_blocks.7.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.add_v_proj": {
+    "actual": 1.5919169580792056,
+    "random": 1.0000616487994192,
+    "nfn": 1.591818824359791
+  },
+  "transformer_blocks.7.attn.to_add_out.base_layer": {
+    "actual": 1.0672380559314967,
+    "random": 0.9993575348073919,
+    "nfn": 1.067924160032663
+  },
+  "transformer_blocks.7.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14161070478520052,
+    "random": 0.14443712531923875,
+    "nfn": 0.9804314816721034
+  },
+  "transformer_blocks.7.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.to_add_out": {
+    "actual": 1.0672380559314967,
+    "random": 0.9990587194969794,
+    "nfn": 1.0682435727790307
+  },
+  "transformer_blocks.7.attn.to_out.0.base_layer": {
+    "actual": 0.8562138077124488,
+    "random": 0.999421580564477,
+    "nfn": 0.8567093450482188
+  },
+  "transformer_blocks.7.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14484752186791633,
+    "random": 0.1429722367936294,
+    "nfn": 1.0131164281705531
+  },
+  "transformer_blocks.7.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.attn.to_out.0": {
+    "actual": 0.8562138077124488,
+    "random": 1.0001369852978748,
+    "nfn": 0.8560965350735822
+  },
+  "transformer_blocks.7.ff.net.0.proj.base_layer": {
+    "actual": 3.259460469866634,
+    "random": 2.0000082488376303,
+    "nfn": 1.6297235132709953
+  },
+  "transformer_blocks.7.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14947384231079702,
+    "random": 0.14310914919949547,
+    "nfn": 1.0444743969683525
+  },
+  "transformer_blocks.7.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.ff.net.0.proj": {
+    "actual": 3.259460469866634,
+    "random": 1.9997460311026953,
+    "nfn": 1.6299372116114714
+  },
+  "transformer_blocks.7.ff.net.2.base_layer": {
+    "actual": 0.5406781746718268,
+    "random": 0.49992302701981317,
+    "nfn": 1.0815228454167574
+  },
+  "transformer_blocks.7.ff.net.2.lora_A.default_0": {
+    "actual": 0.07236163143955177,
+    "random": 0.07166398407364365,
+    "nfn": 1.0097349788031769
+  },
+  "transformer_blocks.7.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.7.ff.net.2": {
+    "actual": 0.5406781746718268,
+    "random": 0.49994852852187444,
+    "nfn": 1.0814676788236017
+  },
+  "transformer_blocks.7.ff_context.net.0.proj": {
+    "actual": 5.4835385425712815,
+    "random": 2.0003755872680853,
+    "nfn": 2.7412544811447908
+  },
+  "transformer_blocks.7.ff_context.net.2": {
+    "actual": 0.6243299634781467,
+    "random": 0.5003724179931598,
+    "nfn": 1.247730572324795
+  },
+  "transformer_blocks.8.attn.to_q.base_layer": {
+    "actual": 1.540542916835101,
+    "random": 0.9996447673745017,
+    "nfn": 1.5410903624106702
+  },
+  "transformer_blocks.8.attn.to_q.lora_A.default_0": {
+    "actual": 0.1431226177886089,
+    "random": 0.1428724816336102,
+    "nfn": 1.0017507651028292
+  },
+  "transformer_blocks.8.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.to_q": {
+    "actual": 1.540542916835101,
+    "random": 0.999314318521456,
+    "nfn": 1.541599963377313
+  },
+  "transformer_blocks.8.attn.to_k.base_layer": {
+    "actual": 1.9560946622881485,
+    "random": 0.9992329473164056,
+    "nfn": 1.9575962417387687
+  },
+  "transformer_blocks.8.attn.to_k.lora_A.default_0": {
+    "actual": 0.13651472356819358,
+    "random": 0.14329414459016407,
+    "nfn": 0.952688778446877
+  },
+  "transformer_blocks.8.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.to_k": {
+    "actual": 1.9560946622881485,
+    "random": 0.9995069424625981,
+    "nfn": 1.9570596052776754
+  },
+  "transformer_blocks.8.attn.to_v.base_layer": {
+    "actual": 1.2012064983191637,
+    "random": 0.9996201418782364,
+    "nfn": 1.2016629597540487
+  },
+  "transformer_blocks.8.attn.to_v.lora_A.default_0": {
+    "actual": 0.1430849982063697,
+    "random": 0.14350764666944407,
+    "nfn": 0.9970548714797901
+  },
+  "transformer_blocks.8.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.to_v": {
+    "actual": 1.2012064983191637,
+    "random": 0.9997042384346522,
+    "nfn": 1.2015618741399217
+  },
+  "transformer_blocks.8.attn.add_q_proj.base_layer": {
+    "actual": 1.9485298655698249,
+    "random": 0.9996664728514469,
+    "nfn": 1.949179970007238
+  },
+  "transformer_blocks.8.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14304400843516532,
+    "random": 0.14276147223246186,
+    "nfn": 1.0019790787968579
+  },
+  "transformer_blocks.8.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.add_q_proj": {
+    "actual": 1.9485298655698249,
+    "random": 1.0004556567396632,
+    "nfn": 1.9476424091796283
+  },
+  "transformer_blocks.8.attn.add_k_proj.base_layer": {
+    "actual": 1.6802468611710946,
+    "random": 0.9981581855386942,
+    "nfn": 1.683347274524714
+  },
+  "transformer_blocks.8.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14565950624032284,
+    "random": 0.14341055602705438,
+    "nfn": 1.0156819014971548
+  },
+  "transformer_blocks.8.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.add_k_proj": {
+    "actual": 1.6802468611710946,
+    "random": 1.0003757455442728,
+    "nfn": 1.679615753035801
+  },
+  "transformer_blocks.8.attn.add_v_proj.base_layer": {
+    "actual": 1.4481559389000165,
+    "random": 0.9987965017620443,
+    "nfn": 1.4499008920688317
+  },
+  "transformer_blocks.8.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14084336020814836,
+    "random": 0.14325139064062054,
+    "nfn": 0.9831901776191948
+  },
+  "transformer_blocks.8.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.add_v_proj": {
+    "actual": 1.4481559389000165,
+    "random": 0.9989009411197226,
+    "nfn": 1.4497492987409737
+  },
+  "transformer_blocks.8.attn.to_add_out.base_layer": {
+    "actual": 1.0640343080675798,
+    "random": 0.9994385166765329,
+    "nfn": 1.0646320812268166
+  },
+  "transformer_blocks.8.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.1523823397212213,
+    "random": 0.14321549873647896,
+    "nfn": 1.0640073250843447
+  },
+  "transformer_blocks.8.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.to_add_out": {
+    "actual": 1.0640343080675798,
+    "random": 0.9990095658384263,
+    "nfn": 1.0650892088051038
+  },
+  "transformer_blocks.8.attn.to_out.0.base_layer": {
+    "actual": 0.8748024560355574,
+    "random": 0.9996154698473244,
+    "nfn": 0.8751389733585954
+  },
+  "transformer_blocks.8.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.13713611584623486,
+    "random": 0.14304826679667365,
+    "nfn": 0.9586702370966702
+  },
+  "transformer_blocks.8.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.attn.to_out.0": {
+    "actual": 0.8748024560355574,
+    "random": 0.9996171245249391,
+    "nfn": 0.8751375247310824
+  },
+  "transformer_blocks.8.ff.net.0.proj.base_layer": {
+    "actual": 3.1413022774191037,
+    "random": 1.9989951968015482,
+    "nfn": 1.571440632996658
+  },
+  "transformer_blocks.8.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14507017334106564,
+    "random": 0.14335331148163538,
+    "nfn": 1.011976436691176
+  },
+  "transformer_blocks.8.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.ff.net.0.proj": {
+    "actual": 3.1413022774191037,
+    "random": 1.9996486971253622,
+    "nfn": 1.5709270743080772
+  },
+  "transformer_blocks.8.ff.net.2.base_layer": {
+    "actual": 0.4999955408329263,
+    "random": 0.5000507291980741,
+    "nfn": 0.9998896344672142
+  },
+  "transformer_blocks.8.ff.net.2.lora_A.default_0": {
+    "actual": 0.06844794171171488,
+    "random": 0.07143377096713026,
+    "nfn": 0.9582014330898296
+  },
+  "transformer_blocks.8.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.8.ff.net.2": {
+    "actual": 0.4999955408329263,
+    "random": 0.4996779400648886,
+    "nfn": 1.0006356109457153
+  },
+  "transformer_blocks.8.ff_context.net.0.proj": {
+    "actual": 5.20162936534979,
+    "random": 1.9972974975689055,
+    "nfn": 2.604333791876859
+  },
+  "transformer_blocks.8.ff_context.net.2": {
+    "actual": 0.5854968212095399,
+    "random": 0.49934822121667294,
+    "nfn": 1.1725220924647815
+  },
+  "transformer_blocks.9.attn.to_q.base_layer": {
+    "actual": 1.564603097360009,
+    "random": 0.9993343693207866,
+    "nfn": 1.5656452388637612
+  },
+  "transformer_blocks.9.attn.to_q.lora_A.default_0": {
+    "actual": 0.1410092781392597,
+    "random": 0.1436706445812354,
+    "nfn": 0.9814759205004409
+  },
+  "transformer_blocks.9.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.to_q": {
+    "actual": 1.564603097360009,
+    "random": 0.9983175212595884,
+    "nfn": 1.5672399452490142
+  },
+  "transformer_blocks.9.attn.to_k.base_layer": {
+    "actual": 1.913894153739728,
+    "random": 0.9995919150248098,
+    "nfn": 1.9146755040452936
+  },
+  "transformer_blocks.9.attn.to_k.lora_A.default_0": {
+    "actual": 0.14479301484060983,
+    "random": 0.14278372521302962,
+    "nfn": 1.0140722594580187
+  },
+  "transformer_blocks.9.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.to_k": {
+    "actual": 1.913894153739728,
+    "random": 0.9989735522668131,
+    "nfn": 1.9158606845965342
+  },
+  "transformer_blocks.9.attn.to_v.base_layer": {
+    "actual": 1.1003282988694996,
+    "random": 0.9990400313733315,
+    "nfn": 1.1013855944860709
+  },
+  "transformer_blocks.9.attn.to_v.lora_A.default_0": {
+    "actual": 0.14010811151012179,
+    "random": 0.14287254246734601,
+    "nfn": 0.9806510690613905
+  },
+  "transformer_blocks.9.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.to_v": {
+    "actual": 1.1003282988694996,
+    "random": 0.9996095324747071,
+    "nfn": 1.100758109164331
+  },
+  "transformer_blocks.9.attn.add_q_proj.base_layer": {
+    "actual": 1.6987424582118729,
+    "random": 0.9984998277991332,
+    "nfn": 1.701294693216118
+  },
+  "transformer_blocks.9.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14424307786867815,
+    "random": 0.14324982113023602,
+    "nfn": 1.0069337380710521
+  },
+  "transformer_blocks.9.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.add_q_proj": {
+    "actual": 1.6987424582118729,
+    "random": 0.9996656941796283,
+    "nfn": 1.6993105476185608
+  },
+  "transformer_blocks.9.attn.add_k_proj.base_layer": {
+    "actual": 1.4167188162330377,
+    "random": 1.0016456619465368,
+    "nfn": 1.4143912064470716
+  },
+  "transformer_blocks.9.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14555125869078134,
+    "random": 0.1412830907842447,
+    "nfn": 1.0302100405847903
+  },
+  "transformer_blocks.9.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.add_k_proj": {
+    "actual": 1.4167188162330377,
+    "random": 0.9991990750922937,
+    "nfn": 1.4178544111464262
+  },
+  "transformer_blocks.9.attn.add_v_proj.base_layer": {
+    "actual": 1.3133112960483975,
+    "random": 1.000360561443809,
+    "nfn": 1.3128379373062353
+  },
+  "transformer_blocks.9.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14250500936893648,
+    "random": 0.1420614341007355,
+    "nfn": 1.003122418628313
+  },
+  "transformer_blocks.9.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.add_v_proj": {
+    "actual": 1.3133112960483975,
+    "random": 0.9998513100744024,
+    "nfn": 1.3135066012472087
+  },
+  "transformer_blocks.9.attn.to_add_out.base_layer": {
+    "actual": 1.1203718954857824,
+    "random": 0.9999034810862528,
+    "nfn": 1.1204800430024084
+  },
+  "transformer_blocks.9.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14593732174512566,
+    "random": 0.1432905918999914,
+    "nfn": 1.0184710650576523
+  },
+  "transformer_blocks.9.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.to_add_out": {
+    "actual": 1.1203718954857824,
+    "random": 0.9998695115281636,
+    "nfn": 1.120518110181645
+  },
+  "transformer_blocks.9.attn.to_out.0.base_layer": {
+    "actual": 0.9114777040266908,
+    "random": 0.999416616531633,
+    "nfn": 0.9120097554410045
+  },
+  "transformer_blocks.9.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14083957634977956,
+    "random": 0.14307516747465907,
+    "nfn": 0.9843747090124814
+  },
+  "transformer_blocks.9.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.attn.to_out.0": {
+    "actual": 0.9114777040266908,
+    "random": 0.99953351463841,
+    "nfn": 0.9119030934709836
+  },
+  "transformer_blocks.9.ff.net.0.proj.base_layer": {
+    "actual": 3.3875194744884802,
+    "random": 1.9999130562077987,
+    "nfn": 1.693833371392573
+  },
+  "transformer_blocks.9.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.13805562993010004,
+    "random": 0.14346995408672186,
+    "nfn": 0.9622616164402682
+  },
+  "transformer_blocks.9.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.ff.net.0.proj": {
+    "actual": 3.3875194744884802,
+    "random": 1.999364287243595,
+    "nfn": 1.694298280759357
+  },
+  "transformer_blocks.9.ff.net.2.base_layer": {
+    "actual": 0.547620179936185,
+    "random": 0.4999748086957544,
+    "nfn": 1.0952955437189313
+  },
+  "transformer_blocks.9.ff.net.2.lora_A.default_0": {
+    "actual": 0.07582766395551327,
+    "random": 0.07169620162014088,
+    "nfn": 1.0576245636730046
+  },
+  "transformer_blocks.9.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.9.ff.net.2": {
+    "actual": 0.547620179936185,
+    "random": 0.4996831960996646,
+    "nfn": 1.0959347526806946
+  },
+  "transformer_blocks.9.ff_context.net.0.proj": {
+    "actual": 5.3108774108442995,
+    "random": 2.0013327696011785,
+    "nfn": 2.653670339841905
+  },
+  "transformer_blocks.9.ff_context.net.2": {
+    "actual": 0.5513999989449474,
+    "random": 0.4999538818906278,
+    "nfn": 1.10290172537469
+  },
+  "transformer_blocks.10.attn.to_q.base_layer": {
+    "actual": 1.4186310395517225,
+    "random": 0.9982403354155633,
+    "nfn": 1.4211317547704103
+  },
+  "transformer_blocks.10.attn.to_q.lora_A.default_0": {
+    "actual": 1.565347507618652,
+    "random": 0.13988988873294111,
+    "nfn": 11.189854547722188
+  },
+  "transformer_blocks.10.attn.to_q.lora_B.default_0": {
+    "actual": 17.583725890206846,
+    "random": 6.7620538620793615,
+    "nfn": 2.600352829014552
+  },
+  "transformer_blocks.10.attn.to_q": {
+    "actual": 1.4186310395517225,
+    "random": 0.9997750002361733,
+    "nfn": 1.4189503030347872
+  },
+  "transformer_blocks.10.attn.to_k.base_layer": {
+    "actual": 2.00524948884906,
+    "random": 0.9993697988885358,
+    "nfn": 2.0065139961996334
+  },
+  "transformer_blocks.10.attn.to_k.lora_A.default_0": {
+    "actual": 1.4037334903170373,
+    "random": 0.1417398183061328,
+    "nfn": 9.903593126422829
+  },
+  "transformer_blocks.10.attn.to_k.lora_B.default_0": {
+    "actual": 14.37836702376057,
+    "random": 6.8707772211972165,
+    "nfn": 2.092684213279611
+  },
+  "transformer_blocks.10.attn.to_k": {
+    "actual": 2.00524948884906,
+    "random": 0.9999176918469435,
+    "nfn": 2.0054145508168504
+  },
+  "transformer_blocks.10.attn.to_v.base_layer": {
+    "actual": 0.808433920915344,
+    "random": 0.9997140691663627,
+    "nfn": 0.8086651432138766
+  },
+  "transformer_blocks.10.attn.to_v.lora_A.default_0": {
+    "actual": 1.4921683194364914,
+    "random": 0.1410269929231343,
+    "nfn": 10.580728472667545
+  },
+  "transformer_blocks.10.attn.to_v.lora_B.default_0": {
+    "actual": 15.875177619621798,
+    "random": 6.819064049598714,
+    "nfn": 2.3280581475922664
+  },
+  "transformer_blocks.10.attn.to_v": {
+    "actual": 0.808433920915344,
+    "random": 0.9992775262780241,
+    "nfn": 0.8090184154611093
+  },
+  "transformer_blocks.10.attn.add_q_proj.base_layer": {
+    "actual": 1.9407661182018328,
+    "random": 0.9998958890360209,
+    "nfn": 1.940968194271591
+  },
+  "transformer_blocks.10.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.6064525345274107,
+    "random": 0.14098818099967275,
+    "nfn": 4.301442363660386
+  },
+  "transformer_blocks.10.attn.add_q_proj.lora_B.default_0": {
+    "actual": 10.384522217974185,
+    "random": 6.877928024102968,
+    "nfn": 1.5098329295658126
+  },
+  "transformer_blocks.10.attn.add_q_proj": {
+    "actual": 1.9407661182018328,
+    "random": 0.9983069118560591,
+    "nfn": 1.9440575790400438
+  },
+  "transformer_blocks.10.attn.add_k_proj.base_layer": {
+    "actual": 1.6275391497695728,
+    "random": 1.0002955423469504,
+    "nfn": 1.6270582851453559
+  },
+  "transformer_blocks.10.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.5894371926139133,
+    "random": 0.14006073419665493,
+    "nfn": 4.208439974235054
+  },
+  "transformer_blocks.10.attn.add_k_proj.lora_B.default_0": {
+    "actual": 10.776273465960276,
+    "random": 6.85703465118436,
+    "nfn": 1.5715646797991574
+  },
+  "transformer_blocks.10.attn.add_k_proj": {
+    "actual": 1.6275391497695728,
+    "random": 0.9988286219745641,
+    "nfn": 1.6294478491736886
+  },
+  "transformer_blocks.10.attn.add_v_proj.base_layer": {
+    "actual": 1.3790601057349314,
+    "random": 0.9987615588641817,
+    "nfn": 1.3807701082360793
+  },
+  "transformer_blocks.10.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.7157290502102898,
+    "random": 0.14259830398621018,
+    "nfn": 5.01919749536084
+  },
+  "transformer_blocks.10.attn.add_v_proj.lora_B.default_0": {
+    "actual": 13.450722305881131,
+    "random": 6.842401265381378,
+    "nfn": 1.965789754823948
+  },
+  "transformer_blocks.10.attn.add_v_proj": {
+    "actual": 1.3790601057349314,
+    "random": 0.9993961763963931,
+    "nfn": 1.3798933178907333
+  },
+  "transformer_blocks.10.attn.to_add_out.base_layer": {
+    "actual": 1.1468301905442218,
+    "random": 0.9997661428442359,
+    "nfn": 1.147098447724588
+  },
+  "transformer_blocks.10.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.7624412806100285,
+    "random": 0.1404762407791425,
+    "nfn": 5.42754615571428
+  },
+  "transformer_blocks.10.attn.to_add_out.lora_B.default_0": {
+    "actual": 12.114996290678963,
+    "random": 6.892359105033099,
+    "nfn": 1.757743046474765
+  },
+  "transformer_blocks.10.attn.to_add_out": {
+    "actual": 1.1468301905442218,
+    "random": 0.9990117071859276,
+    "nfn": 1.147964715823679
+  },
+  "transformer_blocks.10.attn.to_out.0.base_layer": {
+    "actual": 0.868861190059149,
+    "random": 0.9990148218732022,
+    "nfn": 0.8697180172262021
+  },
+  "transformer_blocks.10.attn.to_out.0.lora_A.default_0": {
+    "actual": 1.120821870462993,
+    "random": 0.1407992679164165,
+    "nfn": 7.9604239926045155
+  },
+  "transformer_blocks.10.attn.to_out.0.lora_B.default_0": {
+    "actual": 15.726131527596602,
+    "random": 6.866414853788944,
+    "nfn": 2.2902973185371684
+  },
+  "transformer_blocks.10.attn.to_out.0": {
+    "actual": 0.868861190059149,
+    "random": 1.00019081098734,
+    "nfn": 0.8686954334257991
+  },
+  "transformer_blocks.10.ff.net.0.proj.base_layer": {
+    "actual": 3.253297671757815,
+    "random": 1.999528781665288,
+    "nfn": 1.6270321795759988
+  },
+  "transformer_blocks.10.ff.net.0.proj.lora_A.default_0": {
+    "actual": 1.5782828038703032,
+    "random": 0.14188720628130935,
+    "nfn": 11.123503275842626
+  },
+  "transformer_blocks.10.ff.net.0.proj.lora_B.default_0": {
+    "actual": 35.735715378662555,
+    "random": 13.742888305856106,
+    "nfn": 2.6003060334438497
+  },
+  "transformer_blocks.10.ff.net.0.proj": {
+    "actual": 3.253297671757815,
+    "random": 1.9992038808489503,
+    "nfn": 1.6272965968715112
+  },
+  "transformer_blocks.10.ff.net.2.base_layer": {
+    "actual": 0.5714314774810523,
+    "random": 0.4997378491279371,
+    "nfn": 1.143462474331739
+  },
+  "transformer_blocks.10.ff.net.2.lora_A.default_0": {
+    "actual": 1.4653856102316012,
+    "random": 0.07087160641429614,
+    "nfn": 20.676624735516157
+  },
+  "transformer_blocks.10.ff.net.2.lora_B.default_0": {
+    "actual": 17.44493126043865,
+    "random": 6.860429326950821,
+    "nfn": 2.542833754136522
+  },
+  "transformer_blocks.10.ff.net.2": {
+    "actual": 0.5714314774810523,
+    "random": 0.4999366537766398,
+    "nfn": 1.143007765412525
+  },
+  "transformer_blocks.10.ff_context.net.0.proj": {
+    "actual": 4.2840358755253325,
+    "random": 1.9977148656637094,
+    "nfn": 2.144468136648735
+  },
+  "transformer_blocks.10.ff_context.net.2": {
+    "actual": 0.5735541855257198,
+    "random": 0.4993456418662736,
+    "nfn": 1.148611577708171
+  },
+  "transformer_blocks.11.attn.to_q.base_layer": {
+    "actual": 1.6206188013151712,
+    "random": 0.999213772522871,
+    "nfn": 1.621893978926393
+  },
+  "transformer_blocks.11.attn.to_q.lora_A.default_0": {
+    "actual": 1.5524130873727968,
+    "random": 0.13890091468950164,
+    "nfn": 11.176406511382972
+  },
+  "transformer_blocks.11.attn.to_q.lora_B.default_0": {
+    "actual": 21.140740527539037,
+    "random": 6.700280069153914,
+    "nfn": 3.1552025153194245
+  },
+  "transformer_blocks.11.attn.to_q": {
+    "actual": 1.6206188013151712,
+    "random": 0.9990654355414155,
+    "nfn": 1.6221347908377215
+  },
+  "transformer_blocks.11.attn.to_k.base_layer": {
+    "actual": 2.0295825938464094,
+    "random": 0.9991629641867031,
+    "nfn": 2.0312828503390787
+  },
+  "transformer_blocks.11.attn.to_k.lora_A.default_0": {
+    "actual": 1.4665268511158311,
+    "random": 0.13904464047378104,
+    "nfn": 10.547165616155963
+  },
+  "transformer_blocks.11.attn.to_k.lora_B.default_0": {
+    "actual": 18.996186143681886,
+    "random": 6.755446584932006,
+    "nfn": 2.8119808076127484
+  },
+  "transformer_blocks.11.attn.to_k": {
+    "actual": 2.0295825938464094,
+    "random": 0.9986198405931848,
+    "nfn": 2.032387612728411
+  },
+  "transformer_blocks.11.attn.to_v.base_layer": {
+    "actual": 0.8217399622866568,
+    "random": 0.9993769042688811,
+    "nfn": 0.8222523041872986
+  },
+  "transformer_blocks.11.attn.to_v.lora_A.default_0": {
+    "actual": 1.4036345016620897,
+    "random": 0.14225571271949222,
+    "nfn": 9.866981612400021
+  },
+  "transformer_blocks.11.attn.to_v.lora_B.default_0": {
+    "actual": 16.30312930155608,
+    "random": 6.826202714212094,
+    "nfn": 2.388316020503333
+  },
+  "transformer_blocks.11.attn.to_v": {
+    "actual": 0.8217399622866568,
+    "random": 0.9996139125036871,
+    "nfn": 0.8220573483501069
+  },
+  "transformer_blocks.11.attn.add_q_proj.base_layer": {
+    "actual": 1.8744353486648244,
+    "random": 0.998868334237316,
+    "nfn": 1.876558986221188
+  },
+  "transformer_blocks.11.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.5779407358821876,
+    "random": 0.14371805839494375,
+    "nfn": 4.021350847184285
+  },
+  "transformer_blocks.11.attn.add_q_proj.lora_B.default_0": {
+    "actual": 11.602912755621176,
+    "random": 6.874471982525075,
+    "nfn": 1.6878260301468693
+  },
+  "transformer_blocks.11.attn.add_q_proj": {
+    "actual": 1.8744353486648244,
+    "random": 0.999855884771337,
+    "nfn": 1.8747055222798434
+  },
+  "transformer_blocks.11.attn.add_k_proj.base_layer": {
+    "actual": 1.6101938456729166,
+    "random": 1.0000538620812325,
+    "nfn": 1.610107121952321
+  },
+  "transformer_blocks.11.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.4924594089709273,
+    "random": 0.14078303747569623,
+    "nfn": 3.4980024426305047
+  },
+  "transformer_blocks.11.attn.add_k_proj.lora_B.default_0": {
+    "actual": 10.577005189249498,
+    "random": 6.795863726780013,
+    "nfn": 1.556388652640192
+  },
+  "transformer_blocks.11.attn.add_k_proj": {
+    "actual": 1.6101938456729166,
+    "random": 0.9981633442394928,
+    "nfn": 1.6131566591435331
+  },
+  "transformer_blocks.11.attn.add_v_proj.base_layer": {
+    "actual": 1.1977741129424915,
+    "random": 0.9995757575845725,
+    "nfn": 1.1982824751941323
+  },
+  "transformer_blocks.11.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.6301538933448803,
+    "random": 0.14161717749469319,
+    "nfn": 4.449699566766849
+  },
+  "transformer_blocks.11.attn.add_v_proj.lora_B.default_0": {
+    "actual": 13.168921058891955,
+    "random": 6.8601434027305235,
+    "nfn": 1.9196276645835664
+  },
+  "transformer_blocks.11.attn.add_v_proj": {
+    "actual": 1.1977741129424915,
+    "random": 0.9997035570968108,
+    "nfn": 1.198129289867576
+  },
+  "transformer_blocks.11.attn.to_add_out.base_layer": {
+    "actual": 1.2277025589608082,
+    "random": 0.9977103519089849,
+    "nfn": 1.2305200167681571
+  },
+  "transformer_blocks.11.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.7694787218391617,
+    "random": 0.1409911253524871,
+    "nfn": 5.4576394075543
+  },
+  "transformer_blocks.11.attn.to_add_out.lora_B.default_0": {
+    "actual": 13.222299873943609,
+    "random": 6.826058403402794,
+    "nfn": 1.9370329247918954
+  },
+  "transformer_blocks.11.attn.to_add_out": {
+    "actual": 1.2277025589608082,
+    "random": 0.9992600061621042,
+    "nfn": 1.2286117240657835
+  },
+  "transformer_blocks.11.attn.to_out.0.base_layer": {
+    "actual": 0.9962529702663774,
+    "random": 0.9997779202554933,
+    "nfn": 0.996474267017004
+  },
+  "transformer_blocks.11.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.81739935356749,
+    "random": 0.14193431592633854,
+    "nfn": 5.758997380110009
+  },
+  "transformer_blocks.11.attn.to_out.0.lora_B.default_0": {
+    "actual": 13.123584536885756,
+    "random": 6.881126464142763,
+    "nfn": 1.9071854884911879
+  },
+  "transformer_blocks.11.attn.to_out.0": {
+    "actual": 0.9962529702663774,
+    "random": 0.9997101758072695,
+    "nfn": 0.9965417921868202
+  },
+  "transformer_blocks.11.ff.net.0.proj.base_layer": {
+    "actual": 2.7465886658393086,
+    "random": 1.999814943558647,
+    "nfn": 1.373421413159253
+  },
+  "transformer_blocks.11.ff.net.0.proj.lora_A.default_0": {
+    "actual": 1.929651161994264,
+    "random": 0.14129545219936598,
+    "nfn": 13.6568525876654
+  },
+  "transformer_blocks.11.ff.net.0.proj.lora_B.default_0": {
+    "actual": 40.03743178605301,
+    "random": 13.723730034396993,
+    "nfn": 2.9173870140044778
+  },
+  "transformer_blocks.11.ff.net.0.proj": {
+    "actual": 2.7465886658393086,
+    "random": 2.000269687900747,
+    "nfn": 1.3731091774538724
+  },
+  "transformer_blocks.11.ff.net.2.base_layer": {
+    "actual": 0.5183002659441545,
+    "random": 0.4999596245952904,
+    "nfn": 1.0366842449802032
+  },
+  "transformer_blocks.11.ff.net.2.lora_A.default_0": {
+    "actual": 1.356578584988388,
+    "random": 0.0713074983816614,
+    "nfn": 19.024346888843713
+  },
+  "transformer_blocks.11.ff.net.2.lora_B.default_0": {
+    "actual": 16.45426183116996,
+    "random": 6.866159275299575,
+    "nfn": 2.396428799774973
+  },
+  "transformer_blocks.11.ff.net.2": {
+    "actual": 0.5183002659441545,
+    "random": 0.5001025108740154,
+    "nfn": 1.036388049798701
+  },
+  "transformer_blocks.11.ff_context.net.0.proj": {
+    "actual": 4.461883740236438,
+    "random": 1.999527029653696,
+    "nfn": 2.2314695795881314
+  },
+  "transformer_blocks.11.ff_context.net.2": {
+    "actual": 0.5853503335736537,
+    "random": 0.5002208203234636,
+    "nfn": 1.1701838663875324
+  },
+  "transformer_blocks.12.attn.to_q.base_layer": {
+    "actual": 1.695359907831595,
+    "random": 0.9994684955415515,
+    "nfn": 1.6962614783700432
+  },
+  "transformer_blocks.12.attn.to_q.lora_A.default_0": {
+    "actual": 1.9216980027063815,
+    "random": 0.14006241320776391,
+    "nfn": 13.720297677977308
+  },
+  "transformer_blocks.12.attn.to_q.lora_B.default_0": {
+    "actual": 18.80849847224275,
+    "random": 6.748206767882198,
+    "nfn": 2.787184672787591
+  },
+  "transformer_blocks.12.attn.to_q": {
+    "actual": 1.695359907831595,
+    "random": 1.000269456841025,
+    "nfn": 1.6949032045682488
+  },
+  "transformer_blocks.12.attn.to_k.base_layer": {
+    "actual": 2.5333308948423996,
+    "random": 0.9995956137159485,
+    "nfn": 2.5343557535480414
+  },
+  "transformer_blocks.12.attn.to_k.lora_A.default_0": {
+    "actual": 1.722433353626779,
+    "random": 0.14123705181296617,
+    "nfn": 12.195336361932275
+  },
+  "transformer_blocks.12.attn.to_k.lora_B.default_0": {
+    "actual": 16.369200724330483,
+    "random": 6.828823236665108,
+    "nfn": 2.397074892265694
+  },
+  "transformer_blocks.12.attn.to_k": {
+    "actual": 2.5333308948423996,
+    "random": 0.9994240139139103,
+    "nfn": 2.534790899131446
+  },
+  "transformer_blocks.12.attn.to_v.base_layer": {
+    "actual": 0.5373669700969342,
+    "random": 0.9994545767827929,
+    "nfn": 0.5376602224652355
+  },
+  "transformer_blocks.12.attn.to_v.lora_A.default_0": {
+    "actual": 1.7932054725494937,
+    "random": 0.14060046326771378,
+    "nfn": 12.753908706083681
+  },
+  "transformer_blocks.12.attn.to_v.lora_B.default_0": {
+    "actual": 16.328963633819317,
+    "random": 6.8247703957123,
+    "nfn": 2.3926026352590672
+  },
+  "transformer_blocks.12.attn.to_v": {
+    "actual": 0.5373669700969342,
+    "random": 1.0000632061430563,
+    "nfn": 0.5373330073500028
+  },
+  "transformer_blocks.12.attn.add_q_proj.base_layer": {
+    "actual": 1.8439160854040963,
+    "random": 1.0004671421489886,
+    "nfn": 1.843055116676188
+  },
+  "transformer_blocks.12.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.5490121531460247,
+    "random": 0.14052766961941585,
+    "nfn": 3.906790418092659
+  },
+  "transformer_blocks.12.attn.add_q_proj.lora_B.default_0": {
+    "actual": 11.540687822829268,
+    "random": 6.885552894760771,
+    "nfn": 1.6760727859066478
+  },
+  "transformer_blocks.12.attn.add_q_proj": {
+    "actual": 1.8439160854040963,
+    "random": 0.9989368573573585,
+    "nfn": 1.84587851756926
+  },
+  "transformer_blocks.12.attn.add_k_proj.base_layer": {
+    "actual": 1.650841877282875,
+    "random": 1.000297197024565,
+    "nfn": 1.6503513977579745
+  },
+  "transformer_blocks.12.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.5449724037507944,
+    "random": 0.1424633990936266,
+    "nfn": 3.8253502809703415
+  },
+  "transformer_blocks.12.attn.add_k_proj.lora_B.default_0": {
+    "actual": 11.980868159977893,
+    "random": 6.803491969185696,
+    "nfn": 1.7609880652819925
+  },
+  "transformer_blocks.12.attn.add_k_proj": {
+    "actual": 1.650841877282875,
+    "random": 0.9994668408639369,
+    "nfn": 1.651722508228378
+  },
+  "transformer_blocks.12.attn.add_v_proj.base_layer": {
+    "actual": 1.2715216342182998,
+    "random": 0.9982025698323581,
+    "nfn": 1.2738112209346886
+  },
+  "transformer_blocks.12.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.6725736953442322,
+    "random": 0.142544040293847,
+    "nfn": 4.7183571754929705
+  },
+  "transformer_blocks.12.attn.add_v_proj.lora_B.default_0": {
+    "actual": 15.33044612418311,
+    "random": 6.876118069840516,
+    "nfn": 2.2295204893912883
+  },
+  "transformer_blocks.12.attn.add_v_proj": {
+    "actual": 1.2715216342182998,
+    "random": 0.9990527821243621,
+    "nfn": 1.2727271841579444
+  },
+  "transformer_blocks.12.attn.to_add_out.base_layer": {
+    "actual": 1.2567673605982488,
+    "random": 1.0008088817434049,
+    "nfn": 1.2557516060498637
+  },
+  "transformer_blocks.12.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.7991921571015496,
+    "random": 0.14096688919213116,
+    "nfn": 5.6693608100572375
+  },
+  "transformer_blocks.12.attn.to_add_out.lora_B.default_0": {
+    "actual": 14.202425173239238,
+    "random": 6.9101403546576625,
+    "nfn": 2.05530198292808
+  },
+  "transformer_blocks.12.attn.to_add_out": {
+    "actual": 1.2567673605982488,
+    "random": 0.9987411187289418,
+    "nfn": 1.2583514757034202
+  },
+  "transformer_blocks.12.attn.to_out.0.base_layer": {
+    "actual": 1.172457642772146,
+    "random": 0.9996111871523218,
+    "nfn": 1.1729136866827459
+  },
+  "transformer_blocks.12.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.9532790459340685,
+    "random": 0.142440720276908,
+    "nfn": 6.692461566333507
+  },
+  "transformer_blocks.12.attn.to_out.0.lora_B.default_0": {
+    "actual": 14.573691029800305,
+    "random": 6.871883154502142,
+    "nfn": 2.120771075720677
+  },
+  "transformer_blocks.12.attn.to_out.0": {
+    "actual": 1.172457642772146,
+    "random": 1.0000738155465856,
+    "nfn": 1.1723711035583357
+  },
+  "transformer_blocks.12.ff.net.0.proj.base_layer": {
+    "actual": 2.876418175508843,
+    "random": 1.9984538252196218,
+    "nfn": 1.4393218092956122
+  },
+  "transformer_blocks.12.ff.net.0.proj.lora_A.default_0": {
+    "actual": 1.4524194591091355,
+    "random": 0.14106536684369786,
+    "nfn": 10.296074023033832
+  },
+  "transformer_blocks.12.ff.net.0.proj.lora_B.default_0": {
+    "actual": 36.95603995089402,
+    "random": 13.711483846093667,
+    "nfn": 2.695261896211372
+  },
+  "transformer_blocks.12.ff.net.0.proj": {
+    "actual": 2.876418175508843,
+    "random": 1.9991462591343692,
+    "nfn": 1.4388232788702178
+  },
+  "transformer_blocks.12.ff.net.2.base_layer": {
+    "actual": 0.47210410029223543,
+    "random": 0.49984243448658144,
+    "nfn": 0.9445058436808437
+  },
+  "transformer_blocks.12.ff.net.2.lora_A.default_0": {
+    "actual": 1.345440755296146,
+    "random": 0.07099886450628551,
+    "nfn": 18.950172860539688
+  },
+  "transformer_blocks.12.ff.net.2.lora_B.default_0": {
+    "actual": 17.404703610821546,
+    "random": 6.853287290589559,
+    "nfn": 2.5396138922587457
+  },
+  "transformer_blocks.12.ff.net.2": {
+    "actual": 0.47210410029223543,
+    "random": 0.49996799531734104,
+    "nfn": 0.9442686426209747
+  },
+  "transformer_blocks.12.ff_context.net.0.proj": {
+    "actual": 3.651634053973946,
+    "random": 2.0010277249162165,
+    "nfn": 1.8248792900292476
+  },
+  "transformer_blocks.12.ff_context.net.2": {
+    "actual": 0.5860629642886975,
+    "random": 0.4999444891618151,
+    "nfn": 1.1722560744119108
+  },
+  "transformer_blocks.13.attn.to_q.base_layer": {
+    "actual": 1.5116435829591266,
+    "random": 1.000131437261167,
+    "nfn": 1.511444922778072
+  },
+  "transformer_blocks.13.attn.to_q.lora_A.default_0": {
+    "actual": 1.0342158494436495,
+    "random": 0.14221552595360085,
+    "nfn": 7.272172588111597
+  },
+  "transformer_blocks.13.attn.to_q.lora_B.default_0": {
+    "actual": 14.09613284434349,
+    "random": 6.880560010498777,
+    "nfn": 2.0486897611291455
+  },
+  "transformer_blocks.13.attn.to_q": {
+    "actual": 1.5116435829591266,
+    "random": 0.9993230785794159,
+    "nfn": 1.5126675400191878
+  },
+  "transformer_blocks.13.attn.to_k.base_layer": {
+    "actual": 1.7469434117949203,
+    "random": 0.9992869676738254,
+    "nfn": 1.7481899277256816
+  },
+  "transformer_blocks.13.attn.to_k.lora_A.default_0": {
+    "actual": 0.9938983640207139,
+    "random": 0.14305920470237643,
+    "nfn": 6.947461829446363
+  },
+  "transformer_blocks.13.attn.to_k.lora_B.default_0": {
+    "actual": 13.438383057336294,
+    "random": 6.87888492615156,
+    "nfn": 1.9535699755998812
+  },
+  "transformer_blocks.13.attn.to_k": {
+    "actual": 1.7469434117949203,
+    "random": 0.9992747035926814,
+    "nfn": 1.7482113832304107
+  },
+  "transformer_blocks.13.attn.to_v.base_layer": {
+    "actual": 1.0375722169840245,
+    "random": 0.9993557827957998,
+    "nfn": 1.0382410697432602
+  },
+  "transformer_blocks.13.attn.to_v.lora_A.default_0": {
+    "actual": 1.1041840870475705,
+    "random": 0.1419928866471987,
+    "nfn": 7.776333822912349
+  },
+  "transformer_blocks.13.attn.to_v.lora_B.default_0": {
+    "actual": 15.94233204781554,
+    "random": 6.830918440798281,
+    "nfn": 2.3338489817999455
+  },
+  "transformer_blocks.13.attn.to_v": {
+    "actual": 1.0375722169840245,
+    "random": 0.9997540734310467,
+    "nfn": 1.0378274463270651
+  },
+  "transformer_blocks.13.attn.add_q_proj.base_layer": {
+    "actual": 1.7369390362687216,
+    "random": 0.9978363994096312,
+    "nfn": 1.740705227125789
+  },
+  "transformer_blocks.13.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.46470112131122804,
+    "random": 0.14238320806305135,
+    "nfn": 3.2637354336435873
+  },
+  "transformer_blocks.13.attn.add_q_proj.lora_B.default_0": {
+    "actual": 11.606002625379206,
+    "random": 6.843150467760507,
+    "nfn": 1.6960028396361408
+  },
+  "transformer_blocks.13.attn.add_q_proj": {
+    "actual": 1.7369390362687216,
+    "random": 0.9980742836502331,
+    "nfn": 1.7402903418333315
+  },
+  "transformer_blocks.13.attn.add_k_proj.base_layer": {
+    "actual": 1.5185310325291896,
+    "random": 1.00083058722035,
+    "nfn": 1.517270806787262
+  },
+  "transformer_blocks.13.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.4249894425632133,
+    "random": 0.1409498557460979,
+    "nfn": 3.0151818199003646
+  },
+  "transformer_blocks.13.attn.add_k_proj.lora_B.default_0": {
+    "actual": 10.575270762139578,
+    "random": 6.930058618089123,
+    "nfn": 1.5260001891665929
+  },
+  "transformer_blocks.13.attn.add_k_proj": {
+    "actual": 1.5185310325291896,
+    "random": 0.9993591894850066,
+    "nfn": 1.519504747148745
+  },
+  "transformer_blocks.13.attn.add_v_proj.base_layer": {
+    "actual": 1.2937358758630866,
+    "random": 0.9999577934456048,
+    "nfn": 1.2937904823014539
+  },
+  "transformer_blocks.13.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.4971181051280184,
+    "random": 0.14047052240797417,
+    "nfn": 3.538949643002098
+  },
+  "transformer_blocks.13.attn.add_v_proj.lora_B.default_0": {
+    "actual": 13.778186460071373,
+    "random": 6.869476400864776,
+    "nfn": 2.0057113025873243
+  },
+  "transformer_blocks.13.attn.add_v_proj": {
+    "actual": 1.2937358758630866,
+    "random": 0.9983703736092803,
+    "nfn": 1.2958476233484466
+  },
+  "transformer_blocks.13.attn.to_add_out.base_layer": {
+    "actual": 1.251447377399157,
+    "random": 0.999406688465945,
+    "nfn": 1.2521903163566834
+  },
+  "transformer_blocks.13.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.6701944149353147,
+    "random": 0.14015901718026696,
+    "nfn": 4.781671764103035
+  },
+  "transformer_blocks.13.attn.to_add_out.lora_B.default_0": {
+    "actual": 12.013660431168098,
+    "random": 6.839458403830953,
+    "nfn": 1.7565221866747438
+  },
+  "transformer_blocks.13.attn.to_add_out": {
+    "actual": 1.251447377399157,
+    "random": 0.9991376573525965,
+    "nfn": 1.2525274852667476
+  },
+  "transformer_blocks.13.attn.to_out.0.base_layer": {
+    "actual": 0.9701983192119382,
+    "random": 0.9992954357298534,
+    "nfn": 0.9708823682391149
+  },
+  "transformer_blocks.13.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.6512284027820859,
+    "random": 0.1419804522315944,
+    "nfn": 4.586746925695244
+  },
+  "transformer_blocks.13.attn.to_out.0.lora_B.default_0": {
+    "actual": 14.531352666009777,
+    "random": 6.856931475699206,
+    "nfn": 2.1192209252066365
+  },
+  "transformer_blocks.13.attn.to_out.0": {
+    "actual": 0.9701983192119382,
+    "random": 0.9989489267705478,
+    "nfn": 0.9712191416516598
+  },
+  "transformer_blocks.13.ff.net.0.proj.base_layer": {
+    "actual": 3.013042375468042,
+    "random": 1.9991740966518863,
+    "nfn": 1.507143565192311
+  },
+  "transformer_blocks.13.ff.net.0.proj.lora_A.default_0": {
+    "actual": 1.0447157522484507,
+    "random": 0.14183345359232719,
+    "nfn": 7.365792242860305
+  },
+  "transformer_blocks.13.ff.net.0.proj.lora_B.default_0": {
+    "actual": 36.530045231429796,
+    "random": 13.693748452240284,
+    "nfn": 2.6676439514597274
+  },
+  "transformer_blocks.13.ff.net.0.proj": {
+    "actual": 3.013042375468042,
+    "random": 1.9993588365408645,
+    "nfn": 1.5070043057808342
+  },
+  "transformer_blocks.13.ff.net.2.base_layer": {
+    "actual": 0.4619191702380839,
+    "random": 0.499978653387859,
+    "nfn": 0.9238777837976005
+  },
+  "transformer_blocks.13.ff.net.2.lora_A.default_0": {
+    "actual": 1.3525146967667792,
+    "random": 0.0706748883627325,
+    "nfn": 19.13713241151679
+  },
+  "transformer_blocks.13.ff.net.2.lora_B.default_0": {
+    "actual": 18.437958215825645,
+    "random": 6.869627455169839,
+    "nfn": 2.683982259030639
+  },
+  "transformer_blocks.13.ff.net.2": {
+    "actual": 0.4619191702380839,
+    "random": 0.49967599338534197,
+    "nfn": 0.9244373881333525
+  },
+  "transformer_blocks.13.ff_context.net.0.proj": {
+    "actual": 3.685592710657714,
+    "random": 1.9988022808584742,
+    "nfn": 1.8439005928464185
+  },
+  "transformer_blocks.13.ff_context.net.2": {
+    "actual": 0.6400324647053761,
+    "random": 0.4996289810742901,
+    "nfn": 1.2810154913936214
+  },
+  "transformer_blocks.14.attn.to_q.base_layer": {
+    "actual": 1.5373527957280109,
+    "random": 0.9992480340828922,
+    "nfn": 1.5385097025874963
+  },
+  "transformer_blocks.14.attn.to_q.lora_A.default_0": {
+    "actual": 0.13565876857152687,
+    "random": 0.14297526631367385,
+    "nfn": 0.9488268290677963
+  },
+  "transformer_blocks.14.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.to_q": {
+    "actual": 1.5373527957280109,
+    "random": 0.9997353853073987,
+    "nfn": 1.5377597095408457
+  },
+  "transformer_blocks.14.attn.to_k.base_layer": {
+    "actual": 2.0372334338006954,
+    "random": 0.999097166418026,
+    "nfn": 2.0390743786258616
+  },
+  "transformer_blocks.14.attn.to_k.lora_A.default_0": {
+    "actual": 0.15079348420873118,
+    "random": 0.14357007424915605,
+    "nfn": 1.0503127827811762
+  },
+  "transformer_blocks.14.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.to_k": {
+    "actual": 2.0372334338006954,
+    "random": 0.9990422700548102,
+    "nfn": 2.0391864237024997
+  },
+  "transformer_blocks.14.attn.to_v.base_layer": {
+    "actual": 0.9946795665227888,
+    "random": 0.9990409073791275,
+    "nfn": 0.9956344721981603
+  },
+  "transformer_blocks.14.attn.to_v.lora_A.default_0": {
+    "actual": 0.14769729038976728,
+    "random": 0.14294682045879828,
+    "nfn": 1.0332324280856477
+  },
+  "transformer_blocks.14.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.to_v": {
+    "actual": 0.9946795665227888,
+    "random": 0.9989353973476985,
+    "nfn": 0.9957396335776972
+  },
+  "transformer_blocks.14.attn.add_q_proj.base_layer": {
+    "actual": 1.7235505530186077,
+    "random": 0.9971521415489799,
+    "nfn": 1.7284729994574728
+  },
+  "transformer_blocks.14.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.1452151158000617,
+    "random": 0.14357615762273937,
+    "nfn": 1.0114152530925702
+  },
+  "transformer_blocks.14.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.add_q_proj": {
+    "actual": 1.7235505530186077,
+    "random": 1.000478724892291,
+    "nfn": 1.722725841275796
+  },
+  "transformer_blocks.14.attn.add_k_proj.base_layer": {
+    "actual": 1.570470000177735,
+    "random": 0.9994691768793929,
+    "nfn": 1.5713040847154063
+  },
+  "transformer_blocks.14.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.1407416340350882,
+    "random": 0.14305809752838428,
+    "nfn": 0.9838075332098103
+  },
+  "transformer_blocks.14.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.add_k_proj": {
+    "actual": 1.570470000177735,
+    "random": 0.9995617414918366,
+    "nfn": 1.5711585737903724
+  },
+  "transformer_blocks.14.attn.add_v_proj.base_layer": {
+    "actual": 1.2753619462939747,
+    "random": 1.0001271545661643,
+    "nfn": 1.2751997988167834
+  },
+  "transformer_blocks.14.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14192020249962525,
+    "random": 0.14216704146614184,
+    "nfn": 0.9982637398656469
+  },
+  "transformer_blocks.14.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.add_v_proj": {
+    "actual": 1.2753619462939747,
+    "random": 0.9994769635975795,
+    "nfn": 1.276029356097771
+  },
+  "transformer_blocks.14.attn.to_add_out.base_layer": {
+    "actual": 1.1922428176786097,
+    "random": 0.9983446774392642,
+    "nfn": 1.1942196363851918
+  },
+  "transformer_blocks.14.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.1387101765941704,
+    "random": 0.14283016568696463,
+    "nfn": 0.9711546291850991
+  },
+  "transformer_blocks.14.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.to_add_out": {
+    "actual": 1.1922428176786097,
+    "random": 0.9981696709480194,
+    "nfn": 1.1944290158067694
+  },
+  "transformer_blocks.14.attn.to_out.0.base_layer": {
+    "actual": 0.8508214080342213,
+    "random": 0.9998223045491571,
+    "nfn": 0.8509726219979422
+  },
+  "transformer_blocks.14.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14090378027457787,
+    "random": 0.1434016499681284,
+    "nfn": 0.9825813043705864
+  },
+  "transformer_blocks.14.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.attn.to_out.0": {
+    "actual": 0.8508214080342213,
+    "random": 1.0005495840277896,
+    "nfn": 0.8503540670210207
+  },
+  "transformer_blocks.14.ff.net.0.proj.base_layer": {
+    "actual": 3.098265475337438,
+    "random": 1.9990948667943373,
+    "nfn": 1.5498341408407912
+  },
+  "transformer_blocks.14.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.12697123659141388,
+    "random": 0.14303892273484967,
+    "nfn": 0.8876691334342586
+  },
+  "transformer_blocks.14.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.ff.net.0.proj": {
+    "actual": 3.098265475337438,
+    "random": 2.000195519410019,
+    "nfn": 1.548981309712816
+  },
+  "transformer_blocks.14.ff.net.2.base_layer": {
+    "actual": 0.5578238467809731,
+    "random": 0.49953792513849504,
+    "nfn": 1.1166796727722295
+  },
+  "transformer_blocks.14.ff.net.2.lora_A.default_0": {
+    "actual": 0.06223625761278084,
+    "random": 0.07156723410017461,
+    "nfn": 0.8696194340229364
+  },
+  "transformer_blocks.14.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.14.ff.net.2": {
+    "actual": 0.5578238467809731,
+    "random": 0.4998037928975802,
+    "nfn": 1.1160856614293089
+  },
+  "transformer_blocks.14.ff_context.net.0.proj": {
+    "actual": 3.113385724712261,
+    "random": 1.9999151975553,
+    "nfn": 1.556758870835158
+  },
+  "transformer_blocks.14.ff_context.net.2": {
+    "actual": 0.7364806055107044,
+    "random": 0.5003294450421673,
+    "nfn": 1.4719913305294965
+  },
+  "transformer_blocks.15.attn.to_q.base_layer": {
+    "actual": 1.3801810038178985,
+    "random": 0.9995458760535313,
+    "nfn": 1.38080806182425
+  },
+  "transformer_blocks.15.attn.to_q.lora_A.default_0": {
+    "actual": 0.1470514794501626,
+    "random": 0.14334537876248274,
+    "nfn": 1.0258543436814989
+  },
+  "transformer_blocks.15.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.to_q": {
+    "actual": 1.3801810038178985,
+    "random": 0.999751542747636,
+    "nfn": 1.3805240050190082
+  },
+  "transformer_blocks.15.attn.to_k.base_layer": {
+    "actual": 1.8479295546254468,
+    "random": 0.9987646735514564,
+    "nfn": 1.8502151743658377
+  },
+  "transformer_blocks.15.attn.to_k.lora_A.default_0": {
+    "actual": 0.1393964906350928,
+    "random": 0.14302387246860454,
+    "nfn": 0.9746379274249619
+  },
+  "transformer_blocks.15.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.to_k": {
+    "actual": 1.8479295546254468,
+    "random": 0.9987685669105497,
+    "nfn": 1.8502079619321345
+  },
+  "transformer_blocks.15.attn.to_v.base_layer": {
+    "actual": 0.9026672270664591,
+    "random": 0.9996058337835685,
+    "nfn": 0.9030231682920548
+  },
+  "transformer_blocks.15.attn.to_v.lora_A.default_0": {
+    "actual": 0.13585364336089478,
+    "random": 0.14335040362906257,
+    "nfn": 0.9477032496708792
+  },
+  "transformer_blocks.15.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.to_v": {
+    "actual": 0.9026672270664591,
+    "random": 0.9992417073743656,
+    "nfn": 0.9033522324026404
+  },
+  "transformer_blocks.15.attn.add_q_proj.base_layer": {
+    "actual": 1.8464973824829685,
+    "random": 0.9977661242779967,
+    "nfn": 1.8506314631789393
+  },
+  "transformer_blocks.15.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14682926597991128,
+    "random": 0.1436153345486159,
+    "nfn": 1.0223787483516074
+  },
+  "transformer_blocks.15.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.add_q_proj": {
+    "actual": 1.8464973824829685,
+    "random": 0.9984329593567054,
+    "nfn": 1.8493954603348377
+  },
+  "transformer_blocks.15.attn.add_k_proj.base_layer": {
+    "actual": 1.7392361181337812,
+    "random": 0.9996338659690404,
+    "nfn": 1.7398731449016824
+  },
+  "transformer_blocks.15.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14498606461790273,
+    "random": 0.14351753823489055,
+    "nfn": 1.0102323827531705
+  },
+  "transformer_blocks.15.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.add_k_proj": {
+    "actual": 1.7392361181337812,
+    "random": 1.0004765835447897,
+    "nfn": 1.7384076216671576
+  },
+  "transformer_blocks.15.attn.add_v_proj.base_layer": {
+    "actual": 1.3146394181691068,
+    "random": 0.9997802562709492,
+    "nfn": 1.3149283654315613
+  },
+  "transformer_blocks.15.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13697679229208784,
+    "random": 0.1418573247502681,
+    "nfn": 0.9655954849933046
+  },
+  "transformer_blocks.15.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.add_v_proj": {
+    "actual": 1.3146394181691068,
+    "random": 0.9984349060362521,
+    "nfn": 1.3167001776692429
+  },
+  "transformer_blocks.15.attn.to_add_out.base_layer": {
+    "actual": 1.0365353181234958,
+    "random": 0.9994710262249622,
+    "nfn": 1.0370839083135073
+  },
+  "transformer_blocks.15.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14592065330150739,
+    "random": 0.143533269838977,
+    "nfn": 1.016632962275636
+  },
+  "transformer_blocks.15.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.to_add_out": {
+    "actual": 1.0365353181234958,
+    "random": 1.0008972609948232,
+    "nfn": 1.0356061091557496
+  },
+  "transformer_blocks.15.attn.to_out.0.base_layer": {
+    "actual": 0.9099859634900848,
+    "random": 0.9997190331992067,
+    "nfn": 0.9102417111916269
+  },
+  "transformer_blocks.15.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14605825921196194,
+    "random": 0.1430507974800843,
+    "nfn": 1.0210237327219118
+  },
+  "transformer_blocks.15.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.attn.to_out.0": {
+    "actual": 0.9099859634900848,
+    "random": 0.9992258419360602,
+    "nfn": 0.9106909822577568
+  },
+  "transformer_blocks.15.ff.net.0.proj.base_layer": {
+    "actual": 2.5962277216590985,
+    "random": 1.9999011814625642,
+    "nfn": 1.298178002855336
+  },
+  "transformer_blocks.15.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14092961027881262,
+    "random": 0.14354907444354645,
+    "nfn": 0.9817521347672361
+  },
+  "transformer_blocks.15.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.ff.net.0.proj": {
+    "actual": 2.5962277216590985,
+    "random": 1.9993389804094885,
+    "nfn": 1.2985430420244994
+  },
+  "transformer_blocks.15.ff.net.2.base_layer": {
+    "actual": 0.6512902098576925,
+    "random": 0.4998394658002728,
+    "nfn": 1.302998771445424
+  },
+  "transformer_blocks.15.ff.net.2.lora_A.default_0": {
+    "actual": 0.07851470223401057,
+    "random": 0.07160422101156116,
+    "nfn": 1.0965094113841927
+  },
+  "transformer_blocks.15.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.15.ff.net.2": {
+    "actual": 0.6512902098576925,
+    "random": 0.5000732620138267,
+    "nfn": 1.3023895883473264
+  },
+  "transformer_blocks.15.ff_context.net.0.proj": {
+    "actual": 5.211006910061964,
+    "random": 1.998205428909468,
+    "nfn": 2.6078434352497486
+  },
+  "transformer_blocks.15.ff_context.net.2": {
+    "actual": 3.495655187290027,
+    "random": 0.4984981062586462,
+    "nfn": 7.0123740559935115
+  },
+  "transformer_blocks.16.attn.to_q.base_layer": {
+    "actual": 1.5598050189473769,
+    "random": 0.9992639968551749,
+    "nfn": 1.5609538859163383
+  },
+  "transformer_blocks.16.attn.to_q.lora_A.default_0": {
+    "actual": 0.16903952909837464,
+    "random": 0.14316520140369213,
+    "nfn": 1.180730564697234
+  },
+  "transformer_blocks.16.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.to_q": {
+    "actual": 1.5598050189473769,
+    "random": 1.0000460753630458,
+    "nfn": 1.5597331536760668
+  },
+  "transformer_blocks.16.attn.to_k.base_layer": {
+    "actual": 2.1405935523383746,
+    "random": 1.0000882209752309,
+    "nfn": 2.140404723746257
+  },
+  "transformer_blocks.16.attn.to_k.lora_A.default_0": {
+    "actual": 0.1522815990546816,
+    "random": 0.1430815671836687,
+    "nfn": 1.0642992109472993
+  },
+  "transformer_blocks.16.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.to_k": {
+    "actual": 2.1405935523383746,
+    "random": 0.9998278525858652,
+    "nfn": 2.1409621134299623
+  },
+  "transformer_blocks.16.attn.to_v.base_layer": {
+    "actual": 0.6806005851199443,
+    "random": 0.9988493541117361,
+    "nfn": 0.6813846175284296
+  },
+  "transformer_blocks.16.attn.to_v.lora_A.default_0": {
+    "actual": 0.15130968279076976,
+    "random": 0.14326928792570262,
+    "nfn": 1.0561208545214293
+  },
+  "transformer_blocks.16.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.to_v": {
+    "actual": 0.6806005851199443,
+    "random": 0.999423624578001,
+    "nfn": 0.6809930928011859
+  },
+  "transformer_blocks.16.attn.add_q_proj.base_layer": {
+    "actual": 1.9060657766107867,
+    "random": 1.0005252505334563,
+    "nfn": 1.9050651401296645
+  },
+  "transformer_blocks.16.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13619253593647407,
+    "random": 0.14269198793939322,
+    "nfn": 0.954451177695557
+  },
+  "transformer_blocks.16.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.add_q_proj": {
+    "actual": 1.9060657766107867,
+    "random": 0.9995081104703261,
+    "nfn": 1.9070038118188686
+  },
+  "transformer_blocks.16.attn.add_k_proj.base_layer": {
+    "actual": 1.649181554297528,
+    "random": 0.9995817922911672,
+    "nfn": 1.6498715432955182
+  },
+  "transformer_blocks.16.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.13994373875590063,
+    "random": 0.14324207091229088,
+    "nfn": 0.9769737191358406
+  },
+  "transformer_blocks.16.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.add_k_proj": {
+    "actual": 1.649181554297528,
+    "random": 0.9984905810712865,
+    "nfn": 1.6516746232379191
+  },
+  "transformer_blocks.16.attn.add_v_proj.base_layer": {
+    "actual": 1.181917532029144,
+    "random": 1.0008605660853687,
+    "nfn": 1.1809012884301529
+  },
+  "transformer_blocks.16.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.1362486368076594,
+    "random": 0.14426927287532793,
+    "nfn": 0.9444050981347937
+  },
+  "transformer_blocks.16.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.add_v_proj": {
+    "actual": 1.181917532029144,
+    "random": 0.9996572261236003,
+    "nfn": 1.1823228013989353
+  },
+  "transformer_blocks.16.attn.to_add_out.base_layer": {
+    "actual": 1.8435867072248013,
+    "random": 0.998973844268745,
+    "nfn": 1.8454804575732593
+  },
+  "transformer_blocks.16.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.15020602498853763,
+    "random": 0.14326509039793014,
+    "nfn": 1.048448191889095
+  },
+  "transformer_blocks.16.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.to_add_out": {
+    "actual": 1.8435867072248013,
+    "random": 0.9997883349910679,
+    "nfn": 1.8439770126356514
+  },
+  "transformer_blocks.16.attn.to_out.0.base_layer": {
+    "actual": 1.2640835663384637,
+    "random": 0.9994927317019074,
+    "nfn": 1.2647251212982997
+  },
+  "transformer_blocks.16.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.13476226180655376,
+    "random": 0.1434072345050779,
+    "nfn": 0.9397173181090943
+  },
+  "transformer_blocks.16.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.attn.to_out.0": {
+    "actual": 1.2640835663384637,
+    "random": 0.9995763415884366,
+    "nfn": 1.2646193329562965
+  },
+  "transformer_blocks.16.ff.net.0.proj.base_layer": {
+    "actual": 2.8053863695346037,
+    "random": 1.9999475124357746,
+    "nfn": 1.4027299977077246
+  },
+  "transformer_blocks.16.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.12047326893164906,
+    "random": 0.14332642297039713,
+    "nfn": 0.8405517031324489
+  },
+  "transformer_blocks.16.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.ff.net.0.proj": {
+    "actual": 2.8053863695346037,
+    "random": 1.9997575165120205,
+    "nfn": 1.4028632703567792
+  },
+  "transformer_blocks.16.ff.net.2.base_layer": {
+    "actual": 0.719427741348945,
+    "random": 0.49974792319459105,
+    "nfn": 1.4395812527845473
+  },
+  "transformer_blocks.16.ff.net.2.lora_A.default_0": {
+    "actual": 0.07112991254001727,
+    "random": 0.07154029692194769,
+    "nfn": 0.994263591296271
+  },
+  "transformer_blocks.16.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.16.ff.net.2": {
+    "actual": 0.719427741348945,
+    "random": 0.4998591272636941,
+    "nfn": 1.4392609879651561
+  },
+  "transformer_blocks.16.ff_context.net.0.proj": {
+    "actual": 3.1023605104317933,
+    "random": 1.9993237963090245,
+    "nfn": 1.55170488950269
+  },
+  "transformer_blocks.16.ff_context.net.2": {
+    "actual": 0.6678014104355934,
+    "random": 0.4996112176234268,
+    "nfn": 1.3366421466920244
+  },
+  "transformer_blocks.17.attn.to_q.base_layer": {
+    "actual": 1.7395255893823696,
+    "random": 0.9992806409652988,
+    "nfn": 1.7407778336444093
+  },
+  "transformer_blocks.17.attn.to_q.lora_A.default_0": {
+    "actual": 0.15173306125867414,
+    "random": 0.14342398811592633,
+    "nfn": 1.057933636150403
+  },
+  "transformer_blocks.17.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.to_q": {
+    "actual": 1.7395255893823696,
+    "random": 1.0000081151118858,
+    "nfn": 1.739511473052139
+  },
+  "transformer_blocks.17.attn.to_k.base_layer": {
+    "actual": 3.4897427321709094,
+    "random": 0.998559688195193,
+    "nfn": 3.494776299730571
+  },
+  "transformer_blocks.17.attn.to_k.lora_A.default_0": {
+    "actual": 0.13916140474633917,
+    "random": 0.14328254968011425,
+    "nfn": 0.9712376354065743
+  },
+  "transformer_blocks.17.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.to_k": {
+    "actual": 3.4897427321709094,
+    "random": 1.0000963970293268,
+    "nfn": 3.4894063637633286
+  },
+  "transformer_blocks.17.attn.to_v.base_layer": {
+    "actual": 0.4684607921866826,
+    "random": 0.9997704255392386,
+    "nfn": 0.4685683635160666
+  },
+  "transformer_blocks.17.attn.to_v.lora_A.default_0": {
+    "actual": 0.15123517363112132,
+    "random": 0.14309070441079086,
+    "nfn": 1.0569182271753235
+  },
+  "transformer_blocks.17.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.to_v": {
+    "actual": 0.4684607921866826,
+    "random": 0.9994600274855235,
+    "nfn": 0.46871388480162895
+  },
+  "transformer_blocks.17.attn.add_q_proj.base_layer": {
+    "actual": 2.04101719483554,
+    "random": 0.9991762989415978,
+    "nfn": 2.042699768797096
+  },
+  "transformer_blocks.17.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13954002175141753,
+    "random": 0.1425429209531077,
+    "nfn": 0.9789333684085368
+  },
+  "transformer_blocks.17.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.add_q_proj": {
+    "actual": 2.04101719483554,
+    "random": 0.9984682915904772,
+    "nfn": 2.0441482338756782
+  },
+  "transformer_blocks.17.attn.add_k_proj.base_layer": {
+    "actual": 1.7204617565819211,
+    "random": 1.0013960002946776,
+    "nfn": 1.7180633396534901
+  },
+  "transformer_blocks.17.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14984031690220306,
+    "random": 0.14249346312587532,
+    "nfn": 1.0515592337722728
+  },
+  "transformer_blocks.17.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.add_k_proj": {
+    "actual": 1.7204617565819211,
+    "random": 0.9970882904598495,
+    "nfn": 1.725485870251728
+  },
+  "transformer_blocks.17.attn.add_v_proj.base_layer": {
+    "actual": 1.2815921968490849,
+    "random": 0.999667348857243,
+    "nfn": 1.2820186618219758
+  },
+  "transformer_blocks.17.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14458113093870295,
+    "random": 0.14414424738144363,
+    "nfn": 1.0030308775077454
+  },
+  "transformer_blocks.17.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.add_v_proj": {
+    "actual": 1.2815921968490849,
+    "random": 0.999844788697921,
+    "nfn": 1.2817911453217437
+  },
+  "transformer_blocks.17.attn.to_add_out.base_layer": {
+    "actual": 1.519684148158654,
+    "random": 1.001629893842209,
+    "nfn": 1.5172112548769998
+  },
+  "transformer_blocks.17.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.12814418401876,
+    "random": 0.14233267956206833,
+    "nfn": 0.9003145617228331
+  },
+  "transformer_blocks.17.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.to_add_out": {
+    "actual": 1.519684148158654,
+    "random": 1.00020833110326,
+    "nfn": 1.5193676166268248
+  },
+  "transformer_blocks.17.attn.to_out.0.base_layer": {
+    "actual": 1.1283336201636702,
+    "random": 0.9996948943728282,
+    "nfn": 1.1286779861685152
+  },
+  "transformer_blocks.17.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.13637790849630485,
+    "random": 0.14291232773058088,
+    "nfn": 0.9542767279909208
+  },
+  "transformer_blocks.17.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.attn.to_out.0": {
+    "actual": 1.1283336201636702,
+    "random": 0.9996941157010095,
+    "nfn": 1.12867886530717
+  },
+  "transformer_blocks.17.ff.net.0.proj.base_layer": {
+    "actual": 3.0217642785089005,
+    "random": 1.9985910661276614,
+    "nfn": 1.5119472561056087
+  },
+  "transformer_blocks.17.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.12890879107769965,
+    "random": 0.1434105073600657,
+    "nfn": 0.8988796807896643
+  },
+  "transformer_blocks.17.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.ff.net.0.proj": {
+    "actual": 3.0217642785089005,
+    "random": 1.9994951041091307,
+    "nfn": 1.511263654659079
+  },
+  "transformer_blocks.17.ff.net.2.base_layer": {
+    "actual": 0.577727477137851,
+    "random": 0.4999422018133478,
+    "nfn": 1.1555885361195095
+  },
+  "transformer_blocks.17.ff.net.2.lora_A.default_0": {
+    "actual": 0.0671886894633423,
+    "random": 0.07147513182412323,
+    "nfn": 0.9400288988437483
+  },
+  "transformer_blocks.17.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.17.ff.net.2": {
+    "actual": 0.577727477137851,
+    "random": 0.5001126336076579,
+    "nfn": 1.1551947267764535
+  },
+  "transformer_blocks.17.ff_context.net.0.proj": {
+    "actual": 2.9847263641182242,
+    "random": 2.0005116601683968,
+    "nfn": 1.4919814883093354
+  },
+  "transformer_blocks.17.ff_context.net.2": {
+    "actual": 1.1984717055580374,
+    "random": 0.499446723201734,
+    "nfn": 2.399598695683016
+  },
+  "transformer_blocks.18.attn.to_q.base_layer": {
+    "actual": 1.5438709601880722,
+    "random": 0.9999758002314113,
+    "nfn": 1.5439083224121968
+  },
+  "transformer_blocks.18.attn.to_q.lora_A.default_0": {
+    "actual": 0.15639320525867806,
+    "random": 0.14290457751263574,
+    "nfn": 1.0943890530368046
+  },
+  "transformer_blocks.18.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.to_q": {
+    "actual": 1.5438709601880722,
+    "random": 0.9993331039790813,
+    "nfn": 1.5449012486835316
+  },
+  "transformer_blocks.18.attn.to_k.base_layer": {
+    "actual": 2.028828450190033,
+    "random": 0.9992702262297242,
+    "nfn": 2.0303101172591345
+  },
+  "transformer_blocks.18.attn.to_k.lora_A.default_0": {
+    "actual": 0.14201288877954063,
+    "random": 0.1430542650030268,
+    "nfn": 0.9927204112127372
+  },
+  "transformer_blocks.18.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.to_k": {
+    "actual": 2.028828450190033,
+    "random": 0.9991571241480631,
+    "nfn": 2.0305399432746127
+  },
+  "transformer_blocks.18.attn.to_v.base_layer": {
+    "actual": 0.8389028625097911,
+    "random": 0.9993100358264534,
+    "nfn": 0.8394820750659211
+  },
+  "transformer_blocks.18.attn.to_v.lora_A.default_0": {
+    "actual": 0.14029063705111555,
+    "random": 0.1428203714554955,
+    "nfn": 0.982287299923679
+  },
+  "transformer_blocks.18.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.to_v": {
+    "actual": 0.8389028625097911,
+    "random": 0.9998262952422278,
+    "nfn": 0.8390486092452192
+  },
+  "transformer_blocks.18.attn.add_q_proj.base_layer": {
+    "actual": 1.65406285326078,
+    "random": 0.9987181479102911,
+    "nfn": 1.6561858385388573
+  },
+  "transformer_blocks.18.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13817681073187968,
+    "random": 0.14220346870715872,
+    "nfn": 0.9716838273223054
+  },
+  "transformer_blocks.18.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.add_q_proj": {
+    "actual": 1.65406285326078,
+    "random": 0.9981585748746036,
+    "nfn": 1.6571143051779886
+  },
+  "transformer_blocks.18.attn.add_k_proj.base_layer": {
+    "actual": 1.6460688137024175,
+    "random": 0.9995941537062885,
+    "nfn": 1.646737135865726
+  },
+  "transformer_blocks.18.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.13965470551021017,
+    "random": 0.14331088603426534,
+    "nfn": 0.9744877683389593
+  },
+  "transformer_blocks.18.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.add_k_proj": {
+    "actual": 1.6460688137024175,
+    "random": 0.9990072298229703,
+    "nfn": 1.6477046056955065
+  },
+  "transformer_blocks.18.attn.add_v_proj.base_layer": {
+    "actual": 1.2796371465803735,
+    "random": 0.9996982037280575,
+    "nfn": 1.2800234528864536
+  },
+  "transformer_blocks.18.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14514581400820056,
+    "random": 0.14363241666163787,
+    "nfn": 1.010536600175209
+  },
+  "transformer_blocks.18.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.add_v_proj": {
+    "actual": 1.2796371465803735,
+    "random": 1.0002668288236372,
+    "nfn": 1.2792957935886864
+  },
+  "transformer_blocks.18.attn.to_add_out.base_layer": {
+    "actual": 1.2802045063342478,
+    "random": 0.9980287313488413,
+    "nfn": 1.2827331179174013
+  },
+  "transformer_blocks.18.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14332692180703097,
+    "random": 0.14157471554708165,
+    "nfn": 1.0123765479815965
+  },
+  "transformer_blocks.18.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.to_add_out": {
+    "actual": 1.2802045063342478,
+    "random": 0.9979198146282056,
+    "nfn": 1.2828731202328243
+  },
+  "transformer_blocks.18.attn.to_out.0.base_layer": {
+    "actual": 1.0313850853808728,
+    "random": 1.0001804935857428,
+    "nfn": 1.0311989605828629
+  },
+  "transformer_blocks.18.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14106753252469353,
+    "random": 0.14336344638202517,
+    "nfn": 0.9839853608763447
+  },
+  "transformer_blocks.18.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.attn.to_out.0": {
+    "actual": 1.0313850853808728,
+    "random": 0.9997916443462972,
+    "nfn": 1.0316000250784578
+  },
+  "transformer_blocks.18.ff.net.0.proj.base_layer": {
+    "actual": 2.7382568773796008,
+    "random": 2.000032387664009,
+    "nfn": 1.3691062676129064
+  },
+  "transformer_blocks.18.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14825803143318292,
+    "random": 0.14341957158670485,
+    "nfn": 1.0337363986863743
+  },
+  "transformer_blocks.18.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.ff.net.0.proj": {
+    "actual": 2.7382568773796008,
+    "random": 2.0000898147106354,
+    "nfn": 1.3690669575134855
+  },
+  "transformer_blocks.18.ff.net.2.base_layer": {
+    "actual": 0.7082543360879878,
+    "random": 0.4998852127696193,
+    "nfn": 1.4168339410639839
+  },
+  "transformer_blocks.18.ff.net.2.lora_A.default_0": {
+    "actual": 0.06298484714907564,
+    "random": 0.07168702180940366,
+    "nfn": 0.8786087852350075
+  },
+  "transformer_blocks.18.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.18.ff.net.2": {
+    "actual": 0.7082543360879878,
+    "random": 0.5000311650686302,
+    "nfn": 1.4164203864988667
+  },
+  "transformer_blocks.18.ff_context.net.0.proj": {
+    "actual": 4.047562977594721,
+    "random": 1.9990113542417856,
+    "nfn": 2.0247823850555067
+  },
+  "transformer_blocks.18.ff_context.net.2": {
+    "actual": 4.497999317857906,
+    "random": 0.49838904353704455,
+    "nfn": 9.025076646821544
+  },
+  "transformer_blocks.19.attn.to_q.base_layer": {
+    "actual": 1.9440417958749987,
+    "random": 0.9994846529817888,
+    "nfn": 1.9450441685875695
+  },
+  "transformer_blocks.19.attn.to_q.lora_A.default_0": {
+    "actual": 0.1450030615636945,
+    "random": 0.14359106188801848,
+    "nfn": 1.0098334788886594
+  },
+  "transformer_blocks.19.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.to_q": {
+    "actual": 1.9440417958749987,
+    "random": 0.9990214405836609,
+    "nfn": 1.9459460196762404
+  },
+  "transformer_blocks.19.attn.to_k.base_layer": {
+    "actual": 3.8400500526079626,
+    "random": 0.9994597354835916,
+    "nfn": 3.8421258168543857
+  },
+  "transformer_blocks.19.attn.to_k.lora_A.default_0": {
+    "actual": 0.1369175280666392,
+    "random": 0.14352504511789235,
+    "nfn": 0.953962619932809
+  },
+  "transformer_blocks.19.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.to_k": {
+    "actual": 3.8400500526079626,
+    "random": 0.9983986004627068,
+    "nfn": 3.846209370514237
+  },
+  "transformer_blocks.19.attn.to_v.base_layer": {
+    "actual": 0.5901280691850231,
+    "random": 0.9999211958701275,
+    "nfn": 0.5901745773790663
+  },
+  "transformer_blocks.19.attn.to_v.lora_A.default_0": {
+    "actual": 0.13475035056107765,
+    "random": 0.14308289335910987,
+    "nfn": 0.9417642276975824
+  },
+  "transformer_blocks.19.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.to_v": {
+    "actual": 0.5901280691850231,
+    "random": 0.9994698582172342,
+    "nfn": 0.5904410866753314
+  },
+  "transformer_blocks.19.attn.add_q_proj.base_layer": {
+    "actual": 2.037803810907867,
+    "random": 0.9992160112043497,
+    "nfn": 2.039402679758617
+  },
+  "transformer_blocks.19.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13560303270275653,
+    "random": 0.14330628700383635,
+    "nfn": 0.9462462222548994
+  },
+  "transformer_blocks.19.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.add_q_proj": {
+    "actual": 2.037803810907867,
+    "random": 0.9990020711221717,
+    "nfn": 2.039839425576783
+  },
+  "transformer_blocks.19.attn.add_k_proj.base_layer": {
+    "actual": 1.7490555591030472,
+    "random": 0.9975251253501202,
+    "nfn": 1.7533949919197758
+  },
+  "transformer_blocks.19.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14654648644226445,
+    "random": 0.14333732437585842,
+    "nfn": 1.0223888793821139
+  },
+  "transformer_blocks.19.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.add_k_proj": {
+    "actual": 1.7490555591030472,
+    "random": 1.0022225604301898,
+    "nfn": 1.7451767982076656
+  },
+  "transformer_blocks.19.attn.add_v_proj.base_layer": {
+    "actual": 1.1869259491667925,
+    "random": 0.9989582708323718,
+    "nfn": 1.1881636939426896
+  },
+  "transformer_blocks.19.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14187263051820373,
+    "random": 0.14252099647471342,
+    "nfn": 0.9954507337687277
+  },
+  "transformer_blocks.19.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.add_v_proj": {
+    "actual": 1.1869259491667925,
+    "random": 0.9987017958020992,
+    "nfn": 1.1884688243836816
+  },
+  "transformer_blocks.19.attn.to_add_out.base_layer": {
+    "actual": 1.4393521779842207,
+    "random": 1.001702699657254,
+    "nfn": 1.4369055593807567
+  },
+  "transformer_blocks.19.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.13979968446944774,
+    "random": 0.14368734952509518,
+    "nfn": 0.972943581543562
+  },
+  "transformer_blocks.19.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.to_add_out": {
+    "actual": 1.4393521779842207,
+    "random": 1.001907003675676,
+    "nfn": 1.436612552565955
+  },
+  "transformer_blocks.19.attn.to_out.0.base_layer": {
+    "actual": 1.1550414795399913,
+    "random": 0.9993301839597613,
+    "nfn": 1.1558156634109031
+  },
+  "transformer_blocks.19.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.15136080746236394,
+    "random": 0.14346141303021087,
+    "nfn": 1.0550628511548925
+  },
+  "transformer_blocks.19.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.attn.to_out.0": {
+    "actual": 1.1550414795399913,
+    "random": 0.9993292106199879,
+    "nfn": 1.1558167891674045
+  },
+  "transformer_blocks.19.ff.net.0.proj.base_layer": {
+    "actual": 2.708228761368495,
+    "random": 1.999416263587491,
+    "nfn": 1.354509719006288
+  },
+  "transformer_blocks.19.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.1517581612580789,
+    "random": 0.14319902496081535,
+    "nfn": 1.0597709118452843
+  },
+  "transformer_blocks.19.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.ff.net.0.proj": {
+    "actual": 2.708228761368495,
+    "random": 1.999629619665805,
+    "nfn": 1.3543651958011689
+  },
+  "transformer_blocks.19.ff.net.2.base_layer": {
+    "actual": 0.5366078137407252,
+    "random": 0.50011511562408,
+    "nfn": 1.0729685965822229
+  },
+  "transformer_blocks.19.ff.net.2.lora_A.default_0": {
+    "actual": 0.06605854465252842,
+    "random": 0.07170432900724819,
+    "nfn": 0.9212629916089297
+  },
+  "transformer_blocks.19.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.19.ff.net.2": {
+    "actual": 0.5366078137407252,
+    "random": 0.4997524978915257,
+    "nfn": 1.0737471368421236
+  },
+  "transformer_blocks.19.ff_context.net.0.proj": {
+    "actual": 3.170536537511081,
+    "random": 1.9992587772121662,
+    "nfn": 1.5858560050601274
+  },
+  "transformer_blocks.19.ff_context.net.2": {
+    "actual": 1.2325603031015453,
+    "random": 0.50009248547435,
+    "nfn": 2.46466471483256
+  },
+  "transformer_blocks.20.attn.to_q.base_layer": {
+    "actual": 1.6306537397102527,
+    "random": 0.9998239592267718,
+    "nfn": 1.6309408517988928
+  },
+  "transformer_blocks.20.attn.to_q.lora_A.default_0": {
+    "actual": 0.16111688401238616,
+    "random": 0.14342307560988884,
+    "nfn": 1.123367933139466
+  },
+  "transformer_blocks.20.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.to_q": {
+    "actual": 1.6306537397102527,
+    "random": 0.9995023677656635,
+    "nfn": 1.6314656095867945
+  },
+  "transformer_blocks.20.attn.to_k.base_layer": {
+    "actual": 3.046813956247376,
+    "random": 0.9986249992939834,
+    "nfn": 3.051009095908313
+  },
+  "transformer_blocks.20.attn.to_k.lora_A.default_0": {
+    "actual": 0.13823596545660383,
+    "random": 0.14287298047024402,
+    "nfn": 0.9675444930288555
+  },
+  "transformer_blocks.20.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.to_k": {
+    "actual": 3.046813956247376,
+    "random": 0.9996674461912203,
+    "nfn": 3.04782752289862
+  },
+  "transformer_blocks.20.attn.to_v.base_layer": {
+    "actual": 0.7351049844090566,
+    "random": 0.9990057698133102,
+    "nfn": 0.7358365753447347
+  },
+  "transformer_blocks.20.attn.to_v.lora_A.default_0": {
+    "actual": 0.12846482647358934,
+    "random": 0.14305817052886727,
+    "nfn": 0.8979901392466557
+  },
+  "transformer_blocks.20.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.to_v": {
+    "actual": 0.7351049844090566,
+    "random": 0.9990709835781234,
+    "nfn": 0.7357885440495072
+  },
+  "transformer_blocks.20.attn.add_q_proj.base_layer": {
+    "actual": 1.9619481330170025,
+    "random": 0.9958770664459171,
+    "nfn": 1.970070603210893
+  },
+  "transformer_blocks.20.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.14163238592865146,
+    "random": 0.1438160128763823,
+    "nfn": 0.9848165242238514
+  },
+  "transformer_blocks.20.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.add_q_proj": {
+    "actual": 1.9619481330170025,
+    "random": 0.9977599922374247,
+    "nfn": 1.9663527785048147
+  },
+  "transformer_blocks.20.attn.add_k_proj.base_layer": {
+    "actual": 3.1762471219612105,
+    "random": 1.000906605056647,
+    "nfn": 3.1733701285560487
+  },
+  "transformer_blocks.20.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.16096489700678063,
+    "random": 0.14293799956710249,
+    "nfn": 1.1261169002943503
+  },
+  "transformer_blocks.20.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.add_k_proj": {
+    "actual": 3.1762471219612105,
+    "random": 0.998883226335848,
+    "nfn": 3.1797982368894857
+  },
+  "transformer_blocks.20.attn.add_v_proj.base_layer": {
+    "actual": 1.405173643845657,
+    "random": 0.9971142786317974,
+    "nfn": 1.4092403187463962
+  },
+  "transformer_blocks.20.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.13635818619914772,
+    "random": 0.14337843581453447,
+    "nfn": 0.9510369214484408
+  },
+  "transformer_blocks.20.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.add_v_proj": {
+    "actual": 1.405173643845657,
+    "random": 0.9986298659928501,
+    "nfn": 1.4071015615466458
+  },
+  "transformer_blocks.20.attn.to_add_out.base_layer": {
+    "actual": 1.353790063871774,
+    "random": 1.000551725375291,
+    "nfn": 1.3530435554083813
+  },
+  "transformer_blocks.20.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.1457262043482903,
+    "random": 0.14320156781097318,
+    "nfn": 1.0176299503972588
+  },
+  "transformer_blocks.20.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.to_add_out": {
+    "actual": 1.353790063871774,
+    "random": 0.9995823762950312,
+    "nfn": 1.354355674906574
+  },
+  "transformer_blocks.20.attn.to_out.0.base_layer": {
+    "actual": 0.9629771114336003,
+    "random": 0.9993523761065932,
+    "nfn": 0.9636011625701953
+  },
+  "transformer_blocks.20.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.14937416015126084,
+    "random": 0.14315246281940866,
+    "nfn": 1.0434620348774652
+  },
+  "transformer_blocks.20.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.attn.to_out.0": {
+    "actual": 0.9629771114336003,
+    "random": 0.9987574708371337,
+    "nfn": 0.964175127147191
+  },
+  "transformer_blocks.20.ff.net.0.proj.base_layer": {
+    "actual": 2.7100950430498787,
+    "random": 1.9994129542322616,
+    "nfn": 1.3554453757605598
+  },
+  "transformer_blocks.20.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.1313205810350463,
+    "random": 0.14308993790571936,
+    "nfn": 0.9177485360401247
+  },
+  "transformer_blocks.20.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.ff.net.0.proj": {
+    "actual": 2.7100950430498787,
+    "random": 1.9987629579316315,
+    "nfn": 1.355886165638346
+  },
+  "transformer_blocks.20.ff.net.2.base_layer": {
+    "actual": 0.6491681344838776,
+    "random": 0.5000038628879883,
+    "nfn": 1.2983262383900929
+  },
+  "transformer_blocks.20.ff.net.2.lora_A.default_0": {
+    "actual": 0.07460064750375868,
+    "random": 0.07191579315637779,
+    "nfn": 1.0373333064900332
+  },
+  "transformer_blocks.20.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.20.ff.net.2": {
+    "actual": 0.6491681344838776,
+    "random": 0.49974179115401907,
+    "nfn": 1.2990070992157743
+  },
+  "transformer_blocks.20.ff_context.net.0.proj": {
+    "actual": 12.848432295591902,
+    "random": 2.0031447389232104,
+    "nfn": 6.4141307644591725
+  },
+  "transformer_blocks.20.ff_context.net.2": {
+    "actual": 18.230572972608538,
+    "random": 0.48306570681851596,
+    "nfn": 37.73932348184182
+  },
+  "transformer_blocks.21.attn.to_q.base_layer": {
+    "actual": 1.714494599767542,
+    "random": 0.9995005184200941,
+    "nfn": 1.715351386188009
+  },
+  "transformer_blocks.21.attn.to_q.lora_A.default_0": {
+    "actual": 0.14748766950283343,
+    "random": 0.1430938190980655,
+    "nfn": 1.0307060810345463
+  },
+  "transformer_blocks.21.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.to_q": {
+    "actual": 1.714494599767542,
+    "random": 0.9992609795018775,
+    "nfn": 1.7157625834866503
+  },
+  "transformer_blocks.21.attn.to_k.base_layer": {
+    "actual": 3.063812556716772,
+    "random": 0.9998078017865345,
+    "nfn": 3.0644015292160285
+  },
+  "transformer_blocks.21.attn.to_k.lora_A.default_0": {
+    "actual": 0.14250603137569848,
+    "random": 0.14351346237458973,
+    "nfn": 0.9929802334762037
+  },
+  "transformer_blocks.21.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.to_k": {
+    "actual": 3.063812556716772,
+    "random": 0.9996357153146097,
+    "nfn": 3.0649290634363897
+  },
+  "transformer_blocks.21.attn.to_v.base_layer": {
+    "actual": 0.628190229019175,
+    "random": 0.9998310646071171,
+    "nfn": 0.6282963705133745
+  },
+  "transformer_blocks.21.attn.to_v.lora_A.default_0": {
+    "actual": 0.13648271285639818,
+    "random": 0.14347685263236534,
+    "nfn": 0.9512524867416179
+  },
+  "transformer_blocks.21.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.to_v": {
+    "actual": 0.628190229019175,
+    "random": 0.9987380040416671,
+    "nfn": 0.6289840042904455
+  },
+  "transformer_blocks.21.attn.add_q_proj.base_layer": {
+    "actual": 1.881868355177839,
+    "random": 0.9984291633315894,
+    "nfn": 1.8848291138635838
+  },
+  "transformer_blocks.21.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.13957910134331672,
+    "random": 0.1432800554969451,
+    "nfn": 0.9741697883854651
+  },
+  "transformer_blocks.21.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.add_q_proj": {
+    "actual": 1.881868355177839,
+    "random": 0.998527859984605,
+    "nfn": 1.8846428132779922
+  },
+  "transformer_blocks.21.attn.add_k_proj.base_layer": {
+    "actual": 2.7359765369586424,
+    "random": 0.9975525735317281,
+    "nfn": 2.7426890667749073
+  },
+  "transformer_blocks.21.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.14939511128988175,
+    "random": 0.14250931639743344,
+    "nfn": 1.0483182087074576
+  },
+  "transformer_blocks.21.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.add_k_proj": {
+    "actual": 2.7359765369586424,
+    "random": 0.9987892017137443,
+    "nfn": 2.739293268553759
+  },
+  "transformer_blocks.21.attn.add_v_proj.base_layer": {
+    "actual": 1.2964750486531929,
+    "random": 0.9979946644567746,
+    "nfn": 1.299080140231898
+  },
+  "transformer_blocks.21.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.15104430170157124,
+    "random": 0.14304400843516532,
+    "nfn": 1.0559288945683598
+  },
+  "transformer_blocks.21.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.add_v_proj": {
+    "actual": 1.2964750486531929,
+    "random": 0.9998897569954489,
+    "nfn": 1.2966179917163547
+  },
+  "transformer_blocks.21.attn.to_add_out.base_layer": {
+    "actual": 1.8484539900953172,
+    "random": 0.9971763777093359,
+    "nfn": 1.8536881051489547
+  },
+  "transformer_blocks.21.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.14815514941914187,
+    "random": 0.14347485728583,
+    "nfn": 1.0326209917322853
+  },
+  "transformer_blocks.21.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.to_add_out": {
+    "actual": 1.8484539900953172,
+    "random": 0.9971205080063467,
+    "nfn": 1.8537919692286098
+  },
+  "transformer_blocks.21.attn.to_out.0.base_layer": {
+    "actual": 1.2469299128431761,
+    "random": 0.9989943817379623,
+    "nfn": 1.2481851105847837
+  },
+  "transformer_blocks.21.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.1227863257357385,
+    "random": 0.1432321063463614,
+    "nfn": 0.8572542069500725
+  },
+  "transformer_blocks.21.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.attn.to_out.0": {
+    "actual": 1.2469299128431761,
+    "random": 1.000052596739527,
+    "nfn": 1.2468643318446886
+  },
+  "transformer_blocks.21.ff.net.0.proj.base_layer": {
+    "actual": 2.645242971296514,
+    "random": 1.9994742746379814,
+    "nfn": 1.3229692448908619
+  },
+  "transformer_blocks.21.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.15074839424373163,
+    "random": 0.1431386657281217,
+    "nfn": 1.0531633327508019
+  },
+  "transformer_blocks.21.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.ff.net.0.proj": {
+    "actual": 2.645242971296514,
+    "random": 1.9998092981879618,
+    "nfn": 1.3227476108313843
+  },
+  "transformer_blocks.21.ff.net.2.base_layer": {
+    "actual": 0.9154073686935574,
+    "random": 0.5000181223156676,
+    "nfn": 1.8307483825869206
+  },
+  "transformer_blocks.21.ff.net.2.lora_A.default_0": {
+    "actual": 0.07349360734581423,
+    "random": 0.07154682438180258,
+    "nfn": 1.0272099143579432
+  },
+  "transformer_blocks.21.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.21.ff.net.2": {
+    "actual": 0.9154073686935574,
+    "random": 0.5000291697220949,
+    "nfn": 1.8307079349037187
+  },
+  "transformer_blocks.21.ff_context.net.0.proj": {
+    "actual": 15.367434071627242,
+    "random": 1.9828687087690562,
+    "nfn": 7.750101660118073
+  },
+  "transformer_blocks.21.ff_context.net.2": {
+    "actual": 8.86934532839461,
+    "random": 0.4959316526113174,
+    "nfn": 17.88420900681226
+  },
+  "transformer_blocks.22.attn.to_q.base_layer": {
+    "actual": 2.7991850271707612,
+    "random": 0.9985263999749451,
+    "nfn": 2.803315993689299
+  },
+  "transformer_blocks.22.attn.to_q.lora_A.default_0": {
+    "actual": 0.13402422692342603,
+    "random": 0.14290968754644573,
+    "nfn": 0.9378246445320096
+  },
+  "transformer_blocks.22.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.to_q": {
+    "actual": 2.7991850271707612,
+    "random": 0.9992947543920121,
+    "nfn": 2.8011605333341643
+  },
+  "transformer_blocks.22.attn.to_k.base_layer": {
+    "actual": 4.537671868347033,
+    "random": 0.9969706136812538,
+    "nfn": 4.551459998998319
+  },
+  "transformer_blocks.22.attn.to_k.lora_A.default_0": {
+    "actual": 0.14649252691858047,
+    "random": 0.14313201051742155,
+    "nfn": 1.0234784405599464
+  },
+  "transformer_blocks.22.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.to_k": {
+    "actual": 4.537671868347033,
+    "random": 0.9968232500395716,
+    "nfn": 4.552132856217888
+  },
+  "transformer_blocks.22.attn.to_v.base_layer": {
+    "actual": 0.6796705589665272,
+    "random": 0.9997097864713601,
+    "nfn": 0.6798678658188754
+  },
+  "transformer_blocks.22.attn.to_v.lora_A.default_0": {
+    "actual": 0.14244045260847032,
+    "random": 0.14330990052774484,
+    "nfn": 0.9939330924376283
+  },
+  "transformer_blocks.22.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.to_v": {
+    "actual": 0.6796705589665272,
+    "random": 0.9996040817719765,
+    "nfn": 0.6799397595112756
+  },
+  "transformer_blocks.22.attn.add_q_proj.base_layer": {
+    "actual": 2.051486048101572,
+    "random": 1.0003231851965129,
+    "nfn": 2.0508232523857366
+  },
+  "transformer_blocks.22.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.1447057792634251,
+    "random": 0.14344896644785943,
+    "nfn": 1.0087613933142034
+  },
+  "transformer_blocks.22.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.add_q_proj": {
+    "actual": 2.051486048101572,
+    "random": 0.9971446468327253,
+    "nfn": 2.057360539032926
+  },
+  "transformer_blocks.22.attn.add_k_proj.base_layer": {
+    "actual": 4.084466181760768,
+    "random": 1.0001962616900706,
+    "nfn": 4.083664714822156
+  },
+  "transformer_blocks.22.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.15933171803436244,
+    "random": 0.14215317137437186,
+    "nfn": 1.1208453282744533
+  },
+  "transformer_blocks.22.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.add_k_proj": {
+    "actual": 4.084466181760768,
+    "random": 0.9984724769515025,
+    "nfn": 4.090714842968233
+  },
+  "transformer_blocks.22.attn.add_v_proj.base_layer": {
+    "actual": 1.2479015979388919,
+    "random": 0.999415740525837,
+    "nfn": 1.2486311225019484
+  },
+  "transformer_blocks.22.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.12525411923029314,
+    "random": 0.1428307983578173,
+    "nfn": 0.8769405525306148
+  },
+  "transformer_blocks.22.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.add_v_proj": {
+    "actual": 1.2479015979388919,
+    "random": 1.0002383099682786,
+    "nfn": 1.2476042814021668
+  },
+  "transformer_blocks.22.attn.to_add_out.base_layer": {
+    "actual": 2.1247485541683298,
+    "random": 0.9987847243507869,
+    "nfn": 2.1273338511954343
+  },
+  "transformer_blocks.22.attn.to_add_out.lora_A.default_0": {
+    "actual": 0.16077477941555487,
+    "random": 0.14361554138331775,
+    "nfn": 1.119480370069686
+  },
+  "transformer_blocks.22.attn.to_add_out.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.to_add_out": {
+    "actual": 2.1247485541683298,
+    "random": 0.9993792402843371,
+    "nfn": 2.1260683317414215
+  },
+  "transformer_blocks.22.attn.to_out.0.base_layer": {
+    "actual": 1.2762703643044238,
+    "random": 0.9995166758603314,
+    "nfn": 1.2768875148639989
+  },
+  "transformer_blocks.22.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.12314485544124473,
+    "random": 0.1431471216174025,
+    "nfn": 0.8602677724137621
+  },
+  "transformer_blocks.22.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.attn.to_out.0": {
+    "actual": 1.2762703643044238,
+    "random": 0.9990993077655274,
+    "nfn": 1.2774209274138983
+  },
+  "transformer_blocks.22.ff.net.0.proj.base_layer": {
+    "actual": 2.6441929323490454,
+    "random": 1.9992694839496727,
+    "nfn": 1.322579548968701
+  },
+  "transformer_blocks.22.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.14222421301107782,
+    "random": 0.1434582740094419,
+    "nfn": 0.9913977704884219
+  },
+  "transformer_blocks.22.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.ff.net.0.proj": {
+    "actual": 2.6441929323490454,
+    "random": 1.999830127659111,
+    "nfn": 1.3222087695239342
+  },
+  "transformer_blocks.22.ff.net.2.base_layer": {
+    "actual": 0.8773769397360163,
+    "random": 0.49988399609490264,
+    "nfn": 1.7551610905531907
+  },
+  "transformer_blocks.22.ff.net.2.lora_A.default_0": {
+    "actual": 0.0772477910182966,
+    "random": 0.07163146844184083,
+    "nfn": 1.0784057998338508
+  },
+  "transformer_blocks.22.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.22.ff.net.2": {
+    "actual": 0.8773769397360163,
+    "random": 0.49968193075795925,
+    "nfn": 1.7558708564969274
+  },
+  "transformer_blocks.22.ff_context.net.0.proj": {
+    "actual": 31.9100676841681,
+    "random": 1.945260027935299,
+    "nfn": 16.404011405116613
+  },
+  "transformer_blocks.22.ff_context.net.2": {
+    "actual": 15.228638934637607,
+    "random": 0.4973439199554311,
+    "nfn": 30.619935870538647
+  },
+  "transformer_blocks.23.attn.to_q.base_layer": {
+    "actual": 1.9144734855728143,
+    "random": 0.9998351526341651,
+    "nfn": 1.914789133517604
+  },
+  "transformer_blocks.23.attn.to_q.lora_A.default_0": {
+    "actual": 0.14666151086997778,
+    "random": 0.1436566893222353,
+    "nfn": 1.0209166838099852
+  },
+  "transformer_blocks.23.attn.to_q.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.to_q": {
+    "actual": 1.9144734855728143,
+    "random": 1.000052596739527,
+    "nfn": 1.9143727958055157
+  },
+  "transformer_blocks.23.attn.to_k.base_layer": {
+    "actual": 2.694999127169389,
+    "random": 0.998570200264745,
+    "nfn": 2.6988579535568755
+  },
+  "transformer_blocks.23.attn.to_k.lora_A.default_0": {
+    "actual": 0.14109600271306344,
+    "random": 0.14360493197978844,
+    "nfn": 0.9825289477726425
+  },
+  "transformer_blocks.23.attn.to_k.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.to_k": {
+    "actual": 2.694999127169389,
+    "random": 0.9993734002456972,
+    "nfn": 2.696688871753861
+  },
+  "transformer_blocks.23.attn.to_v.base_layer": {
+    "actual": 0.8571672913544033,
+    "random": 0.9988614235249254,
+    "nfn": 0.8581443543284598
+  },
+  "transformer_blocks.23.attn.to_v.lora_A.default_0": {
+    "actual": 0.14420139459288528,
+    "random": 0.14339471492224343,
+    "nfn": 1.005625588579602
+  },
+  "transformer_blocks.23.attn.to_v.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.to_v": {
+    "actual": 0.8571672913544033,
+    "random": 0.999537018661594,
+    "nfn": 0.8575643276345808
+  },
+  "transformer_blocks.23.attn.add_q_proj.base_layer": {
+    "actual": 1.012372255584547,
+    "random": 1.0003676668241541,
+    "nfn": 1.0120001766935385
+  },
+  "transformer_blocks.23.attn.add_q_proj.lora_A.default_0": {
+    "actual": 0.1478556284373938,
+    "random": 0.14320252898399935,
+    "nfn": 1.0324931374215771
+  },
+  "transformer_blocks.23.attn.add_q_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.add_q_proj": {
+    "actual": 1.012372255584547,
+    "random": 0.9994857236555394,
+    "nfn": 1.0128931625775264
+  },
+  "transformer_blocks.23.attn.add_k_proj.base_layer": {
+    "actual": 2.0593004091377773,
+    "random": 0.9983454561110829,
+    "nfn": 2.062713258754638
+  },
+  "transformer_blocks.23.attn.add_k_proj.lora_A.default_0": {
+    "actual": 0.12638792623200418,
+    "random": 0.14301336039905257,
+    "nfn": 0.8837490838572133
+  },
+  "transformer_blocks.23.attn.add_k_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.add_k_proj": {
+    "actual": 2.0593004091377773,
+    "random": 1.0015631227337585,
+    "nfn": 2.056086493597062
+  },
+  "transformer_blocks.23.attn.add_v_proj.base_layer": {
+    "actual": 1.1832951971443157,
+    "random": 1.0003153011443489,
+    "nfn": 1.1829222204145433
+  },
+  "transformer_blocks.23.attn.add_v_proj.lora_A.default_0": {
+    "actual": 0.14482125386078357,
+    "random": 0.14299343126719363,
+    "nfn": 1.0127825633484835
+  },
+  "transformer_blocks.23.attn.add_v_proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.add_v_proj": {
+    "actual": 1.1832951971443157,
+    "random": 1.0013119037382618,
+    "nfn": 1.1817448616426551
+  },
+  "transformer_blocks.23.attn.to_out.0.base_layer": {
+    "actual": 1.4319407796141739,
+    "random": 0.9990697182364181,
+    "nfn": 1.4332741283980364
+  },
+  "transformer_blocks.23.attn.to_out.0.lora_A.default_0": {
+    "actual": 0.1356613479219262,
+    "random": 0.143749180934196,
+    "nfn": 0.9437364932467186
+  },
+  "transformer_blocks.23.attn.to_out.0.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.attn.to_out.0": {
+    "actual": 1.4319407796141739,
+    "random": 0.9989213812549625,
+    "nfn": 1.433486965525957
+  },
+  "transformer_blocks.23.ff.net.0.proj.base_layer": {
+    "actual": 3.0006505921458184,
+    "random": 1.9997250069635912,
+    "nfn": 1.5005316139452822
+  },
+  "transformer_blocks.23.ff.net.0.proj.lora_A.default_0": {
+    "actual": 0.16401246033731948,
+    "random": 0.14280629452902371,
+    "nfn": 1.1484960160771194
+  },
+  "transformer_blocks.23.ff.net.0.proj.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.ff.net.0.proj": {
+    "actual": 3.0006505921458184,
+    "random": 1.9989235589942311,
+    "nfn": 1.501133236758494
+  },
+  "transformer_blocks.23.ff.net.2.base_layer": {
+    "actual": 4.304449146587526,
+    "random": 0.49976422663579434,
+    "nfn": 8.612959706146425
+  },
+  "transformer_blocks.23.ff.net.2.lora_A.default_0": {
+    "actual": 0.06447715952279859,
+    "random": 0.07145758737470895,
+    "nfn": 0.9023136925221611
+  },
+  "transformer_blocks.23.ff.net.2.lora_B.default_0": {
+    "actual": 0.0,
+    "random": 0.0,
+    "nfn": NaN
+  },
+  "transformer_blocks.23.ff.net.2": {
+    "actual": 4.304449146587526,
+    "random": 0.4992061136097667,
+    "nfn": 8.62258900529481
+  },
+  "proj_out.base_layer": {
+    "actual": 0.7292015813498306,
+    "random": 0.20365570113252196,
+    "nfn": 3.5805606093753677
+  },
+  "proj_out.lora_A.default_0": {
+    "actual": 1.9565967109432323,
+    "random": 0.13065293078427748,
+    "nfn": 14.975528671253391
+  },
+  "proj_out.lora_B.default_0": {
+    "actual": 6.207540251688688,
+    "random": 1.293549411016225,
+    "nfn": 4.798842780046558
+  },
+  "proj_out": {
+    "actual": 0.7292015813498306,
+    "random": 0.203260464350814,
+    "nfn": 3.587522953264917
+  }
+}
