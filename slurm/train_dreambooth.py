@@ -4,16 +4,15 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
-os.environ["OUTPUT_DIR"] = "sd3-dog-singlecard-reinit80-randomseed-woprecondition-POSmedium-scaleLR-largerbsz"
-
+# os.environ["OUTPUT_DIR"] = "sd3-dog-singlecard-reinit80-randomseed-woprecondition-POS-crossAtt-scaleLR"
+os.environ["OUTPUT_DIR"] = "dog-test"
 time_step = 0.2
 re_init_schedule = "multi"
 re_init_bsz = 1
 re_init_samples = 32
 noise_samples = 1
 stable_gamma = 1
-# stable_gamma_list = [289, 324, 361, 400, 441, 484, 529, 576, 625, 676, 729, 784, 841, 900, 961, 1024,]
-stable_gamma_list = [4,4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5]
+stable_gamma_list = [4]
 # 构造命令
 
 cmd = [
@@ -48,7 +47,7 @@ cmd = [
     # "--re_init_bsz", str(re_init_bsz),
     "--re_init_samples", str(re_init_samples),
     "--repeats","8",
-    "--reinit_depth", "medium",
+    "--reinit_strategy", "crossAtt",
     # "--baseline",
     # "--fixed_noise",
     # "--noise_samples", str(noise_samples),
@@ -109,7 +108,6 @@ clip_score_cmd = [
 ]
 # Define the checkpoints you want to evaluate
 checkpoints = [0, 50, 100, 150, 200, 250, 300]  # Add or remove steps as needed
-
 
 for stable_gamma in stable_gamma_list:
     cmd[8] = os.environ.get("OUTPUT_DIR") + "_" + "lr_scale" + str(stable_gamma)

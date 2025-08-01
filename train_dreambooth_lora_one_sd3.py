@@ -256,11 +256,11 @@ def parse_args(input_args=None):
         help="Epsilon value for the Adam optimizer and Prodigy optimizers.",
     )
     parser.add_argument(
-        "--reinit_depth",
+        "--reinit_strategy",
         type=str,
         default=None,
         # low for 0-10 layers, medium for 10-20 layers, high for 20+ layers
-        choices=["low", "medium", "high"],
+        choices=["medium", "crossAtt", "low", "high"],
         help="Path to pretrained model or model identifier from huggingface.co/models.",
     )
     parser.add_argument(
@@ -1489,13 +1489,15 @@ def main(args):
     if not args.baseline:
         init_conf['direction'] = args.direction
         # init_conf['stable_gamma'] = args.stable_gamma
-        reinit_depth = args.reinit_depth
-        if reinit_depth.lower() == "medium":
+        reinit_strategy = args.reinit_strategy
+        if reinit_strategy.lower() == "medium":
             init_conf['reinit_pos_start'] = 10
             init_conf['reinit_pos_end'] = 13
-        else:
+        elif reinit_strategy.lower() == "crossAtt":
             init_conf['reinit_pos_start'] = 0
             init_conf['reinit_pos_end'] = 23
+            init_conf['lora_module'] = "crossAtt"
+        
         _, inited_modules = reinit_lora(transformer, init_conf, additional_info)
     
     # Make sure the trainable params are in float32.
@@ -1929,6 +1931,7 @@ def main(args):
                 # Follow: Section 5 of https://arxiv.org/abs/2206.00364.
                 # Preconditioning of the model outputs.
                 if args.precondition_outputs:
+                    print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
                     model_pred = model_pred * (-sigmas) + noisy_model_input
 
                 # these weighting schemes use a uniform timestep sampling

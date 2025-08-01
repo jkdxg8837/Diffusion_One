@@ -4,7 +4,7 @@ import subprocess
 # 设置环境变量
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
-os.environ["OUTPUT_DIR"] = "./past_expr/sd3-dog-singlecard-reinit80-randomseed-woprecondition-POSmedium-scaleLR"
+os.environ["OUTPUT_DIR"] = "/dcs/pg24/u5649209/data/workspace/diffusers/slurm/past_expr/sd3-dog-singlecard-baseline-randomseed"
 
 time_step = 0.2
 re_init_schedule = "multi"
@@ -105,14 +105,18 @@ named_grads_cmd = [
 
 # Define the checkpoints you want to evaluate
 checkpoints = [0, 50, 100, 150, 200, 250, 300]  # Add or remove steps as needed
+# Baseline
+for step in checkpoints:
+    checkpoint_path = f"{cmd[8]}/checkpoint-{step}"
+    named_grads_cmd[named_grads_cmd.index("--output_dir") + 1] = checkpoint_path
+    subprocess.run(named_grads_cmd)
 
+# for stable_gamma in stable_gamma_list:
+#     cmd[8] = os.environ.get("OUTPUT_DIR") + "_" + "lr_scale" + str(stable_gamma)
+#     cmd[cmd.index("--lr_scale") + 1] = str(stable_gamma)
+#     # subprocess.run(cmd)
 
-for stable_gamma in stable_gamma_list:
-    cmd[8] = os.environ.get("OUTPUT_DIR") + "_" + "lr_scale" + str(stable_gamma)
-    cmd[cmd.index("--lr_scale") + 1] = str(stable_gamma)
-    # subprocess.run(cmd)
-
-    for step in checkpoints:
-        checkpoint_path = f"{cmd[8]}/checkpoint-{step}"
-        named_grads_cmd[named_grads_cmd.index("--output_dir") + 1] = checkpoint_path
-        subprocess.run(named_grads_cmd)
+#     for step in checkpoints:
+#         checkpoint_path = f"{cmd[8]}/checkpoint-{step}"
+#         named_grads_cmd[named_grads_cmd.index("--output_dir") + 1] = checkpoint_path
+#         subprocess.run(named_grads_cmd)

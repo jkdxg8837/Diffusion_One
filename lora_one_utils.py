@@ -18,7 +18,6 @@ def get_record_gradient_hook(model, record_dict):
     def record_gradient_hook(grad):
         for n, p in model.named_parameters():
             if p.requires_grad and p.grad is not None:
-                # print(p.grad.shape)
                 if n not in record_dict:
                     record_dict[n] = [p.grad.cpu()]
                 else:
@@ -180,9 +179,6 @@ def estimate_gradient(
     Estimate the gradient of the model on the given dataset
     """
     transformer, vae = models[0], models[1]
-    # for name, param in transformer.named_parameters():
-    #     param.requires_grad = not param.requires_grad
-    #     # print(f"Parameter: {name}, requires_grad: {param.requires_grad}")
     log.info("Estimating gradient")
     transformer.train()
 
@@ -201,21 +197,10 @@ def estimate_gradient(
     vae_config_scaling_factor = vae.config.scaling_factor
     for name, param in transformer.named_parameters():
         if param.requires_grad == True:
-            # print("adding hook to grad params")
             hook = param.register_hook(get_record_gradient_hook(transformer, named_grads))
             hooks.append(hook)
     num = 0
     weight_dtype = torch.float16
-    # deal with time step
-    # time_step = args.time_step
-    # if args.re_init_schedule == "multi":
-    #     epochs = args.re_init_samples // len(dataloader)
-    #     print("********************************")
-    #     print("len of dataloader is : ", len(dataloader))
-    #     print(f"Reinitializing LoRA modules every {epochs} epochs")
-    #     print("********************************")
-    # else:
-    #     epochs = args.re_init_samples // len(dataloader)
 
     epochs = 1
 
@@ -227,7 +212,6 @@ def estimate_gradient(
     transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
     from tqdm import tqdm
     for epoch in range(epochs):
-        print(epoch)
         for batch in tqdm(dataloader, desc="Estimating gradient"):
             # print(batch)
             num += 1
@@ -237,7 +221,6 @@ def estimate_gradient(
             prompts = batch["prompts"]
             pixel_values = batch["pixel_values"].to(dtype=vae.dtype)
             pixel_values = pixel_values.to(vae.device)
-            print(pixel_values.shape)
             with torch.no_grad():
                 model_input = vae.encode(pixel_values).latent_dist.sample()
                 model_input = (model_input - vae_config_shift_factor) * vae_config_scaling_factor
@@ -282,32 +265,11 @@ def estimate_gradient(
         # 0.4238, 0.2852, 0.2758, 0.6287, 0.2000, 0.2412, 0.5008, 0.7061, 0.4879,
         # 0.4105, 0.4177, 0.4121, 0.6233, 0.4535])
             print("u is set to ", u)
-            # if args.re_init_schedule == "multi":
-            #     pass
-            #     # u = torch.ones_like(u)*(1.0-ts[epoch]/1000)
-            # elif args.time_step:
-            #     # assert args.time_step.dtype == torch.float32, "time_step should be float32"
-            #     u = torch.ones_like(u)*args.time_step
-                # u = torch.tensor([args.time_step])
+
             indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
             timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
-            # print(timesteps)
-            # print("current timesteps[indices]")
-            
-            # print(noise_scheduler_copy.timesteps[-1])
-            # print(indices)
-            # print("noise level is set to", noise_scheduler_copy.timesteps[indices])
-            # print(noise_scheduler_copy.timesteps[indices])
-            # Add noise according to flow matching.
-            # zt = (1 - texp) * x + texp * z1
-
-            # timesteps = (torch.ones_like(u)*ts[epoch]).to(device=model_input.device, dtype=model_input.dtype) 
-            # sigmas = timesteps.view(-1, 1, 1, 1) / 1000
-            # print(timesteps)
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
             sigmas = sigmas.detach()
-            # print(timesteps)
-            print(sigmas)
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
             def compute_text_embeddings(prompt, text_encoders, tokenizers):
                 with torch.no_grad():
@@ -341,7 +303,7 @@ def estimate_gradient(
 
             weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
             weighting = weighting.detach()
-            print(weighting)
+            # print(weighting)
             # flow matching loss
             if args.precondition_outputs:
                 target = model_input.detach()  
@@ -366,7 +328,7 @@ def estimate_gradient(
                 )
                 accelerator.clip_grad_norm_(params_to_clip, args.max_grad_norm)
 
-            print_gpu_memory_usage(0)
+            # print_gpu_memory_usage(0)
             get_record_gradient_hook(transformer, named_grads)(None)  # get gradient of last layer
             # make sure the gradient is cleared
             for n, p in transformer.named_parameters():
@@ -398,9 +360,9 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     Reinitialize the lora model with the given configuration.
     """
 
-    reinit_start = init_config.get("reinit_pos_start", 10)
-    reinit_end = init_config.get("reinit_pos_end", 13)
-    print(name)
+    reinit_start = init_config.get("reinit_pos_start", 0)
+    reinit_end = init_config.get("reinit_pos_end", 23)
+    reinit_lora_modules = init_config.get("lora_module", "all")
     lora_r = min(module.lora_A.default.weight.shape)
     a_dim = max(module.lora_A.default.weight.shape)
     b_dim = max(module.lora_B.default.weight.shape)
@@ -416,15 +378,32 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         # If not convertible to int, skip assigning layer_num
         layer_num = -1
     inited_signal = False
-    if (layer_num >= reinit_start and layer_num <= reinit_end):
-        init_mode = init_config['mode']
-        inited_signal = True
+    
+        # print(1)
+
+    if reinit_lora_modules == "crossAtt":
+        # only with the write name and write layer can be re-initialzed
+        if "add_q_proj" in name or "add_v_proj" in name:
+            init_mode = init_config['mode']
+            reinit_start = 2
+            reinit_end = 21
+            if (layer_num >= reinit_start and layer_num <= reinit_end):
+                init_mode = init_config['mode']
+                inited_signal = True
+
+    elif reinit_lora_modules == "selfAtt":
+        # only with the write name and write layer can be re-initialzed
+        if "to_q" in name or "to_v" in name or "to_k" in name:
+            init_mode = init_config['mode']
+            reinit_start = 2
+            reinit_end = 21
+            if (layer_num >= reinit_start and layer_num <= reinit_end):
+                init_mode = init_config['mode']
     else:
         init_mode = "simple"
         init_config["lora_A"] = "kaiming"
         init_config["lora_B"] = "zeros"
         inited_signal = False 
-        # print(1)
 
     if init_mode == "simple":
         match init_config["lora_A"]:
@@ -517,21 +496,8 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
         print("*************************")
-        # print(named_grad)
-        # grad_name = name + ".base_layer.weight"
-        # # grad_name = ".".join(name.split(".")[2:]) + ".weight"
         grad_name = name + '.weight'
-        print(grad_name)
         grads = named_grad[grad_name]
-        # grads = named_grad[name]
-        # if init_config['direction'] == "LoRA-One":
-        #     grads = -grads.cuda().float()
-        #     grads = grads * grads.numel()**0.5
-        #     U, S, V = torch.svd_lowrank(grads, q=512, niter=32)
-        # else:
-        #     U, S, V = torch.svd_lowrank(grads.cuda().float(), q=512, niter=32)
-        
-        # grads = grads * (m**0.5)
 
         if init_config['direction'] == 'LoRA-One':
             # V = V.T
