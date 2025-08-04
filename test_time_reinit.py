@@ -1426,8 +1426,8 @@ def main(args):
 
     
     # Add lora One here
-    from lora_one_utils import reinit_lora
-    from lora_one_utils import estimate_gradient
+    from test_time_utils import reinit_lora
+    from test_time_utils import estimate_gradient
     import yaml
     with open('../config/gradient.yaml', 'r') as f:
         init_conf = yaml.safe_load(f)
