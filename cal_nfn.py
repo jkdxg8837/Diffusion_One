@@ -156,9 +156,9 @@ for name, param in transformer.named_parameters():
         param.requires_grad = False
     else:
         param.requires_grad = True
-# named_grads = estimate_nfn([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
-#             , [text_encoder_one, text_encoder_two, text_encoder_three]\
-#             , [tokenizer_one, tokenizer_two, tokenizer_three], 1)
+named_grads = estimate_nfn([transformer, vae], temp_dataloader, args, noise_scheduler_copy, accelerator\
+            , [text_encoder_one, text_encoder_two, text_encoder_three]\
+            , [tokenizer_one, tokenizer_two, tokenizer_three], 1)
 with open("nfn_metrics.json", "r") as f:
     nfn_metrics = yaml.safe_load(f)
 

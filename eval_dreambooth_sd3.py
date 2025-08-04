@@ -46,7 +46,6 @@ from transformers import CLIPTokenizer, PretrainedConfig, T5TokenizerFast
 from train_dreambooth_lora_one_sd3 import(
     DreamBoothDataset, 
     PromptDataset, 
-    toeknizerize_prompt, 
     _encode_prompt_with_t5, 
     _encode_prompt_with_clip, 
     encode_prompt, 
@@ -237,7 +236,7 @@ Please adhere to the licensing terms as described [here]({license_url}).
     model_card.save(os.path.join(repo_folder, "README.md"))
 
 
-def load_text_encoders(class_one, class_two, class_three):
+def load_text_encoders(class_one, class_two, class_three, args = None):
     text_encoder_one = class_one.from_pretrained(
         args.pretrained_model_name_or_path, subfolder="text_encoder", revision=args.revision, variant=args.variant
     )
@@ -272,10 +271,12 @@ def log_validation(
     generator = torch.Generator(device=accelerator.device).manual_seed(args.seed) if args.seed is not None else None
     # autocast_ctx = torch.autocast(accelerator.device.type) if not is_final_validation else nullcontext()
     autocast_ctx = nullcontext()
-
     # with autocast_ctx:
     with torch.autocast(device_type="cuda"):
-        images = [pipeline(**pipeline_args, generator=generator).images[0] for _ in range(args.num_validation_images)]
+        images = []
+        for _ in range(args.num_validation_images):
+            result_img = pipeline(**pipeline_args, generator=generator).images[0]
+            images.append(result_img)
     idx = 0
     for image in images:
         save_path = os.path.join(args.output_dir, "output_scale"+str(args.lora_scale), str(prompt_number))
@@ -901,7 +902,7 @@ def main(args):
     )
     noise_scheduler_copy = copy.deepcopy(noise_scheduler)
     text_encoder_one, text_encoder_two, text_encoder_three = load_text_encoders(
-        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three
+        text_encoder_cls_one, text_encoder_cls_two, text_encoder_cls_three, args=args
     )
     vae = AutoencoderKL.from_pretrained(
         args.pretrained_model_name_or_path,
@@ -1103,6 +1104,7 @@ def main(args):
         size=args.resolution,
         repeats=args.repeats,
         center_crop=args.center_crop,
+        args = args,
     )
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -1348,6 +1350,7 @@ def main(args):
             torch_dtype=weight_dtype,
         )
         # load attention processors
+        args.output_dir = "/home/u5649209/workspace/Diffusion_One/ckpts/sd3-dog-singlecard-reinit80-randomseed-woprecondition-POSmedium-scaleLR_lr_scale4.5/checkpoint-300"
         pipeline.load_lora_weights(args.output_dir, lora_scale = args.lora_scale)
 
         # run inference
