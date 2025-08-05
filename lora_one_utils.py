@@ -384,9 +384,8 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     if reinit_lora_modules == "crossAtt":
         # only with the write name and write layer can be re-initialzed
         if "add_q_proj" in name or "add_v_proj" in name:
-            init_mode = init_config['mode']
-            reinit_start = 2
-            reinit_end = 21
+            reinit_start = 0
+            reinit_end = 23
             if (layer_num >= reinit_start and layer_num <= reinit_end):
                 init_mode = init_config['mode']
                 inited_signal = True
@@ -399,6 +398,9 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             reinit_end = 21
             if (layer_num >= reinit_start and layer_num <= reinit_end):
                 init_mode = init_config['mode']
+    elif reinit_lora_modules == "all":
+        init_mode = init_config['mode']
+        inited_signal = True
     else:
         init_mode = "simple"
         init_config["lora_A"] = "kaiming"

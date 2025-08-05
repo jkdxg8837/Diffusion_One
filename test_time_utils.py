@@ -162,12 +162,22 @@ def print_gpu_memory_usage(device_id=0):
     ratio = allocated / total
     print(f"显存占用：{ratio:.2%} （{allocated / (1024 ** 2):.2f} MB / {total / (1024 ** 2):.2f} MB）")
 
+# We need to estimate the gradient of each timestep. The batch size indicating how many data samples of each timestep
 def estimate_gradient(
     models, dataloader, args, noise_scheduler_copy, accelerator, text_encoders, tokenizers, batch_size: int = 4
 ) -> Dict[str, List[torch.Tensor]]:
+    testTime_step = np.array([1000.0000,  987.3806,  974.1077,  960.1293,  945.3875,  929.8179,
+         913.3490,  895.9003,  877.3819,  857.6923,  836.7167,  814.3248,
+         790.3683,  764.6771,  737.0558,  707.2785,  675.0823,  640.1602,
+         602.1506,  560.6250,  515.0721,  464.8760,  409.2888,  347.3926,
+         278.0488,  199.8270,  110.9057,    8.9286])
+    testTime_sigmas = np.array([1.0000, 0.9874, 0.9741, 0.9601, 0.9454, 0.9298, 0.9133, 0.8959, 0.8774,
+        0.8577, 0.8367, 0.8143, 0.7904, 0.7647, 0.7371, 0.7073, 0.6751, 0.6402,
+        0.6022, 0.5606, 0.5151, 0.4649, 0.4093, 0.3474, 0.2780, 0.1998, 0.1109,
+        0.0089, 0.0000])
     def get_sigmas(timesteps, n_dim=4, dtype=torch.float32):
-        sigmas = noise_scheduler_copy.sigmas.to(device=accelerator.device, dtype=dtype)
-        schedule_timesteps = noise_scheduler_copy.timesteps.to(accelerator.device)
+        sigmas = torch.tensor(testTime_sigmas, device=accelerator.device, dtype=dtype)
+        schedule_timesteps = torch.tensor(testTime_step, device=accelerator.device, dtype=dtype)
         timesteps = timesteps.to(accelerator.device)
         step_indices = [(schedule_timesteps == t).nonzero().item() for t in timesteps]
 
@@ -195,6 +205,7 @@ def estimate_gradient(
     hooks = []
     vae_config_shift_factor = vae.config.shift_factor
     vae_config_scaling_factor = vae.config.scaling_factor
+    
     for name, param in transformer.named_parameters():
         if param.requires_grad == True:
             hook = param.register_hook(get_record_gradient_hook(transformer, named_grads))
@@ -202,16 +213,9 @@ def estimate_gradient(
     num = 0
     weight_dtype = torch.float16
 
-    epochs = 1
-
-
-    means = [0.25, 0.42, 0.53, 0.66, 0.74]
-    stds = [0.03, 0.03, 0.03, 0.03, 0.03]
-    weights = [0.1, 0.2, 0.35, 0.3, 0.15]
-
+    return_dict = {}
     transformer_lora_parameters = list(filter(lambda p: p.requires_grad, transformer.parameters()))
-    from tqdm import tqdm
-    for epoch in range(epochs):
+    for timestep in testTime_step:
         for batch in tqdm(dataloader, desc="Estimating gradient"):
             # print(batch)
             num += 1
@@ -269,7 +273,10 @@ def estimate_gradient(
             print("u is set to ", u)
 
             indices = (u * noise_scheduler_copy.config.num_train_timesteps).long()
-            timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
+            # timesteps = noise_scheduler_copy.timesteps[indices].to(device=model_input.device)
+            timesteps = torch.tensor(timestep, device=model_input.device, dtype=model_input.dtype).repeat(bsz).to(device=model_input.device, dtype=model_input.dtype)
+            
+
             sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
             sigmas = sigmas.detach()
             noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
@@ -296,21 +303,13 @@ def estimate_gradient(
                 pooled_projections=pooled_prompt_embeds,
                 return_dict=False,
             )[0]
-            args.precondition_outputs = 0
-            print("precondition outputs is ", args.precondition_outputs)
-            if args.precondition_outputs:
-                # model_pred = model_pred * (-sigmas) + noisy_model_input
-                # model_pred to be pure model_input
-                model_pred = model_pred * (-sigmas.detach()) + noisy_model_input
 
-            weighting = compute_loss_weighting_for_sd3(weighting_scheme=args.weighting_scheme, sigmas=sigmas)
+
+            weighting = torch.ones_like(sigmas)
             weighting = weighting.detach()
             # print(weighting)
             # flow matching loss
-            if args.precondition_outputs:
-                target = model_input.detach()  
-            else:
-                target = noise - model_input.detach()  
+            target = noise - model_input.detach()  
             # So target is model_input
             loss = torch.mean(
                     (weighting.float() * (model_pred.float() - target.float()) ** 2).reshape(target.shape[0], -1),
@@ -338,24 +337,38 @@ def estimate_gradient(
                     p.grad = None
         torch.cuda.empty_cache()
 
-    from tqdm import tqdm
-    
-    for key in tqdm(named_grads.keys(), desc="Computing gradient averages"):
-        try:
-            # Stack all tensors in the list along dim=0 and compute mean
-            tensors = named_grads[key]
-            named_grads[key] = torch.stack(tensors, dim=0).mean(dim=0)
-        except Exception as e:
-            log.error(f"Error processing key {key}: {e}")
-
+        for key in tqdm(named_grads.keys(), desc="Computing gradient averages"):
+            # print(f"Processing key: {key}")
+            if timestep not in return_dict.keys():
+                return_dict[timestep] = {}
+            try:
+                # Stack all tensors in the list along dim=0 and compute mean
+                tensors = named_grads[key]
+                named_grads[key] = torch.stack(tensors, dim=0).mean(dim=0)
+                if key not in return_dict[timestep].keys():
+                    return_dict[timestep][key] = []
+                return_dict[timestep][key].append(named_grads[key])
+                # Clear the list for the next iteration
+                named_grads[key] = []
+            except RuntimeError as e:
+                log.error(f"Error processing key {key}: {e}")
+                # If the tensors are not compatible for stacking, log the error
+                if isinstance(e, RuntimeError) and "stack expects each tensor to be equal size" in str(e):
+                    log.error(f"Key {key} has tensors of different sizes. Skipping this key.")
+                    continue
+            except Exception as e:
+                log.error(f"Error processing key {key}: {e}")
+        pass
     for hook in hooks:
         hook.remove()
     torch.cuda.empty_cache()
-    torch.save(named_grads, "./named_grads.pt")
-    return named_grads
+    for key in return_dict.keys():
+        torch.save(return_dict[key], f"./named_grads/{key:.4f}_return_dict.pt")
+    # torch.save(return_dict, "./named_grads/return_dict.pt")
+    return return_dict
 
 
-
+# This function runs separately to reinitialize the lora modules, as stable gamma is a tuning factor
 @torch.no_grad()
 def reinit_lora_modules(name, module, init_config, additional_info):
     r"""
@@ -386,9 +399,8 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     if reinit_lora_modules == "crossAtt":
         # only with the write name and write layer can be re-initialzed
         if "add_q_proj" in name or "add_v_proj" in name:
-            init_mode = init_config['mode']
-            reinit_start = 2
-            reinit_end = 21
+            reinit_start = 0
+            reinit_end = 23
             if (layer_num >= reinit_start and layer_num <= reinit_end):
                 init_mode = init_config['mode']
                 inited_signal = True
@@ -401,6 +413,9 @@ def reinit_lora_modules(name, module, init_config, additional_info):
             reinit_end = 21
             if (layer_num >= reinit_start and layer_num <= reinit_end):
                 init_mode = init_config['mode']
+    elif reinit_lora_modules == "all":
+        init_mode = init_config['mode']
+        inited_signal = True
     else:
         init_mode = "simple"
         init_config["lora_A"] = "kaiming"
@@ -499,7 +514,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         named_grad = additional_info["named_grads"]
         print("*************************")
         grad_name = name + '.weight'
-        grads = named_grad[grad_name]
+        grads = named_grad[grad_name][0]
 
         if init_config['direction'] == 'LoRA-One':
             # V = V.T
@@ -634,4 +649,5 @@ def reinit_lora(model, init_config, additional_info):
             if_init = reinit_lora_modules(name, module, init_config, additional_info)
             if if_init:
                 inited_modules.append(name)
+    pass
     return model, inited_modules
