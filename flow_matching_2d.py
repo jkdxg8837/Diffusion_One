@@ -113,8 +113,7 @@ for load_steps in load_steps_list:
     for name, param in vf.named_parameters():
         if param.requires_grad == True:
             hook = param.register_hook(save_gradient(vf, layer_gradients))
-            hooks.append(hook)
-    # vf = MLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device) 
+            hooks.append(hook) 
     state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/raw_models/raw_model_{load_steps}.pth'
     state_dict = torch.load(state_dict_path, map_location=device)
     vf.load_state_dict(state_dict)
