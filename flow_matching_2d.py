@@ -13,7 +13,7 @@ from flow_matching.utils import ModelWrapper
 import matplotlib.pyplot as plt
 
 from matplotlib import cm
-
+from sklearn.datasets import make_moons
 
 # To avoide meshgrid warning
 import warnings
@@ -36,7 +36,12 @@ def inf_train_gen(batch_size: int = 200, device: str = "cpu"):
     data = 1.0 * torch.cat([x1[:, None], x2[:, None]], dim=1) / 0.45
     
     return data.float()
-
+def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool = False):
+    full_x, full_y = make_moons(n_samples=batch_size * 2, noise=0, random_state=42)
+    if is_pretrain:
+        return torch.tensor(full_x[:batch_size], dtype=torch.float32, device=device)
+    else:
+        return torch.tensor(full_x[full_y == 1][:batch_size], dtype=torch.float32, device=device)
 
 # Activation class
 class Swish(nn.Module):
@@ -114,7 +119,7 @@ for load_steps in load_steps_list:
         if param.requires_grad == True:
             hook = param.register_hook(save_gradient(vf, layer_gradients))
             hooks.append(hook) 
-    state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/raw_models/raw_model_{load_steps}.pth'
+    state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/pretrain_weights/raw_model_{load_steps}.pth'
     state_dict = torch.load(state_dict_path, map_location=device)
     vf.load_state_dict(state_dict)
 
@@ -140,7 +145,7 @@ for load_steps in load_steps_list:
         optim.zero_grad() 
 
         # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
-        x_1 = inf_train_gen(batch_size=batch_size, device=device) # sample data
+        x_1 = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=False) # sample data
         x_0 = torch.randn_like(x_1).to(device)
 
         # sample time (user's responsibility)
