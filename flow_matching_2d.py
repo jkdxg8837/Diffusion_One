@@ -36,64 +36,75 @@ def inf_train_gen(batch_size: int = 200, device: str = "cpu"):
     data = 1.0 * torch.cat([x1[:, None], x2[:, None]], dim=1) / 0.45
     
     return data.float()
-def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool = False):
-    full_x, full_y = make_moons(n_samples=batch_size * 2, noise=0, random_state=42)
-    if is_pretrain:
-        return torch.tensor(full_x[:batch_size], dtype=torch.float32, device=device)
-    else:
-        return torch.tensor(full_x[full_y == 1][:batch_size], dtype=torch.float32, device=device)
-
-# Activation class
-class Swish(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-    def forward(self, x: Tensor) -> Tensor: 
-        return torch.sigmoid(x) * x
-
-# Model class
-class MLP(nn.Module):
-    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 128):
-        super().__init__()
-        
-        self.input_dim = input_dim
-        self.time_dim = time_dim
-        self.hidden_dim = hidden_dim
-
-        self.main = nn.Sequential(
-            nn.Linear(input_dim+time_dim, hidden_dim),
-            Swish(),
-            nn.Linear(hidden_dim, hidden_dim),
-            Swish(),
-            nn.Linear(hidden_dim, hidden_dim),
-            Swish(),
-            nn.Linear(hidden_dim, hidden_dim),
-            Swish(),
-            nn.Linear(hidden_dim, input_dim),
-            )
+import numpy as np
+def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool = False, mode = "raw"):
     
+    if is_pretrain:
+        full_x, full_y = make_moons(n_samples=batch_size, noise=0, random_state=42)
+        return full_x, full_y
+    else:
+        if mode is not "raw":
+            n_sample_out = batch_size // 2
+            n_sample_in = batch_size - n_sample_out
+            out_variable = np.linspace(-1, 1, n_sample_out)
+            mask = out_variable <= 0
+            out_variable_leq_05 = out_variable[mask]
+            out_variable_gt_05 = out_variable[~mask]
 
-    def forward(self, x: Tensor, t: Tensor) -> Tensor:
-        sz = x.size()
-        x = x.reshape(-1, self.input_dim)
-        t = t.reshape(-1, self.time_dim).float()
+            in_variable = np.linspace(0, 2, n_sample_in)
+            mask = in_variable <= 1
+            in_variable_leq_05 = in_variable[mask]
+            in_variable_gt_05 = in_variable[~mask]
 
-        t = t.reshape(-1, 1).expand(x.shape[0], 1)
-        h = torch.cat([x, t], dim=1)
-        output = self.main(h)
-        
-        return output.reshape(*sz)
+            # For gt 0.5, we use the half circle chart
+            outer_gt_05_x = np.cos(out_variable_gt_05 * np.pi / 2)
+            outer_gt_05_y = np.sin(out_variable_gt_05 * np.pi / 2)
 
+            inner_leq_05_x = in_variable_leq_05
+            inner_leq_05_y = -inner_leq_05_x + 0.5
+
+
+            # For leq 0.5, we use the line chart
+            outer_leq_05_x = out_variable_leq_05
+            outer_leq_05_y = outer_leq_05_x + 1
+
+            inner_gt_05_x = 1 - np.cos(in_variable_gt_05 * np.pi / 2)
+            inner_gt_05_y = 0.5 - np.sin(in_variable_gt_05 * np.pi / 2)
+
+
+            # outer_circ_x = np.cos(np.linspace(0, np.pi, n_sample_out))
+            # outer_circ_y = np.sin(np.linspace(0, np.pi, n_sample_out))
+
+            # inner_circ_x = 1 - np.cos(np.linspace(0, np.pi, n_sample_in))
+            # inner_circ_y = 1 - np.sin(np.linspace(0, np.pi, n_sample_in)) - 0.5
+
+            X = np.vstack(
+                [np.append(np.append(outer_leq_05_x, outer_gt_05_x), np.append(inner_leq_05_x, inner_gt_05_x)),\
+                np.append(np.append(outer_leq_05_y, outer_gt_05_y), np.append(inner_leq_05_y, inner_gt_05_y))]
+            ).T
+            y = np.hstack(
+                [np.zeros(n_sample_out, dtype=np.intp), np.ones(n_sample_in, dtype=np.intp)]
+            )
+            return X, y
+        else:
+            full_x, full_y = make_moons(n_samples=3 * batch_size, noise=0, random_state=42)
+            full_x = full_x[full_y == 1]
+            full_y = full_y[full_y == 1]
+            full_x = full_x[:batch_size]
+            full_y = full_y[:batch_size]
+            return full_x, full_y
+
+from flow_matching_utils import MLP
 from peft import LoraConfig, get_peft_model
 import pickle
 
 # training arguments
 lr = 0.001
-load_steps_list = [1999, 3999, 5999, 7999, 9999, 11999, 13999, 15999, 17999, 19999]
+load_steps_list = [19999]
 for load_steps in load_steps_list:
     batch_size = 4096
     iterations = 20001
-    rest_iterations = iterations - load_steps
+    rest_iterations = 2000
     print_every = 2000 
     hidden_dim = 512
 
@@ -119,7 +130,7 @@ for load_steps in load_steps_list:
         if param.requires_grad == True:
             hook = param.register_hook(save_gradient(vf, layer_gradients))
             hooks.append(hook) 
-    state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/pretrain_weights/raw_model_{load_steps}.pth'
+    state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/weights/full_model_2_new.pth'
     state_dict = torch.load(state_dict_path, map_location=device)
     vf.load_state_dict(state_dict)
 
@@ -145,7 +156,12 @@ for load_steps in load_steps_list:
         optim.zero_grad() 
 
         # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
-        x_1 = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=False) # sample data
+        mode = "new"
+        x_1, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=False, mode = mode) # sample data
+        
+        # print(y)
+        x_1 = torch.tensor(x_1).float().to(device)
+        
         x_0 = torch.randn_like(x_1).to(device)
 
         # sample time (user's responsibility)
@@ -178,7 +194,7 @@ for load_steps in load_steps_list:
     from tqdm import tqdm
     for key in layer_gradients.keys():
         layer_gradients[key] = torch.stack(layer_gradients[key], dim=0).mean(dim=0)
-    with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step{load_steps}.pkl", "wb") as f:
+    with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/fullP_step1_{mode}.pkl", "wb") as f:
         pickle.dump(layer_gradients, f)
 
 class WrappedModel(ModelWrapper):
