@@ -194,7 +194,7 @@ def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool
             full_x = full_x[:batch_size]
             full_y = full_y[:batch_size]
             return full_x, full_y
-def evaluate_result(vf, data_mode="new"):
+def evaluate_result(vf, data_mode="new", visualize = True):
     vf.eval()
     wrapped_vf = WrappedModel(vf)
     # step size for ode solver
@@ -240,83 +240,107 @@ def evaluate_result(vf, data_mode="new"):
     # compute with exact divergence
     _, exact_log_p = solver.compute_likelihood(x_1=x_1, method='midpoint', step_size=step_size, exact_divergence=True, log_p0=gaussian_log_density)
     exact_log_p_raw = torch.exp(-exact_log_p.clone())
+    if visualize:
+        fig, axs = plt.subplots(1, 2,figsize=(10,10))
+        import seaborn as sns
 
-    fig, axs = plt.subplots(1, 2,figsize=(10,10))
-    import seaborn as sns
-
-    sns.kdeplot(
-    x=x_1[:, 0].cpu().numpy(),
-    y=x_1[:, 1].cpu().numpy(),
-    weights=torch.exp(exact_log_p).reshape(-1).cpu().numpy(),
-        fill=True,           # 填充等高线内部
-        cmap='viridis',      # 使用 'viridis' 色谱
-        ax=axs[0]            # !!! 关键参数：指定在哪个子图上绘制 !!!
-    )
-    # 导入一个必要的模块
-    from matplotlib.ticker import MultipleLocator
-
-    # ... (您的数据准备和 subplots 创建代码) ...
-
-    # --- 针对 axs[0] 的设置 ---
-    axs[0].set_title('Weighted Kernel Density Estimation (KDE)')
-    axs[0].set_xlabel('X Coordinate')
-    axs[0].set_ylabel('Y Coordinate')
-
-    # 1. 设置坐标轴比例为1:1，确保网格是正方形
-    # adjustable='box' 会调整绘图框的大小来强制实现这个比例
-    axs[0].set_aspect('equal', adjustable='box')
-
-    # 2. 设置主刻度的间隔为 1
-    axs[0].xaxis.set_major_locator(MultipleLocator(1))
-    axs[0].yaxis.set_major_locator(MultipleLocator(1))
-
-    # 3. 显示网格 (您的代码)
-    # grid() 函数会根据上面设置的刻度来绘制网格线
-    axs[0].grid(True, linestyle='--', alpha=0.6)
+        sns.kdeplot(
+        x=x_1[:, 0].cpu().numpy(),
+        y=x_1[:, 1].cpu().numpy(),
+        weights=torch.exp(exact_log_p).reshape(-1).cpu().numpy(),
+            fill=True,           # 填充等高线内部
+            cmap='viridis',      # 使用 'viridis' 色谱
+            ax=axs[0]            # !!! 关键参数：指定在哪个子图上绘制 !!!
+        )
+        # 导入一个必要的模块
+        from matplotlib.ticker import MultipleLocator
 
 
-    # Visualization 
-    x_1 = torch.meshgrid(torch.linspace(-2, 3, grid_size), torch.linspace(-1, 2, grid_size))
-    x_1 = torch.stack([x_1[0].flatten(), x_1[1].flatten()], dim=1).to(device)
-    num_acc = 10
-    log_p_acc = 0
+        # ... (您的数据准备和 subplots 创建代码) ...
 
-    for i in range(num_acc):
-        _, log_p = solver.compute_likelihood(x_1=x_1, method='midpoint', step_size=step_size, exact_divergence=False, log_p0=gaussian_log_density)
-        log_p_acc += log_p
-    
-    log_p_acc /= num_acc
-    _, exact_log_p = solver.compute_likelihood(x_1=x_1, method='midpoint', step_size=step_size, exact_divergence=True, log_p0=gaussian_log_density)
+        # --- 针对 axs[0] 的设置 ---
+        axs[0].set_title('Weighted Kernel Density Estimation (KDE)')
+        axs[0].set_xlabel('X Coordinate')
+        axs[0].set_ylabel('Y Coordinate')
+
+        # 1. 设置坐标轴比例为1:1，确保网格是正方形
+        # adjustable='box' 会调整绘图框的大小来强制实现这个比例
+        axs[0].set_aspect('equal', adjustable='box')
+
+        # 2. 设置主刻度的间隔为 1
+        axs[0].xaxis.set_major_locator(MultipleLocator(1))
+        axs[0].yaxis.set_major_locator(MultipleLocator(1))
+
+        # 3. 显示网格 (您的代码)
+        # grid() 函数会根据上面设置的刻度来绘制网格线
+        axs[0].grid(True, linestyle='--', alpha=0.6)
 
 
-    likelihood = torch.exp(log_p_acc).cpu().reshape(grid_size, grid_size).t().detach().numpy()
+        # Visualization 
+        x_1 = torch.meshgrid(torch.linspace(-2, 3, grid_size), torch.linspace(-1, 2, grid_size))
+        x_1 = torch.stack([x_1[0].flatten(), x_1[1].flatten()], dim=1).to(device)
+        num_acc = 10
+        log_p_acc = 0
 
-    exact_likelihood = torch.exp(exact_log_p).cpu().reshape(grid_size, grid_size).t().detach().numpy()
+        for i in range(num_acc):
+            _, log_p = solver.compute_likelihood(x_1=x_1, method='midpoint', step_size=step_size, exact_divergence=False, log_p0=gaussian_log_density)
+            log_p_acc += log_p
+        
+        log_p_acc /= num_acc
+        _, exact_log_p = solver.compute_likelihood(x_1=x_1, method='midpoint', step_size=step_size, exact_divergence=True, log_p0=gaussian_log_density)
 
-    
 
-    cmin = 0.0
-    cmax = 1/32 # 1/32 is the gt likelihood value
+        likelihood = torch.exp(log_p_acc).cpu().reshape(grid_size, grid_size).t().detach().numpy()
 
-    norm = cm.colors.Normalize(vmax=cmax, vmin=cmin)
+        exact_likelihood = torch.exp(exact_log_p).cpu().reshape(grid_size, grid_size).t().detach().numpy()
 
-    
+        
 
-    axs[1].imshow(exact_likelihood, extent=(-3, 3, -3, 3), origin='lower', cmap='viridis', norm=norm)
-    axs[1].set_title('Exact Model Likelihood')
+        cmin = 0.0
+        cmax = 1/32 # 1/32 is the gt likelihood value
 
-    fig.colorbar(cm.ScalarMappable(norm=norm, cmap='viridis'), ax=axs, orientation='horizontal', label='density')
-    plt.show()
+        norm = cm.colors.Normalize(vmax=cmax, vmin=cmin)
+
+        
+
+        axs[1].imshow(exact_likelihood, extent=(-3, 3, -3, 3), origin='lower', cmap='viridis', norm=norm)
+        axs[1].set_title('Exact Model Likelihood')
+
+        fig.colorbar(cm.ScalarMappable(norm=norm, cmap='viridis'), ax=axs, orientation='horizontal', label='density')
+        plt.show()
+        print(exact_log_p_raw.mean().item())
     return log_p_acc_raw.mean(), exact_log_p_raw.mean()
+from scipy.stats import wasserstein_distance
+def select_source_distribution():
+    target_x, target_y = train_moon_gen(batch_size=1000, device=device, is_pretrain=False, mode="new")
+    rand_float = np.random.rand()
+    print(f"Random float between 0 and 1: {rand_float}")
+    source_x = np.random.randn(target_x.shape[0], target_x.shape[1]) * rand_float
+    import ot
+    n_source_points = source_x.shape[0]
+    n_target_points = target_x.shape[0]
+    a = np.ones(n_source_points) / n_source_points
+    b = np.ones(n_target_points) / n_target_points
 
+    # 3. Calculate the cost matrix
+    # This matrix contains the cost of moving from any source point to any target point.
+    # We'll use the standard Euclidean distance as the cost.
+    cost_matrix = ot.dist(source_x, target_x)
 
+    # 4. Compute the Earth Mover's Distance
+    emd_value = ot.emd2(a, b, cost_matrix)
+    print(f"EMD between standard normal and target distribution: {emd_value} from noise scale {rand_float}")
+    
 if __name__ == "__main__":
     # Example usage: train a model and evaluate
-    batch_size = 200
-    device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    X, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=True)
-    X = torch.tensor(X, dtype=torch.float32, device=device)
-    t = torch.zeros(X.shape[0], 1, device=device)
+    # batch_size = 200
+    # device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
+    # X, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=True)
+    # X = torch.tensor(X, dtype=torch.float32, device=device)
+    # t = torch.zeros(X.shape[0], 1, device=device)
 
-    vf = MLP(input_dim=2, time_dim=1, hidden_dim=128).to(device)
-    evaluate_result(vf)
+    # vf = MLP(input_dim=2, time_dim=1, hidden_dim=128).to(device)
+    # evaluate_result(vf)
+    for _ in range(10):
+        select_source_distribution()
+
