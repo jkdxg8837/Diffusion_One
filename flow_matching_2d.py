@@ -1,3 +1,4 @@
+# Re-generate gradients of pre-trained model
 import time
 import torch
 
@@ -46,8 +47,8 @@ import pickle
 lr = 0.001
 
 batch_size = 4096
-gradient_step = 4000
-rest_iterations = 6000
+gradient_step = 2
+rest_iterations = 15000
 print_every = 2000 
 hidden_dim = 512
 
@@ -74,7 +75,9 @@ for name, param in vf.named_parameters():
     if param.requires_grad == True:
         hook = param.register_hook(save_gradient(vf, layer_gradients))
         hooks.append(hook) 
-state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
+# Load path from which checkpoint
+# state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
+state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_19999.pth'
 state_dict = torch.load(state_dict_path, map_location=device)
 vf.load_state_dict(state_dict)
 
@@ -138,9 +141,13 @@ for i in range(rest_iterations):
 from tqdm import tqdm
 for key in layer_gradients.keys():
     layer_gradients[key] = torch.stack(layer_gradients[key], dim=0).mean(dim=0)
-with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/fullP_step{gradient_step}_data_{data_mode}_iter_{rest_iterations}.pkl", "wb") as f:
-    pickle.dump(layer_gradients, f)
+# If using finetuning gradients, use this save
+# with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/fullP_step{gradient_step}_data_{data_mode}_iter_{rest_iterations}.pkl", "wb") as f:
+#     pickle.dump(layer_gradients, f)
 
+# If using pretrained gradients, use this save
+with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/pretrained_19999.pkl", "wb") as f:
+    pickle.dump(layer_gradients, f)
 class WrappedModel(ModelWrapper):
     def forward(self, x: torch.Tensor, t: torch.Tensor, **extras):
         return self.model(x, t)

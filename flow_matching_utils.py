@@ -79,8 +79,6 @@ def reinit_lora_modules(name, module, gamma, named_grad, init_mode):
     # """
     if init_mode =="lora-one":
         lora_r = 2
-
-
         # print("*************************")
         
         # grad_name = name + '.weight'
@@ -119,21 +117,53 @@ def reinit_lora_modules(name, module, gamma, named_grad, init_mode):
         module.lora_B.default.weight = torch.nn.Parameter(B.contiguous().cuda())
         module.lora_A.default.weight = torch.nn.Parameter(A.contiguous().cuda())
         return
-def reinit_lora(model, gamma, named_grad, init_mode="lora-one"):
+def reinit_lora(model, gamma, named_grad, init_mode="lora-one", lora_config = None):
     r"""
     Reinitialize the lora model with the given configuration.
     """
-    inited_modules = []
-    for name, module in tqdm(
-        model.named_modules(),
-        desc="Reinitializing Lora",
-        total=len(list(model.named_modules())),
-    ):
-        
-        if isinstance(module, LoraLayer):
-            reinit_lora_modules(name, module, gamma, named_grad, init_mode=init_mode)
+    from lorasb_utils.initialization_utils import find_and_initialize_grad
+    if init_mode == "lora-sb":
+        lora_rank = 2
+        import yaml
+        with open("config/reconstruct_config.yaml", 'r') as stream:
+            reconstr_config = yaml.load(stream, Loader=yaml.FullLoader)
+            
+        adapter_name = "default"  # assuming a single LoRA adapter per module to be transformed to LoRA-SB
+        peft_config_dict = {adapter_name: lora_config}
 
+        # specifying LoRA rank for the SVD initialization
+        reconstr_config['svd']['rank'] = lora_rank
+            
+        named_grads_new = {f'base_model.model.{k}': v for k, v in named_grad.items()}
+
+        # convert to LoRA-SB model
+        find_and_initialize_grad(
+            model=model,
+            peft_config=peft_config_dict,
+            adapter_name=adapter_name,
+            reconstr_type='svd',
+            reconstruct_config=reconstr_config,
+            writer=None,
+            named_grads=named_grads_new,
+        )
+
+        # perform training as usual
+
+        # You can merge LoRA-SB into the base model using `merge_and_unload` in PEFT
+        model = model.merge_and_unload() 
         pass
+    else:
+        inited_modules = []
+        for name, module in tqdm(
+            model.named_modules(),
+            desc="Reinitializing Lora",
+            total=len(list(model.named_modules())),
+        ):
+            
+            if isinstance(module, LoraLayer):
+                reinit_lora_modules(name, module, gamma, named_grad, init_mode=init_mode)
+
+            pass
     return model
 class WrappedModel(ModelWrapper):
     def forward(self, x: torch.Tensor, t: torch.Tensor, **extras):
@@ -332,15 +362,23 @@ def select_source_distribution():
     print(f"EMD between standard normal and target distribution: {emd_value} from noise scale {rand_float}")
     
 if __name__ == "__main__":
-    # Example usage: train a model and evaluate
-    # batch_size = 200
-    # device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
-    # X, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=True)
-    # X = torch.tensor(X, dtype=torch.float32, device=device)
-    # t = torch.zeros(X.shape[0], 1, device=device)
-
-    # vf = MLP(input_dim=2, time_dim=1, hidden_dim=128).to(device)
-    # evaluate_result(vf)
-    for _ in range(10):
-        select_source_distribution()
+    import pickle
+    hidden_dim = 512
+    gradient_base = 3
+    gradient_iter = 4000
+    lora_init_mode = "lora-sb"
+    vf = MLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
+    vf.load_state_dict(torch.load(f"/home/u5649209/workspace/flow_matching/ckpts/full/3_new.pth", map_location=device))
+    lora_config = LoraConfig(
+        r=2,
+        lora_alpha=4,
+        target_modules=["main.0", "main.2", "main.4", "main.6"],  # target Linear layers in MLP
+        init_lora_weights="gaussian",
+    )
+    vf = get_peft_model(vf, lora_config)
+    gamma = 49
+    # with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:
+    with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:  # IGNORE
+        named_grad = pickle.load(f)
+    _ = reinit_lora(vf, gamma, named_grad, init_mode = lora_init_mode, lora_config = lora_config)
 
