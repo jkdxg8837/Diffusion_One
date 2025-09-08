@@ -46,7 +46,7 @@ def init_module_weights(target_module: torch.nn.Linear, sigma: float):
 
 def replace_module_weights(target_module, new_weight):
     device = target_module.weight.device
-    target_module.weight = torch.nn.Parameter(new_weight)
+    target_module.weight = torch.nn.Parameter(new_weight.contiguous())
 
     # dispatch to correct device
     for name, module in target_module.named_modules():

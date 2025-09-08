@@ -125,7 +125,7 @@ def reinit_lora(model, gamma, named_grad, init_mode="lora-one", lora_config = No
     if init_mode == "lora-sb":
         lora_rank = 2
         import yaml
-        with open("config/reconstruct_config.yaml", 'r') as stream:
+        with open("/home/u5649209/workspace/flow_matching/config/reconstruct_config.yaml", 'r') as stream:
             reconstr_config = yaml.load(stream, Loader=yaml.FullLoader)
             
         adapter_name = "default"  # assuming a single LoRA adapter per module to be transformed to LoRA-SB
@@ -148,10 +148,13 @@ def reinit_lora(model, gamma, named_grad, init_mode="lora-one", lora_config = No
         )
 
         # perform training as usual
-
+        for param in model.parameters():
+            param.data = param.data.cuda()
+            if param.grad is not None:
+                param.grad = param.grad.cuda()
         # You can merge LoRA-SB into the base model using `merge_and_unload` in PEFT
-        model = model.merge_and_unload() 
-        pass
+        # model = model.merge_and_unload() 
+        # pass
     else:
         inited_modules = []
         for name, module in tqdm(
@@ -368,7 +371,7 @@ if __name__ == "__main__":
     gradient_iter = 4000
     lora_init_mode = "lora-sb"
     vf = MLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
-    vf.load_state_dict(torch.load(f"/home/u5649209/workspace/flow_matching/ckpts/full/3_new.pth", map_location=device))
+    vf.load_state_dict(torch.load(f"/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_19999.pth", map_location=device))
     lora_config = LoraConfig(
         r=2,
         lora_alpha=4,
@@ -378,7 +381,7 @@ if __name__ == "__main__":
     vf = get_peft_model(vf, lora_config)
     gamma = 49
     # with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:
-    with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:  # IGNORE
+    with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/pretrained_iter_15000.pkl', 'rb') as f:  # IGNORE
         named_grad = pickle.load(f)
     _ = reinit_lora(vf, gamma, named_grad, init_mode = lora_init_mode, lora_config = lora_config)
 
