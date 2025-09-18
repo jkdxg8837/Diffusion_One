@@ -26,8 +26,12 @@ def get_svd_grad(input_matrix, rank, n_iter=10):
     R = torch.randn(size, rank, device=device, dtype=torch.float32)
     
     # Compute SVD with controlled dtypes
-    U, s, V = torch.svd_lowrank(input_matrix_float, q=rank, niter=n_iter)
-    
+    U1, s1, V1 = torch.svd_lowrank(input_matrix_float, q=rank, niter=n_iter)
+    U, s, V = torch.linalg.svd(input_matrix_float)
+    U = U[:, :rank]
+    s = s[:rank]
+    V = V[:, :rank]
+    assert U1.shape == U.shape and s1.shape == s.shape and V1.shape == V.shape, "Shapes do not match!"
     # Convert results back to bfloat16
     U = U.to(torch.bfloat16)
     s = s.to(torch.bfloat16)

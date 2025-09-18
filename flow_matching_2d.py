@@ -77,7 +77,7 @@ for name, param in vf.named_parameters():
         hooks.append(hook) 
 # Load path from which checkpoint
 # state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
-state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_19999.pth'
+state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_9999.pth'
 state_dict = torch.load(state_dict_path, map_location=device)
 vf.load_state_dict(state_dict)
 
@@ -146,13 +146,8 @@ for key in layer_gradients.keys():
 #     pickle.dump(layer_gradients, f)
 
 # If using pretrained gradients, use this save
-with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/pretrained_19999.pkl", "wb") as f:
+with open(f"/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/pretrained_9999.pkl", "wb") as f:
     pickle.dump(layer_gradients, f)
-class WrappedModel(ModelWrapper):
-    def forward(self, x: torch.Tensor, t: torch.Tensor, **extras):
-        return self.model(x, t)
-
-wrapped_vf = WrappedModel(vf)
 
 
 

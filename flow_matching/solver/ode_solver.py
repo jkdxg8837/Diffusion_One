@@ -23,9 +23,11 @@ class ODESolver(Solver):
         velocity_model (Union[ModelWrapper, Callable]): a velocity field model receiving :math:`(x,t)` and returning :math:`u_t(x)`
     """
 
-    def __init__(self, velocity_model: Union[ModelWrapper, Callable]):
+    def __init__(self, velocity_model: Union[ModelWrapper, Callable], seed: Optional[int] = 42):
         super().__init__()
         self.velocity_model = velocity_model
+        if seed is not None:
+            torch.manual_seed(seed)
 
     def sample(
         self,
