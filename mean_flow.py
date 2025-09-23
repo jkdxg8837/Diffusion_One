@@ -8,7 +8,7 @@ from flow_matching.path.scheduler import CondOTScheduler
 from flow_matching.path import AffineProbPath
 from flow_matching.solver import Solver, ODESolver
 from flow_matching.utils import ModelWrapper
-from torchvision.utils import make_grid, save_image
+from torchvision.utils import make_grid
 # visualization
 import matplotlib.pyplot as plt
 
@@ -19,7 +19,7 @@ from sklearn.datasets import make_moons
 import sys
 sys.path.append("/home/u5649209/workspace/flow_matching")  # Adjust the path as necessary to import flow_matching_utils
 from flow_matching_utils import MFMLP, evaluate_result, train_moon_gen, reinit_lora
-
+from flow_matching_utils import MeanFlow
 # To avoide meshgrid warning
 import warnings
 
@@ -38,83 +38,113 @@ import os
 # training arguments
 lr = 0.001
 batch_size = 4096
-iterations = 20000
+iterations = 10000
 print_every = 1000
 hidden_dim = 512
 gradient_base = 0
-gradient_iter = 15000
+gradient_iter = 10000
 pretrain_iter = 16000
-is_pre_train = True
-is_lora = False
+is_pre_train = False
+is_lora = True
 is_eval = False 
-is_reinit = False
-gamma = 100
-mode = "new"
+is_reinit = True
+is_baseline = True
+gamma = 9
+mode = "up_shift"
 loss_history = []
 lora_init_mode_list = [\
-    "lora-ga", \
     "lora-one", \
-    "lora-sb"\
+    "lora-ga", \
+    # "lora-sb"\
 ]
+# Baseline for 20; MeanF for 5 or 1
+if is_baseline:
+    meanF_step = 20
+else:
+    meanF_step = 5
 
+meanflow = MeanFlow(baseline = is_baseline)
+def save_points(points, path):
+    points_np = points.detach().cpu().numpy()
+    # 画散点图
+    plt.figure(figsize=(6, 6))
+    plt.scatter(points_np[:, 0], points_np[:, 1], s=1, alpha=0.5)  # s 控制点大小
+    plt.xlabel("x")
+    plt.ylabel("y")
+    plt.title("Scatter plot of 20,000 points")
+    plt.show()
+    plt.savefig(path)
 
-from flow_matching_utils import MeanFlow
-meanflow = MeanFlow()
+def save_model(step_name = None, image_object = None, loss_history = None):
+    if not is_pre_train:
+        if is_lora:
+            if is_reinit:
+                if is_baseline:
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
+                else:
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
+                os.makedirs(save_path, exist_ok=True)
+                vf.save_pretrained(save_path)
+                if image_object is not None:
+                    if is_baseline:
+                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/images-{meanF_step}"
+                    else:
+                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/images-{meanF_step}"           
+            else:
+                if is_baseline:
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}/{step_name}_{mode}"
+                else:
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}/{step_name}_{mode}"
+                os.makedirs(save_path, exist_ok=True)
+                vf.save_pretrained(save_path)
+                if image_object is not None:
+                    if is_baseline:
+                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}/images-{meanF_step}"
+                    else:
+                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}/images-{meanF_step}"                   
+        else:
+            if is_baseline:
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}_1/{step_name}_{mode}.pth"
+            else:
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/{step_name}_{mode}.pth"
+            if not os.path.exists(os.path.dirname(save_path)):
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            torch.save(vf.state_dict(), save_path)
+            if image_object is not None:
+                if is_baseline:
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}/images-{meanF_step}"
+                else:
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/images-{meanF_step}"    
+    else:
+        if is_baseline:
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{step_name}.pth"
+        else:
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/weights/raw_model_{step_name}.pth"
+        if not os.path.exists(os.path.dirname(save_path)):
+            os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        torch.save(vf.state_dict(), save_path)
+        if image_object is not None:
+            if is_baseline:
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/images-{meanF_step}"
+            else:
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/weights/images-{meanF_step}"
+    if image_object is not None:
+        os.makedirs(img_save_path, exist_ok=True)
+        save_points(image_object, f"{img_save_path}/step_{step_name}_{mode}.png")
+    if step_name != 0 and loss_history is not None:
+        plt.figure(figsize=(8, 4))
+        plt.plot(loss_history[:])
+        plt.xlabel('Iteration')
+        plt.ylabel('Loss')
+        plt.title('Training Loss Curve')
+        plt.grid(True)
+        plt.show()
+        plt.savefig(f"{img_save_path}/loss_curve.png")
 def train_process_mean_flow():
     start_time = time.time()
     for i in range(iterations):
         optim.zero_grad() 
-        def save_points(points, path):
-            points_np = points.detach().cpu().numpy()
-            # 画散点图
-            plt.figure(figsize=(6, 6))
-            plt.scatter(points_np[:, 0], points_np[:, 1], s=1, alpha=0.5)  # s 控制点大小
-            plt.xlabel("x")
-            plt.ylabel("y")
-            plt.title("Scatter plot of 20,000 points")
-            plt.show()
-            plt.savefig(path)
-
-        def save_model(step_name = None, image_object = None):
-            if step_name is None:
-                step_name = i + 1
-            if not is_pre_train:
-                if is_lora:
-                    if is_reinit:
-                        save_path = f"/home/u5649209/workspace/flow_matching/ckpts/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
-                        os.makedirs(save_path, exist_ok=True)
-                        vf.save_pretrained(save_path)
-                        if image_object is not None:
-                            os.makedirs(f"{save_path}/images", exist_ok=True)
-                            img_save_path = f"{save_path}/images/step_{step_name}.png"
-                            save_points(image_object, img_save_path)
-                    else:
-                        save_path = f"/home/u5649209/workspace/flow_matching/ckpts/meanf/lora_{pretrain_iter}/{step_name}_{mode}"
-                        os.makedirs(save_path, exist_ok=True)
-                        vf.save_pretrained(save_path)
-                        if image_object is not None:
-                            os.makedirs(f"{save_path}/images", exist_ok=True)
-                            img_save_path = f"{save_path}/images/step_{step_name}.png"
-                            save_points(image_object, img_save_path)
-                else:
-                    save_path = f"/home/u5649209/workspace/flow_matching/ckpts/meanf/fft_{pretrain_iter}/{step_name}_{mode}.pth"
-                    if not os.path.exists(os.path.dirname(save_path)):
-                        os.makedirs(os.path.dirname(save_path), exist_ok=True)
-                    torch.save(vf.state_dict(), save_path)
-                    if image_object is not None:
-                        os.makedirs(f"{save_path}/images", exist_ok=True)
-                        img_save_path = f"{save_path}/images/step_{step_name}.png"
-                        save_points(image_object, img_save_path)
-            else:
-                save_path = f"/home/u5649209/workspace/flow_matching/ckpts/meanf/weights_wo_embeds/raw_model_{step_name}.pth"
-                if not os.path.exists(os.path.dirname(save_path)):
-                    os.makedirs(os.path.dirname(save_path), exist_ok=True)
-                torch.save(vf.state_dict(), save_path)
-                if image_object is not None:
-                    save_path = f"/home/u5649209/workspace/flow_matching/ckpts/meanf/weights_wo_embeds"
-                    os.makedirs(f"{save_path}/images-10", exist_ok=True)
-                    img_save_path = f"{save_path}/images-10/step_{step_name}.png"
-                    save_points(image_object, img_save_path)
+        
         # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
         x_1, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=is_pre_train, mode = mode) # sample data
         # print(y)
@@ -133,22 +163,30 @@ def train_process_mean_flow():
             save_model(step_name=0)
         # optimizer step
         loss.backward() # backward
-        optim.step() # update
-
-        
-        
-        # log loss
-        if ((i+1) % print_every == 0) or (i in [0, 1, 2, 3]):
+        if i==0:
             elapsed = time.time() - start_time
             print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
                 .format(i, elapsed*1000/print_every, loss.item())) 
-            z = meanflow.sample(vf, 10)
+            z = meanflow.sample(vf, meanF_step)
             start_time = time.time()
-            save_model(None, z)
+            save_model(i+1, z, loss_history)
+        optim.step() # update
+        # log loss
+        if ((i+1) % print_every == 0) or (i in [1, 2, 3, 4, 5]):
+            elapsed = time.time() - start_time
+            print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
+                .format(i, elapsed*1000/print_every, loss.item())) 
+            z = meanflow.sample(vf, meanF_step)
+            start_time = time.time()
+            save_model(i+1, z, loss_history)
+        
 if not is_eval:
     vf = MFMLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
     if not is_pre_train:
-        state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_{pretrain_iter-1}.pth", map_location=device)
+        if is_baseline:
+            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{pretrain_iter}.pth", map_location=device)
+        else:
+            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/weights/raw_model_{pretrain_iter}.pth", map_location=device)
         vf.load_state_dict(state_dict)
     if is_lora == False:
         optim = torch.optim.Adam(vf.parameters(), lr=lr)
@@ -172,7 +210,9 @@ if not is_eval:
     else:
         for lora_init_mode in lora_init_mode_list:
             vf = MFMLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device) 
-            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_{pretrain_iter-1}.pth", map_location=device)
+            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/weights/raw_model_{pretrain_iter}.pth", map_location=device)
+            if is_baseline:
+                state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{pretrain_iter}.pth", map_location=device)
             vf.load_state_dict(state_dict)
             print(f"mode: {mode}, lora_init_mode: {lora_init_mode}, gradient_base: {gradient_base}, gradient_iter: {gradient_iter}, gamma: {gamma}\
                 pretrain_iter: {pretrain_iter}")
@@ -188,8 +228,11 @@ if not is_eval:
             )
             vf = get_peft_model(vf, lora_config)
             
-            # with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:
-            with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/fullP{pretrain_iter}_step{gradient_base}_data_new_iter_{gradient_iter}.pkl', 'rb') as f:  # IGNORE
+            # with open(f'/home/u5649209/workspace/flow_matching/raw_model_gradients/models_grads_step19999_new.pkl', 'rb') as f:
+            # with open(f'/home/u5649209/workspace/flow_matching/meanf/weights/fullP{pretrain_iter}_step{gradient_base}_data_new_iter_{gradient_iter}.pkl', 'rb') as f:  # IGNORE
+            # with open('/home/u5649209/workspace/flow_matching/meanf/weights/full_sample_up_shift.pkl', 'rb') as f:
+            # Using baseline + meanflow
+            with open('//home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/full_sample_up_shift.pkl', 'rb') as f:
                 named_grad = pickle.load(f)
             _ = reinit_lora(vf, gamma, named_grad, init_mode = lora_init_mode, lora_config = lora_config)
             for param in vf.parameters():
@@ -201,3 +244,34 @@ if not is_eval:
             start_time = time.time()
             path = AffineProbPath(scheduler=CondOTScheduler())
             train_process_mean_flow()
+else:
+    vf = MFMLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
+    if is_pre_train:
+        step_list = [0, 1 , 2, 3, 4, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000, 19000, 20000]
+    else:
+        step_list = [0, 1 , 2, 3, 4, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]
+    for step in step_list:
+        if is_pre_train:
+            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{step}.pth", map_location=device)
+            vf.load_state_dict(state_dict)
+            z = meanflow.sample(vf, meanF_step)
+            start_time = time.time()
+            save_model(step, z)
+        else:
+            if not is_lora:
+                state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_16000/{step}_new.pth", map_location=device)
+                vf.load_state_dict(state_dict)
+                z = meanflow.sample(vf, meanF_step)
+                start_time = time.time()
+                save_model(step, z)
+            elif not is_reinit:
+                state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}/{step}_new", map_location=device)
+                vf = get_peft_model(vf, LoraConfig(
+                    r=2,
+                    lora_alpha=4,
+                    target_modules=["main.0", "main.2", "main.4", "main.6"],  # target Linear layers in MLP
+                    ))
+                vf.load_state_dict(state_dict)
+                z = meanflow.sample(vf, meanF_step)
+                start_time = time.time()
+                save_model(step, z)

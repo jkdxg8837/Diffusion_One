@@ -235,8 +235,6 @@ def reinit_lora(model, gamma, named_grad, init_mode="lora-one", lora_config = No
             
             if isinstance(module, LoraLayer):
                 reinit_lora_modules(name, module, gamma, named_grad, init_mode=init_mode)
-
-            pass
     return model
 class WrappedModel(ModelWrapper):
     def forward(self, x: torch.Tensor, t: torch.Tensor, **extras):
@@ -290,6 +288,8 @@ def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool
             y = np.hstack(
                 [np.zeros(n_sample_out, dtype=np.intp), np.ones(n_sample_in, dtype=np.intp)]
             )
+            if mode == "up_shift":
+                X[:, 1] += 0.25
             return X, y
         else:
             full_x, full_y = make_moons(n_samples=3 * batch_size, noise=0, random_state=42)
@@ -549,6 +549,7 @@ class MeanFlow:
         # experimental
         cfg_uncond='v',
         jvp_api='funtorch',
+        baseline = False,
                  ):
         super().__init__()
         # self.normer = Normalizer.from_list(normalizer)
@@ -560,6 +561,8 @@ class MeanFlow:
         elif jvp_api == 'autograd':
             self.jvp_fn = torch.autograd.functional.jvp
             self.create_graph = True
+        if baseline:
+            self.flow_ratio = 1.0
     def stopgrad(self, x):
         return x.detach()
     def adaptive_l2_loss(self, error, gamma=0.5, c=1e-3):
@@ -593,21 +596,25 @@ class MeanFlow:
 
         num_selected = int(self.flow_ratio * batch_size)
         indices = np.random.permutation(batch_size)[:num_selected]
+        # flow_ratio controls how many pairs are orginal flow matching t & r
         r_np[indices] = t_np[indices]
 
         t = torch.tensor(t_np, device=device)
         r = torch.tensor(r_np, device=device)
         return t, r
 
-    def loss(self, model, x, c=None):
+    def loss(self, model, x, c=None, gradient_generation=False):
         batch_size = x.shape[0]
         device = x.device
-
+        if gradient_generation:
+            self.flow_ratio = 0.0
         t, r = self.sample_t_r(batch_size, device)
 
         t_ = rearrange(t, "b -> b 1").detach().clone()
         r_ = rearrange(r, "b -> b 1").detach().clone()
-
+        # if gradient_generation:
+        #     t_ = torch.ones_like(t_) * 0.999
+        #     r_ = torch.zeros_like(r_)
         e = torch.randn_like(x)
         # x = self.normer.norm(x)
 
@@ -662,7 +669,6 @@ class MeanFlow:
             t = torch.full((z.size(0),), t_vals[i], device=device)
             r = torch.full((z.size(0),), t_vals[i + 1], device=device)
 
-            # print(f"t: {t[0].item():.4f};  r: {r[0].item():.4f}")
 
             t_ = rearrange(t, "b -> b 1").detach().clone()
             r_ = rearrange(r, "b -> b 1").detach().clone()
@@ -672,3 +678,4 @@ class MeanFlow:
 
         # z = self.normer.unnorm(z)
         return z
+

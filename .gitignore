@@ -73,3 +73,11 @@ output_dir/
 *.err
 
 ckpts/
+
+*.pth
+
+meanf/*
+
+*.png
+
+*.pt

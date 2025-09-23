@@ -38,7 +38,7 @@ import os
 # training arguments
 lr = 0.001
 batch_size = 4096
-iterations = 3000
+iterations = 10000
 print_every = 50
 hidden_dim = 512
 gradient_base = 0
@@ -49,14 +49,14 @@ is_lora = True
 is_eval = False 
 is_reinit = True
 gamma = 100
-mode = "new"
+mode = "up_shift"
 loss_history = []
 lora_init_mode_list = [\
-    "lora-ga", \
     "lora-one", \
-    "lora-sb"
+    "lora-ga", \
+    # "lora-sb"
 ]
-
+# is_baseline = False
 # velocity field model init
 layer_gradients = {}
 
@@ -82,17 +82,15 @@ for name, param in vf.named_parameters():
         hooks.append(hook) 
 # Load path from which checkpoint
 # state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
-dir_path = f'/home/u5649209/workspace/flow_matching/ckpts/meanf/weights'
+dir_path = f'/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights'
 state_dict_path = f'{dir_path}/raw_model_{pretrain_iter}.pth'
 state_dict = torch.load(state_dict_path, map_location=device)
 vf.load_state_dict(state_dict)
 
 
 start_time = time.time()
-meanflow = MeanFlow()
+meanflow = MeanFlow(baseline = False)
 for i in range(iterations):
-
-    
     # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
     x_1, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=is_pre_train, mode = mode) # sample data
     # print(y)
@@ -100,7 +98,7 @@ for i in range(iterations):
 
 
     # Mean flow insert
-    loss, mse_val = meanflow.loss(vf, x_1)
+    loss, mse_val = meanflow.loss(vf, x_1, None, True)
 
     loss_history.append(loss.item())
     if i == 0:
@@ -131,5 +129,5 @@ for key in layer_gradients.keys():
 import pickle
 
 # If using pretrained gradients, use this save
-with open(f"{dir_path}/pretrained_{pretrain_iter}.pkl", "wb") as f:
+with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}.pkl", "wb") as f:
     pickle.dump(layer_gradients, f)
