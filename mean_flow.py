@@ -49,7 +49,7 @@ is_lora = True
 is_eval = False 
 is_reinit = True
 is_baseline = True
-gamma = 9
+gamma = 1
 mode = "up_shift"
 loss_history = []
 lora_init_mode_list = [\
@@ -64,7 +64,11 @@ else:
     meanF_step = 5
 
 meanflow = MeanFlow(baseline = is_baseline)
-def save_points(points, path):
+def save_points(points_dict, path):
+    # Final step visualization
+    path_number = 10
+    path_point_number_list = range(meanF_step)
+    points = points_dict[meanF_step-1]
     points_np = points.detach().cpu().numpy()
     # 画散点图
     plt.figure(figsize=(6, 6))
@@ -74,20 +78,47 @@ def save_points(points, path):
     plt.title("Scatter plot of 20,000 points")
     plt.show()
     plt.savefig(path)
+    # Now for the path visualization
+    plt.clf()
+    fig, axes = plt.subplots(1, 10, figsize=(30, 4))  # 1行10列 = 10 个子图
+    data1 = np.array([])
+    axes = axes.flatten()
+    for path_number_ in range(path_number):
+        for path_point_number in path_point_number_list:
+            data1 = np.append(data1, points_dict[path_point_number][path_number_].detach().cpu().numpy())
+    data1 = data1.reshape((path_number, len(path_point_number_list), 2))
+    for i in range(10):
+        ax = axes[i]
+        # 第一条曲线 (来自 data1)
+        ax.plot(data1[i][:, 0], data1[i][:, 1], marker='o', label="curve1")
+        # 第二条曲线 (来自 data2)
+        ax.set_title(f"Sample {i+1}")
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.legend()
+        ax.grid(True)
+        ax.set_aspect("equal")  # 保持比例尺一致
+        # ax.set_xlim(xlim)            # 设置统一的X轴范围
+        # ax.set_ylim(ylim)            # 设置统一的Y轴范围
 
-def save_model(step_name = None, image_object = None, loss_history = None):
+    plt.tight_layout()
+    process_path = path[:-4] + "_path.png"
+    plt.savefig(process_path)
+    plt.show()
+
+def save_model(step_name = None, image_object = None, loss_history = None, visualize_path = False):
     if not is_pre_train:
         if is_lora:
             if is_reinit:
                 if is_baseline:
-                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit/{step_name}_{mode}"
                 else:
                     save_path = f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
                 os.makedirs(save_path, exist_ok=True)
                 vf.save_pretrained(save_path)
                 if image_object is not None:
                     if is_baseline:
-                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/images-{meanF_step}"
+                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit/images-{meanF_step}"
                     else:
                         img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/images-{meanF_step}"           
             else:
@@ -104,7 +135,7 @@ def save_model(step_name = None, image_object = None, loss_history = None):
                         img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}/images-{meanF_step}"                   
         else:
             if is_baseline:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}_1/{step_name}_{mode}.pth"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}_test/{step_name}_{mode}.pth"
             else:
                 save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/{step_name}_{mode}.pth"
             if not os.path.exists(os.path.dirname(save_path)):
@@ -112,7 +143,7 @@ def save_model(step_name = None, image_object = None, loss_history = None):
             torch.save(vf.state_dict(), save_path)
             if image_object is not None:
                 if is_baseline:
-                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}/images-{meanF_step}"
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}_test/images-{meanF_step}"
                 else:
                     img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/images-{meanF_step}"    
     else:
@@ -142,6 +173,7 @@ def save_model(step_name = None, image_object = None, loss_history = None):
         plt.savefig(f"{img_save_path}/loss_curve.png")
 def train_process_mean_flow():
     start_time = time.time()
+    fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
     for i in range(iterations):
         optim.zero_grad() 
         
@@ -167,7 +199,7 @@ def train_process_mean_flow():
             elapsed = time.time() - start_time
             print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
                 .format(i, elapsed*1000/print_every, loss.item())) 
-            z = meanflow.sample(vf, meanF_step)
+            z = meanflow.sample(vf, meanF_step, random_noise = fixed_random_noise)
             start_time = time.time()
             save_model(i+1, z, loss_history)
         optim.step() # update
@@ -176,7 +208,7 @@ def train_process_mean_flow():
             elapsed = time.time() - start_time
             print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
                 .format(i, elapsed*1000/print_every, loss.item())) 
-            z = meanflow.sample(vf, meanF_step)
+            z = meanflow.sample(vf, meanF_step, random_noise = fixed_random_noise)
             start_time = time.time()
             save_model(i+1, z, loss_history)
         
@@ -232,7 +264,9 @@ if not is_eval:
             # with open(f'/home/u5649209/workspace/flow_matching/meanf/weights/fullP{pretrain_iter}_step{gradient_base}_data_new_iter_{gradient_iter}.pkl', 'rb') as f:  # IGNORE
             # with open('/home/u5649209/workspace/flow_matching/meanf/weights/full_sample_up_shift.pkl', 'rb') as f:
             # Using baseline + meanflow
-            with open('//home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/full_sample_up_shift.pkl', 'rb') as f:
+            # with open('/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/old_loraone_up_shift.pkl', 'rb') as f:
+            # Using path loss
+            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_up_shift_path_grad.pkl", 'rb') as f:
                 named_grad = pickle.load(f)
             _ = reinit_lora(vf, gamma, named_grad, init_mode = lora_init_mode, lora_config = lora_config)
             for param in vf.parameters():

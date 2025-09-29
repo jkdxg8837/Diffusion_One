@@ -550,7 +550,7 @@ class MeanFlow:
         cfg_uncond='v',
         jvp_api='funtorch',
         baseline = False,
-                 ):
+        compare_data = None):
         super().__init__()
         # self.normer = Normalizer.from_list(normalizer)
         self.time_dist = time_dist
@@ -563,6 +563,12 @@ class MeanFlow:
             self.create_graph = True
         if baseline:
             self.flow_ratio = 1.0
+        self.compare_data = None
+        self.is_baseline = baseline
+        # compare_data is for visualization, serves as a baseline path for flow matching model
+        # Normally, baseline is the fft result of baseline model
+        if not compare_data:
+            self.compare_data = compare_data
     def stopgrad(self, x):
         return x.detach()
     def adaptive_l2_loss(self, error, gamma=0.5, c=1e-3):
@@ -603,10 +609,10 @@ class MeanFlow:
         r = torch.tensor(r_np, device=device)
         return t, r
 
-    def loss(self, model, x, c=None, gradient_generation=False):
+    def loss(self, model, x, c=None, gradient_generation=False, return_u = False):
         batch_size = x.shape[0]
         device = x.device
-        if gradient_generation:
+        if gradient_generation and self.flow_ratio < 1.0:
             self.flow_ratio = 0.0
         t, r = self.sample_t_r(batch_size, device)
 
@@ -659,11 +665,18 @@ class MeanFlow:
         # loss = F.mse_loss(u, stopgrad(u_tgt))
 
         mse_val = (self.stopgrad(error) ** 2).mean()
+        if return_u:
+            return loss, mse_val, u, u_tgt, t_, r_
+
         return loss, mse_val
     @torch.no_grad()
-    def sample(self, model, sample_steps = 5, device = 'cuda'):
+    def sample(self, model, sample_steps = 5, device = 'cuda', random_noise = None):
+        z_dict = {}
         model.eval()
-        z = torch.randn(20000, 2, device=device)
+        if random_noise is not None:
+            z = random_noise.to(device)
+        else:
+            z = torch.randn(20000, 2, device=device)
         t_vals = torch.linspace(1.0, 0.0, sample_steps + 1, device=device)
         for i in range(sample_steps):
             t = torch.full((z.size(0),), t_vals[i], device=device)
@@ -675,7 +688,7 @@ class MeanFlow:
 
             v = model(z, t, r, None)
             z = z - (t_-r_) * v
+            z_dict[i] = z.detach().cpu()
 
         # z = self.normer.unnorm(z)
-        return z
-
+        return z_dict

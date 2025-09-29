@@ -52,7 +52,7 @@ is_pre_train = False
 is_lora = False
 is_eval = False 
 is_reinit = False
-is_baseline = False
+is_baseline = True
 gamma = 100
 mode = "up_shift"
 loss_history = []
@@ -96,7 +96,7 @@ meanflow = special_MeanFlow(baseline = is_baseline)
 ckpt_number_list = [1, 2000, 4000, 6000, 8000, 10000]
 # Load model
 def create_test_mean_flow_model(is_pretrain, is_baseline, is_lora, is_reinit, pretrain_iter,
-        lora_init_mode, mode, gradient_base, gradient_iter, gamma, ckpt_number):
+        lora_init_mode, mode, gradient_base, gradient_iter, gamma, ckpt_number, ckpt_path = None):
 
     vf = MFMLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
     if not is_pretrain:
@@ -109,9 +109,11 @@ def create_test_mean_flow_model(is_pretrain, is_baseline, is_lora, is_reinit, pr
         # Load FFT model
         if is_baseline:
             print("loading from fft")
-            # state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_16000/{ckpt_number}_new.pth", map_location=device)
-            # Use stationary model ckpt
-            state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_16000/10000_{mode}.pth", map_location=device)
+            if ckpt_path is not None:
+                state_dict = torch.load(ckpt_path, map_location=device)
+            else:
+                #   Use stationary model ckpt
+                state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_16000/10000_{mode}.pth", map_location=device)
         else:
             state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/fft_16000/10000_{mode}.pth", map_location=device)
         vf.load_state_dict(state_dict)
@@ -131,7 +133,7 @@ def create_test_mean_flow_model(is_pretrain, is_baseline, is_lora, is_reinit, pr
         print("loading from reinit")
         if is_baseline:
             vf.load_state_dict(torch.load("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000.pth", map_location=device))
-            path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora-one_pretrainiter_16000_0_10000_gamma9/{ckpt_number}_{mode}"
+            path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora-one_pretrainiter_16000_0_10000_gamma9_base/{ckpt_number}_{mode}"
         else:
             vf.load_state_dict(torch.load(f"/home/u5649209/workspace/flow_matching/meanf/weights/raw_model_16000.pth", map_location=device))
             path = f"/home/u5649209/workspace/flow_matching/meanf/lora-one_pretrainiter_16000_0_10000_gamma9/{ckpt_number}_{mode}"
@@ -196,7 +198,7 @@ for ckpt_number in ckpt_number_list:
         gradient_base,
         gradient_iter,
         gamma,
-        ckpt_number
+        ckpt_number,
     )
 
     is_reinit = True
@@ -230,7 +232,7 @@ for ckpt_number in ckpt_number_list:
             loraA_weights = state_dict[f'base_model.model.main.{layer_num[i]}.lora_A.default.weight']
 
             lora_combined_weights = loraB_weights @ loraA_weights
-
+            lora_combined_weights = 2.0 * lora_combined_weights + state_dict[f'base_model.model.main.{layer_num[i]}.base_layer.weight']
             
             # distance = torch.norm(after_optimization_weights - weights).item()
             # distance = wasserstein_distance(after_optimization_weights.cpu().numpy().flatten(), weights.cpu().numpy().flatten())
@@ -240,7 +242,13 @@ for ckpt_number in ckpt_number_list:
             distance = np.arccos(np.clip(dot_product / (norm_after * norm_weights), -1.0, 1.0)) / np.pi * 180
 
             print(f"Layer {layer_num[i]}, angle distance: {distance}")
+    def single_weight_angle(weight1, weight2):
+        dot_product = np.dot(weight1.flatten().cpu().numpy(), weight2.flatten().cpu().numpy())
+        norm_after = np.linalg.norm(weight1.flatten().cpu().numpy())
+        norm_weights = np.linalg.norm(weight2.flatten().cpu().numpy())
+        distance = np.arccos(np.clip(dot_product / (norm_after * norm_weights), -1.0, 1.0)) / np.pi * 180
 
+        return distance
     # Using a set of random noise points as input
 
     fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
@@ -277,6 +285,7 @@ for ckpt_number in ckpt_number_list:
             data2 = np.append(data2, pred_x_dict_2[path_point_number][path_number_].detach().cpu().numpy())
 
             data3 = np.append(data3, pred_x_dict_3[path_point_number][path_number_].detach().cpu().numpy())
+
     data1 = data1.reshape((path_number, len(path_point_number_list), 2))
     data2 = data2.reshape((path_number, len(path_point_number_list), 2))
 
@@ -289,6 +298,9 @@ for ckpt_number in ckpt_number_list:
     data2 = np.concatenate((fixed_random_noise, data2), axis=1)
 
     data3 = np.concatenate((fixed_random_noise, data3), axis=1)
+    # np.save(f"fft_baseline_path.npy", data1)
+    # print("save done")
+    # break
     def plot(data1, data2, data3 = None):
         # 1. 找到所有数据的全局范围
 
@@ -331,9 +343,9 @@ for ckpt_number in ckpt_number_list:
 
         plt.tight_layout()
         if is_baseline:
-            plt.savefig(f'./10velocitypath_{ckpt_number}_stationary_baseline.png')
+            plt.savefig(f'./10velocitypath_{ckpt_number}_pure_baseline.png')
         else:   
-            plt.savefig(f'./10velocitypath_{ckpt_number}_stationary.png')
+            plt.savefig(f'./10velocitypath_{ckpt_number}.png')
         plt.show()
 
     data1 = data1.reshape((path_number, len(path_point_number_list) + 1, 2))

@@ -81,3 +81,5 @@ meanf/*
 *.png
 
 *.pt
+
+*.npy

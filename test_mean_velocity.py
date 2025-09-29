@@ -106,6 +106,7 @@ def create_test_mean_flow_model(is_pretrain, is_baseline, is_lora, is_reinit, pr
         if is_baseline:
             print("loading from fft")
             if ckpt_path is not None:
+                print(f"loading from 1234")
                 state_dict = torch.load(f'{ckpt_path}/{ckpt_number}_new.pth', map_location=device)
             else:
                 state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_16000/{ckpt_number}_new.pth", map_location=device)
@@ -177,12 +178,12 @@ for ckpt_number in ckpt_number_list:
         gradient_iter,
         gamma,
         ckpt_number,
-        None
+        ckpt_path = ckpt_path
     )
 
 
     # Using one extra graph for angle
-    def weight_angle_2fft(fft_model, fft_model_1):
+    def weight_angle_2fft(fft_model, fft_model_1, update_value = True):
         layer_num = [0, 2, 4, 6]
         fft_model_1 = fft_model_1.state_dict()
         fft_model = fft_model.state_dict()
@@ -192,11 +193,12 @@ for ckpt_number in ckpt_number_list:
                 continue
             compared_weights = fft_model[module].to(device)
 
-
-
             fft_1_weights = fft_model_1[module].to(device)
+            if update_value:
 
-            
+                pre_trained_weights = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{pretrain_iter}.pth", map_location=device)
+                compared_weights = compared_weights - pre_trained_weights[f'main.{layer_num[i]}.weight']
+                fft_1_weights = fft_1_weights - pre_trained_weights[f'main.{layer_num[i]}.weight']
             # distance = torch.norm(after_optimization_weights - weights).item()
             # distance = wasserstein_distance(after_optimization_weights.cpu().numpy().flatten(), weights.cpu().numpy().flatten())
             dot_product = np.dot(compared_weights.flatten().cpu().numpy(), fft_1_weights.flatten().cpu().numpy())
@@ -206,7 +208,7 @@ for ckpt_number in ckpt_number_list:
             distance = np.arccos(np.clip(dot_product / (norm_after * norm_weights), -1.0, 1.0)) / np.pi * 180
 
             print(f"Layer {layer_num[i]}, angle distance: {distance}")
-    def weight_angle(fft_model, lora_model):
+    def weight_angle(fft_model, lora_model, update_value = False):
         layer_num = [0, 2, 4, 6]
         state_dict = lora_model.state_dict()
         fft_model = fft_model.state_dict()
@@ -215,12 +217,14 @@ for ckpt_number in ckpt_number_list:
             if 'bias' in module:
                 continue
             compared_weights = fft_model[module].to(device)
-
+            if update_value:
+                compared_weights = compared_weights - state_dict[f'base_model.model.main.{layer_num[i]}.base_layer.weight']
             loraB_weights = state_dict[f'base_model.model.main.{layer_num[i]}.lora_B.default.weight']
             loraA_weights = state_dict[f'base_model.model.main.{layer_num[i]}.lora_A.default.weight']
 
             lora_combined_weights = loraB_weights @ loraA_weights
-
+            if not update_value:
+                lora_combined_weights = 2 * lora_combined_weights + state_dict[f'base_model.model.main.{layer_num[i]}.base_layer.weight']
             
             # distance = torch.norm(after_optimization_weights - weights).item()
             # distance = wasserstein_distance(after_optimization_weights.cpu().numpy().flatten(), weights.cpu().numpy().flatten())
@@ -249,7 +253,7 @@ for ckpt_number in ckpt_number_list:
         pred_x = pred_x_dict[step_index]
 
         pred_x_2 = pred_x_dict_2[step_index]
-        weight_angle(vf, vf_2)
+        weight_angle(vf, vf_2, True)
         
         # Raw vis
         # fig, axs = plt.subplots(1, 2, figsize=(10, 5))
