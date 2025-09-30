@@ -9,7 +9,7 @@ from flow_matching.path.scheduler import CondOTScheduler
 from flow_matching.path import AffineProbPath
 from flow_matching.solver import Solver, ODESolver
 from flow_matching.utils import ModelWrapper
-
+import pickle
 # visualization
 import matplotlib.pyplot as plt
 
@@ -141,7 +141,163 @@ class MFMLP(nn.Module):
         output = self.main(h)
         
         return output.reshape(*sz)
+# Model class
+import os
+class seg_MFMLP(nn.Module):
+    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 512, segment_point=0.5, is_lora = True, is_reinit = True, reverse = False):
+        super().__init__()
 
+        self.input_dim = input_dim
+        self.time_dim = time_dim
+        self.hidden_dim = hidden_dim
+        self.segment_point = segment_point
+
+
+        self.smaller_main = MFMLP(input_dim=input_dim, time_dim=time_dim, hidden_dim=hidden_dim)
+        self.larger_main = MFMLP(input_dim=input_dim, time_dim=time_dim, hidden_dim=hidden_dim)
+        self.gamma = 9
+        self.is_lora = is_lora
+        self.is_reinit = is_reinit
+        self.reverse = reverse
+        self.init_weights(is_lora = is_lora, is_reinit = is_reinit)
+    def init_weights(self, is_lora = False, is_reinit = False):
+        state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000.pth", map_location=device)
+        self.smaller_main.load_state_dict(state_dict)
+        self.larger_main.load_state_dict(state_dict)
+        if not is_lora:
+            pass
+        elif not is_reinit:
+            lora_config = LoraConfig(
+            r=2,
+            lora_alpha=4,
+            target_modules=["0", "2", "4", "6"],  # 对应 Sequential 里 Linear 层
+            )
+            self.smaller_main = get_peft_model(self.smaller_main, lora_config)
+            self.larger_main = get_peft_model(self.larger_main, lora_config)
+        elif is_reinit:
+            # separate by self.segment_point
+            lora_config = LoraConfig(
+            r=2,
+            lora_alpha=4,
+            target_modules=["0", "2", "4", "6"],  # 对应 Sequential 里 Linear 层
+            )
+            self.smaller_main = get_peft_model(self.smaller_main, lora_config)
+            self.larger_main = get_peft_model(self.larger_main, lora_config)
+            
+            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/full_sample_up_shift.pkl", 'rb') as f:
+                named_grad = pickle.load(f)
+            if not self.reverse:
+                _ = reinit_lora(self.smaller_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
+                for param in self.smaller_main.parameters():
+                    param.data = param.data.contiguous()
+                print("Smaller main reinit done")
+            else:
+                _ = reinit_lora(self.larger_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
+                for param in self.larger_main.parameters():
+                    param.data = param.data.contiguous()
+                print("Larger main reinit done")
+        else:
+            raise NotImplementedError("is_lora and is_reinit cannot be both False or both True")
+    def forward(self, x: Tensor, t: Tensor, r: Tensor, y: Tensor) -> Tensor:
+        sz = x.size()
+        x = x.reshape(-1, self.input_dim)
+        t = t.reshape(-1, self.time_dim).float()
+        r = r.reshape(-1, self.time_dim).float()
+
+        # # 简单加和
+        # t = t + r
+        # h = torch.cat([x, t], dim=1)  # [B, input_dim+time_dim]
+
+        # 生成mask
+        mask = (t[:, 0] < self.segment_point)  # [B]
+        t_smaller = t[mask]
+        t_larger = t[~mask]
+
+        x_smaller = x[mask]
+        x_larger = x[~mask]
+
+        r_smaller = r[mask]
+        r_larger = r[~mask]
+        # 分别forward
+        out = torch.zeros(t.size(0), self.input_dim, device=t.device, dtype=t.dtype)
+        if t_smaller.numel() > 0:
+            out[mask] = self.smaller_main(x_smaller, t_smaller, r_smaller, None)
+        if t_larger.numel() > 0:
+            out[~mask] = self.larger_main(x_larger, t_larger, r_larger, None)
+
+        return out.reshape(*sz)
+    def save_points(self, points_dict, path):
+        # Final step visualization
+        path_number = 10
+        path_point_number_list = range(20)
+        points = points_dict[20-1]
+        points_np = points.detach().cpu().numpy()
+        # 画散点图
+        plt.figure(figsize=(6, 6))
+        plt.scatter(points_np[:, 0], points_np[:, 1], s=1, alpha=0.5)  # s 控制点大小
+        plt.xlabel("x")
+        plt.ylabel("y")
+        plt.title("Scatter plot of 20,000 points")
+        plt.show()
+        plt.savefig(path)
+        # Now for the path visualization
+        plt.clf()
+        fig, axes = plt.subplots(1, 10, figsize=(30, 4))  # 1行10列 = 10 个子图
+        data1 = np.array([])
+        axes = axes.flatten()
+        for path_number_ in range(path_number):
+            for path_point_number in path_point_number_list:
+                data1 = np.append(data1, points_dict[path_point_number][path_number_].detach().cpu().numpy())
+        data1 = data1.reshape((path_number, len(path_point_number_list), 2))
+        for i in range(10):
+            ax = axes[i]
+            # 第一条曲线 (来自 data1)
+            ax.plot(data1[i][:, 0], data1[i][:, 1], marker='o', label="curve1")
+            # 第二条曲线 (来自 data2)
+            ax.set_title(f"Sample {i+1}")
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.legend()
+            ax.grid(True)
+            ax.set_aspect("equal")  # 保持比例尺一致
+            # ax.set_xlim(xlim)            # 设置统一的X轴范围
+            # ax.set_ylim(ylim)            # 设置统一的Y轴范围
+
+        plt.tight_layout()
+        process_path = path[:-4] + "_path.png"
+        plt.savefig(process_path)
+        plt.show()
+    def save(self, step_name, image_object = None, loss_history = None):
+        if self.is_lora:
+            if self.is_reinit:
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse/ckpt/{step_name}"
+                os.makedirs(save_path, exist_ok=True)
+                # 保存 LoRA adapter
+                self.smaller_main.save_pretrained(save_path + "/smaller_lora")
+                self.larger_main.save_pretrained(save_path + "/larger_lora")
+                if image_object is not None:
+                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse/images"           
+            else:
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{self.segment_point}/{step_name}"
+                os.makedirs(save_path, exist_ok=True)
+                self.smaller_main.save_pretrained(save_path + "/smaller_lora")
+                self.larger_main.save_pretrained(save_path + "/larger_lora")
+                if image_object is not None:
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{self.segment_point}/images"
+        else:
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_{self.segment_point}/ckpt/{step_name}.pth"
+            if not os.path.exists(os.path.dirname(save_path)):
+                os.makedirs(os.path.dirname(save_path), exist_ok=True)
+            torch.save({
+                "smaller_main": self.smaller_main.state_dict(),
+                "larger_main": self.larger_main.state_dict(),
+                "gamma": self.gamma,
+            }, save_path)
+            if image_object is not None:
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_{self.segment_point}/images"
+        if image_object is not None:
+            os.makedirs(img_save_path, exist_ok=True)
+            self.save_points(image_object, f"{img_save_path}/step_{step_name}.png")
 @torch.no_grad()
 def reinit_lora_modules(name, module, gamma, named_grad, init_mode):
     # r"""
@@ -298,8 +454,16 @@ def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool
             full_x = full_x[:batch_size]
             full_y = full_y[:batch_size]
             return full_x, full_y
-def evaluate_result(vf, data_mode="new", visualize = True, emd_value = True):
+def evaluate_result(vf, data_mode="new", visualize = True, emd_value = True, segment = True):
     # if using nll for evaluation
+    if segment:
+        fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
+        z = vf.sample(20, random_noise = fixed_random_noise)
+        source_x, _ = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode=data_mode)
+        # source_x = torch.tensor(source_x, dtype=torch.float32).to(device)
+        emd_distance = compute_emd_distance(source_x, z[19][:4096].detach().cpu().numpy())
+        print(f"EMD distance is {emd_distance}")
+        return "hello", emd_distance
     vf.eval()
     wrapped_vf = WrappedModel(vf)
     # step size for ode solver
@@ -310,7 +474,8 @@ def evaluate_result(vf, data_mode="new", visualize = True, emd_value = True):
     T = torch.linspace(0,1,10)  # sample times
     T = T.to(device=device)
 
-    solver = ODESolver(velocity_model=wrapped_vf)  # create an ODESolver class  
+    solver = ODESolver(velocity_model=wrapped_vf)  # create an ODESolver class
+    
     if emd_value:
         # step size for ode solver
         step_size = 0.05
@@ -471,29 +636,8 @@ def compute_emd_distance(source_x, target_x):
     # 4. Compute the Earth Mover's Distance
     emd_value = ot.emd2(a, b, cost_matrix)
     return emd_value
-if __name__ == "__main__":
-    import pickle
-    hidden_dim = 512
-    gradient_base = 3
-    gradient_iter = 4000
-    lora_init_mode = "lora-sb"
-    vf = MLP(input_dim=2, time_dim=1, hidden_dim=hidden_dim).to(device)
-    path = "/home/u5649209/workspace/flow_matching/ckpts/weights/raw_model_3999.pth"
-    vf.load_state_dict(torch.load(path, map_location=device))
-    print(path)
-    # lora_config = LoraConfig(
-    #     r=2,
-    #     lora_alpha=4,
-    #     target_modules=["main.0", "main.2", "main.4", "main.6"],  # target Linear layers in MLP
-    #     init_lora_weights="gaussian",
-    # )
-    # vf = get_peft_model(vf, lora_config)
-    # gamma = 49
-  
-    # with open(f'/home/u5649209/workspace/flow_matching/ckpts/raw_model_gradients/fullP_step0_data_new_iter_15000.pkl', 'rb') as f:  # IGNORE
-    #     named_grad = pickle.load(f)
-    # _ = reinit_lora(vf, gamma, named_grad, init_mode = lora_init_mode, lora_config = lora_config)
-    evaluate_result(vf, data_mode="new", visualize=False, emd_value=True)
+
+
 
 
 
@@ -692,3 +836,278 @@ class MeanFlow:
 
         # z = self.normer.unnorm(z)
         return z_dict
+
+class segment_MeanFlow:
+    def __init__(self,
+        channels=1,
+        image_size=32,
+        num_classes=10,
+        normalizer=['minmax', None, None],
+        # mean flow settings
+        flow_ratio=0.50,
+        # time distribution, mu, sigma
+        time_dist=['lognorm', -0.4, 1.0],
+        cfg_ratio=0.10,
+        # set scale as none to disable CFG distill
+        cfg_scale=2.0,
+        # experimental
+        cfg_uncond='v',
+        jvp_api='funtorch',
+        baseline = False,
+        compare_data = None,
+        segment_point = 0.6,
+        is_lora = False, is_reinit = False, gamma = 9, reverse =False):
+        super().__init__()
+        # self.normer = Normalizer.from_list(normalizer)
+        self.time_dist = time_dist
+        self.flow_ratio = flow_ratio
+        if jvp_api == 'funtorch':
+            self.jvp_fn = torch.func.jvp
+            self.create_graph = False
+        elif jvp_api == 'autograd':
+            self.jvp_fn = torch.autograd.functional.jvp
+            self.create_graph = True
+        if baseline:
+            self.flow_ratio = 1.0
+        self.compare_data = None
+        self.is_baseline = baseline
+        # compare_data is for visualization, serves as a baseline path for flow matching model
+        # Normally, baseline is the fft result of baseline model
+        if not compare_data:
+            self.compare_data = compare_data
+
+        
+        lr = 0.001
+        model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse)
+        if is_lora:
+            self.optim = torch.optim.Adam(model.parameters(), lr=lr)
+            self.optim.param_groups[0]['params'] = [p for n, p in model.named_parameters() if 'lora_' in n]
+        else:
+            self.optim = torch.optim.Adam(model.parameters(), lr=lr)
+        self.model = model.to(device)
+
+    def stopgrad(self, x):
+        return x.detach()
+    def load_model(self, path, is_lora = True):
+        if is_lora:
+            self.model.smaller_main = PeftModel.from_pretrained(self.model.smaller_main, f"{path}/smaller_lora")
+            self.model.larger_main = PeftModel.from_pretrained(self.model.larger_main, f"{path}/larger_lora")
+        else:
+            path = path+ ".pth"
+            checkpoint = torch.load(path)
+
+            self.model.smaller_main.load_state_dict(checkpoint["smaller_main"])
+            self.model.larger_main.load_state_dict(checkpoint["larger_main"])
+    def train(self):
+        loss_history = []
+        print_every = 200
+        meanF_step = 20
+        fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
+        for i in range(10000):
+            start_time = time.time()
+            self.optim.zero_grad() 
+            
+            # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
+            x_1, y = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode = "up_shift") # sample data
+            # print(y)
+            x_1 = torch.tensor(x_1).float().to(device)
+
+
+            # Mean flow insert
+            loss, mse_val = self.loss(x_1)
+
+            loss_history.append(loss.item())
+            if i == 0:
+                elapsed = time.time() - start_time
+                print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
+                    .format(i+1, elapsed*1000/print_every, loss.item())) 
+                start_time = time.time()
+                self.model.save(step_name=0)
+            # optimizer step
+            loss.backward() # backward
+            if i==0:
+                elapsed = time.time() - start_time
+                print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
+                    .format(i, elapsed*1000/print_every, loss.item())) 
+                z = self.sample(meanF_step, random_noise = fixed_random_noise)
+                start_time = time.time()
+                self.model.save(i+1, z, loss_history)
+            self.optim.step() # update
+            # log loss
+            if ((i+1) % print_every == 0) or (i in range(10)):
+                elapsed = time.time() - start_time
+                print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
+                    .format(i, elapsed*1000/print_every, loss.item())) 
+                z = self.sample(meanF_step, random_noise = fixed_random_noise)
+                start_time = time.time()
+                self.model.save(i+1, z, loss_history)
+    def adaptive_l2_loss(self, error, gamma=0.5, c=1e-3):
+        """
+        Adaptive L2 loss: sg(w) * ||Δ||_2^2, where w = 1 / (||Δ||^2 + c)^p, p = 1 - γ
+        Args:
+            error: Tensor of shape (B, C, W, H)
+            gamma: Power used in original ||Δ||^{2γ} loss
+            c: Small constant for stability
+        Returns:
+            Scalar loss
+        """
+        delta_sq = torch.mean(error ** 2, dim=(1), keepdim=False)
+        p = 1.0 - gamma
+        w = 1.0 / (delta_sq + c).pow(p)
+        loss = delta_sq  # ||Δ||^2
+        return (self.stopgrad(w) * loss).mean()
+    # fix: r should be always not larger than t
+    def sample_t_r(self, batch_size, device):
+        if self.time_dist[0] == 'uniform':
+            samples = np.random.rand(batch_size, 2).astype(np.float32)
+
+        elif self.time_dist[0] == 'lognorm':
+            mu, sigma = self.time_dist[-2], self.time_dist[-1]
+            normal_samples = np.random.randn(batch_size, 2).astype(np.float32) * sigma + mu
+            samples = 1 / (1 + np.exp(-normal_samples))  # Apply sigmoid
+
+        # Assign t = max, r = min, for each pair
+        t_np = np.maximum(samples[:, 0], samples[:, 1])
+        r_np = np.minimum(samples[:, 0], samples[:, 1])
+
+        num_selected = int(self.flow_ratio * batch_size)
+        indices = np.random.permutation(batch_size)[:num_selected]
+        # flow_ratio controls how many pairs are orginal flow matching t & r
+        r_np[indices] = t_np[indices]
+
+        t = torch.tensor(t_np, device=device)
+        r = torch.tensor(r_np, device=device)
+        return t, r
+
+    def loss(self, x, c=None, gradient_generation=False, return_u = False):
+        batch_size = x.shape[0]
+        device = x.device
+        if gradient_generation and self.flow_ratio < 1.0:
+            self.flow_ratio = 0.0
+        t, r = self.sample_t_r(batch_size, device)
+
+        t_ = rearrange(t, "b -> b 1").detach().clone()
+        r_ = rearrange(r, "b -> b 1").detach().clone()
+        # if gradient_generation:
+        #     t_ = torch.ones_like(t_) * 0.999
+        #     r_ = torch.zeros_like(r_)
+        e = torch.randn_like(x)
+        # x = self.normer.norm(x)
+
+        z = (1 - t_) * x + t_ * e
+        v = e - x
+
+        if c is not None:
+            assert self.cfg_ratio is not None
+            uncond = torch.ones_like(c) * self.num_classes
+            cfg_mask = torch.rand_like(c.float()) < self.cfg_ratio
+            c = torch.where(cfg_mask, uncond, c)
+            if self.w is not None:
+                with torch.no_grad():
+                    u_t = self.model(z, t, t, uncond)
+                v_hat = self.w * v + (1 - self.w) * u_t
+                if self.cfg_uncond == 'v':
+                    # offical JAX repo uses original v for unconditional items
+                    cfg_mask = rearrange(cfg_mask, "b -> b 1 1 1").bool()
+                    v_hat = torch.where(cfg_mask, v, v_hat)
+        else:
+            v_hat = v
+
+        # forward pass
+        u = self.model(z, t, r, y=c)
+        model_partial = partial(self.model, y=c)
+        jvp_args = (
+            lambda z, t, r: model_partial(z, t, r),
+            (z, t, r),
+            (v_hat, torch.ones_like(t), torch.zeros_like(r)),
+        )
+
+        if self.create_graph:
+            u, dudt = self.jvp_fn(*jvp_args, create_graph=True)
+        else:
+            u, dudt = self.jvp_fn(*jvp_args)
+
+        u_tgt = v_hat - (t_ - r_) * dudt
+
+        error = u - self.stopgrad(u_tgt)
+        loss = self.adaptive_l2_loss(error)
+        # loss = torch.pow(error, 2).mean()
+        # loss = F.mse_loss(u, stopgrad(u_tgt))
+
+        mse_val = (self.stopgrad(error) ** 2).mean()
+        if return_u:
+            return loss, mse_val, u, u_tgt, t_, r_
+
+        return loss, mse_val
+    @torch.no_grad()
+    def sample(self, sample_steps = 5, device = 'cuda', random_noise = None):
+        z_dict = {}
+        self.model.eval()
+        if random_noise is not None:
+            z = random_noise.to(device)
+        else:
+            z = torch.randn(20000, 2, device=device)
+        t_vals = torch.linspace(1.0, 0.0, sample_steps + 1, device=device)
+        for i in range(sample_steps):
+            t = torch.full((z.size(0),), t_vals[i], device=device)
+            r = torch.full((z.size(0),), t_vals[i + 1], device=device)
+
+
+            t_ = rearrange(t, "b -> b 1").detach().clone()
+            r_ = rearrange(r, "b -> b 1").detach().clone()
+
+            v = self.model(z, t, r, None)
+            z = z - (t_-r_) * v
+            z_dict[i] = z.detach().cpu()
+
+        # z = self.normer.unnorm(z)
+        return z_dict
+
+
+if __name__ == "__main__":
+    import pickle
+    import sys
+    hidden_dim = 512
+    gradient_base = 3
+    gradient_iter = 4000
+    is_lora = True
+    lora_init_mode = "lora-sb"
+    from peft import PeftModel
+
+    # for seg_ratio in [0.1, 0.3, 0.5, 0.7, 0.9]:
+    for seg_ratio in [0.1]:
+        # lora-one
+        # ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma9_seg_{seg_ratio}_reverse/ckpt"
+        # lora
+        ckpt_path =f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{seg_ratio}"
+        # fft
+        # ckpt_path = "/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_0.1/ckpt"
+        emd_distance_list = []
+        for i in [1, 10, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]:
+            meanflow = segment_MeanFlow(baseline = True, segment_point=0.1, is_lora = False, is_reinit = False, gamma = 9)
+            path = f"{ckpt_path}/{i}"
+            print(path)
+            meanflow.load_model(path, is_lora = is_lora)
+            
+            _, emd_distance = evaluate_result(meanflow, data_mode="up_shift", visualize=False, emd_value=True, segment=True)
+            emd_distance_list.append(emd_distance)
+        # Write emd_distance_list into txt file under ckpt_path
+        # if last dir is ckpt, use parent dir
+        if ckpt_path.split("/")[-1] == "ckpt":
+            ckpt_path = "/".join(ckpt_path.split("/")[:-1])
+        with open(f"{ckpt_path}/emd_distance.txt", "w") as f:
+            for item in emd_distance_list:
+                f.write("%s\n" % item)
+        print(emd_distance_list)
+        # Plot the emd_distance_list with number on the points
+        import matplotlib.pyplot as plt
+        plt.plot(emd_distance_list, marker='o')
+        plt.title("EMD Distance over Checkpoints")
+        plt.xlabel("Checkpoint")
+        plt.ylabel("EMD Distance")
+        plt.xticks(ticks=range(len(emd_distance_list)), labels=range(1, len(emd_distance_list) + 1))
+        plt.grid()
+        plt.savefig(f"{ckpt_path}/emd_distance.png")
+        plt.show()
+
+   

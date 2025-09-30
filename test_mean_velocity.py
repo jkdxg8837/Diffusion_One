@@ -117,7 +117,7 @@ def create_test_mean_flow_model(is_pretrain, is_baseline, is_lora, is_reinit, pr
     elif is_reinit == False:
         if is_baseline:
             print("loading from lora")
-            vf.load_state_dict(torch.load("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_20000.pth", map_location=device))
+            vf.load_state_dict(torch.load("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000.pth", map_location=device))
             path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_16000/{ckpt_number}_new"
         from peft import PeftModel
         vf = PeftModel.from_pretrained(vf, path)

@@ -47,14 +47,14 @@ pretrain_iter = 16000
 is_pre_train = False
 is_lora = True
 is_eval = False 
-is_reinit = True
+is_reinit = False
 is_baseline = True
-gamma = 1
+gamma = 9
 mode = "up_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \
-    "lora-ga", \
+    # "lora-ga", \
     # "lora-sb"\
 ]
 # Baseline for 20; MeanF for 5 or 1
@@ -111,33 +111,33 @@ def save_model(step_name = None, image_object = None, loss_history = None, visua
         if is_lora:
             if is_reinit:
                 if is_baseline:
-                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit/{step_name}_{mode}"
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit_r32/{step_name}_{mode}"
                 else:
                     save_path = f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/{step_name}_{mode}"
                 os.makedirs(save_path, exist_ok=True)
                 vf.save_pretrained(save_path)
                 if image_object is not None:
                     if is_baseline:
-                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit/images-{meanF_step}"
+                        img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}_grad_reinit_r32/images-{meanF_step}"
                     else:
                         img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/{lora_init_mode}_pretrainiter_{pretrain_iter}_{gradient_base}_{gradient_iter}_gamma{gamma}/images-{meanF_step}"           
             else:
                 if is_baseline:
-                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}/{step_name}_{mode}"
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/lora_{pretrain_iter}_r32/{step_name}_{mode}"
                 else:
-                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}/{step_name}_{mode}"
+                    save_path = f"/home/u5649209/workspace/flow_matching/meanf/final_width_compare/lora_{pretrain_iter}_r32/{step_name}_{mode}"
                 os.makedirs(save_path, exist_ok=True)
                 vf.save_pretrained(save_path)
                 if image_object is not None:
                     if is_baseline:
-                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}/images-{meanF_step}"
+                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/lora_{pretrain_iter}_r32/images-{meanF_step}"
                     else:
-                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}/images-{meanF_step}"                   
+                        img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/lora_{pretrain_iter}_r32/images-{meanF_step}"
         else:
             if is_baseline:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/fft_{pretrain_iter}_test/{step_name}_{mode}.pth"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/fft_{pretrain_iter}_test/{step_name}_{mode}.pth"
             else:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/{step_name}_{mode}.pth"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/final_width_compare/fft_{pretrain_iter}/{step_name}_{mode}.pth"
             if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save(vf.state_dict(), save_path)
@@ -148,7 +148,7 @@ def save_model(step_name = None, image_object = None, loss_history = None, visua
                     img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/fft_{pretrain_iter}/images-{meanF_step}"    
     else:
         if is_baseline:
-            save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_{step_name}.pth"
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/weights/raw_model_{step_name}.pth"
         else:
             save_path = f"/home/u5649209/workspace/flow_matching/meanf/weights/raw_model_{step_name}.pth"
         if not os.path.exists(os.path.dirname(save_path)):
@@ -156,7 +156,7 @@ def save_model(step_name = None, image_object = None, loss_history = None, visua
         torch.save(vf.state_dict(), save_path)
         if image_object is not None:
             if is_baseline:
-                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/images-{meanF_step}"
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/final_width_compare/weights/images-{meanF_step}"
             else:
                 img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/weights/images-{meanF_step}"
     if image_object is not None:
@@ -204,7 +204,7 @@ def train_process_mean_flow():
             save_model(i+1, z, loss_history)
         optim.step() # update
         # log loss
-        if ((i+1) % print_every == 0) or (i in [1, 2, 3, 4, 5]):
+        if ((i+1) % print_every == 0) or (i in range(10)):
             elapsed = time.time() - start_time
             print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
                 .format(i, elapsed*1000/print_every, loss.item())) 
@@ -228,9 +228,9 @@ if not is_eval:
         train_process_mean_flow()
     elif is_reinit == False:
         lora_config = LoraConfig(
-            r=2,
-            lora_alpha=4,
-            target_modules=["main.0", "main.2", "main.4", "main.6"],  # target Linear layers in MLP
+            r=32,
+            lora_alpha=64,
+            target_modules=["main.2", "main.4", "main.6"],  # target Linear layers in MLP
             )
         vf = get_peft_model(vf, lora_config)
         optim = torch.optim.Adam(vf.parameters(), lr=lr)
@@ -253,9 +253,9 @@ if not is_eval:
             import pickle
 
             lora_config = LoraConfig(
-                r=2,
-                lora_alpha=4,
-                target_modules=["main.0", "main.2", "main.4", "main.6"],  # target Linear layers in MLP
+                r=32,
+                lora_alpha=64,
+                target_modules=["main.2", "main.4", "main.6"],  # target Linear layers in MLP
                 init_lora_weights="gaussian",
             )
             vf = get_peft_model(vf, lora_config)
