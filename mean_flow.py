@@ -50,7 +50,7 @@ is_eval = False
 is_reinit = False
 is_baseline = True
 gamma = 9
-mode = "up_shift"
+mode = "half_up_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \

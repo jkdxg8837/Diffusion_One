@@ -3,7 +3,7 @@ import time
 import torch
 import numpy as np
 from torch import nn, Tensor
-
+from peft import PeftModel
 # flow_matching
 from flow_matching.path.scheduler import CondOTScheduler
 from flow_matching.path import AffineProbPath
@@ -184,7 +184,12 @@ class seg_MFMLP(nn.Module):
             self.smaller_main = get_peft_model(self.smaller_main, lora_config)
             self.larger_main = get_peft_model(self.larger_main, lora_config)
             
-            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/full_sample_up_shift.pkl", 'rb') as f:
+            # with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/full_sample_up_shift.pkl", 'rb') as f:
+            # 必须马上改回来
+            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/old_loraone_up_shift.pkl", 'rb') as f:
+                named_grad = pickle.load(f)
+            # 必须马上改回来 x2
+            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_half_up_shift_grad_5000.pkl", 'rb') as f:
                 named_grad = pickle.load(f)
             if not self.reverse:
                 _ = reinit_lora(self.smaller_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
@@ -270,22 +275,22 @@ class seg_MFMLP(nn.Module):
     def save(self, step_name, image_object = None, loss_history = None):
         if self.is_lora:
             if self.is_reinit:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse/ckpt/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_{self.gamma}_seg_{self.segment_point}_reverse/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 # 保存 LoRA adapter
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse/images"           
+                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_{self.gamma}_seg_{self.segment_point}_reverse/images"           
             else:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{self.segment_point}/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{self.segment_point}/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{self.segment_point}/images"
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{self.segment_point}/images"
         else:
-            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_{self.segment_point}/ckpt/{step_name}.pth"
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_half_seg_{self.segment_point}/{step_name}.pth"
             if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save({
@@ -294,7 +299,7 @@ class seg_MFMLP(nn.Module):
                 "gamma": self.gamma,
             }, save_path)
             if image_object is not None:
-                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_{self.segment_point}/images"
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_half_seg_{self.segment_point}/images"
         if image_object is not None:
             os.makedirs(img_save_path, exist_ok=True)
             self.save_points(image_object, f"{img_save_path}/step_{step_name}.png")
@@ -314,7 +319,6 @@ def reinit_lora_modules(name, module, gamma, named_grad, init_mode):
 
         grads = -grads.cuda().float()
         m, n = grads.shape
-
         grads = grads * (m**0.5)
         U, S, V = torch.linalg.svd(grads)
         B = U[:, :lora_r] @ torch.diag(torch.sqrt(S[:lora_r])) / torch.sqrt(S[0])
@@ -402,7 +406,23 @@ def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool
         full_x, full_y = make_moons(n_samples=batch_size, noise=0, random_state=42)
         return full_x, full_y
     else:
-        if mode != "raw":
+        if "half" in mode:
+            n_sample_out = batch_size
+            out_variable = np.linspace(-1, 1, n_sample_out)
+            mask = out_variable <= 0
+            out_variable_leq_05 = out_variable[mask]
+            out_variable_gt_05 = out_variable[~mask]
+            outer_gt_05_x = np.cos(out_variable_gt_05 * np.pi / 2)
+            outer_gt_05_y = np.sin(out_variable_gt_05 * np.pi / 2)
+
+            outer_leq_05_x = out_variable_leq_05
+            outer_leq_05_y = outer_leq_05_x + 1
+            X=np.vstack([np.append(outer_leq_05_x, outer_gt_05_x), np.append(outer_leq_05_y, outer_gt_05_y)]).T
+            y = np.hstack([np.zeros(n_sample_out, dtype=np.intp)])
+            if mode == "half_up_shift":
+                X[:, 1] += 0.25
+            return X, y
+        elif mode != "raw":
             n_sample_out = batch_size // 2
             n_sample_in = batch_size - n_sample_out
             out_variable = np.linspace(-1, 1, n_sample_out)
@@ -856,7 +876,7 @@ class segment_MeanFlow:
         baseline = False,
         compare_data = None,
         segment_point = 0.6,
-        is_lora = False, is_reinit = False, gamma = 9, reverse =False):
+        is_lora = False, is_reinit = False, gamma = 9, reverse =False, data_mode = "half_up_shift"):
         super().__init__()
         # self.normer = Normalizer.from_list(normalizer)
         self.time_dist = time_dist
@@ -876,7 +896,7 @@ class segment_MeanFlow:
         if not compare_data:
             self.compare_data = compare_data
 
-        
+        self.data_mode = data_mode
         lr = 0.001
         model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse)
         if is_lora:
@@ -908,7 +928,7 @@ class segment_MeanFlow:
             self.optim.zero_grad() 
             
             # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
-            x_1, y = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode = "up_shift") # sample data
+            x_1, y = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode = self.data_mode) # sample data
             # print(y)
             x_1 = torch.tensor(x_1).float().to(device)
 
@@ -1071,25 +1091,24 @@ if __name__ == "__main__":
     gradient_base = 3
     gradient_iter = 4000
     is_lora = True
-    lora_init_mode = "lora-sb"
-    from peft import PeftModel
+    
 
-    # for seg_ratio in [0.1, 0.3, 0.5, 0.7, 0.9]:
-    for seg_ratio in [0.1]:
+    for seg_ratio in [0.0, 0.9, 0.7, 0.5, 0.3, 0.1]:
+    # for seg_ratio in [0.0]:
         # lora-one
-        # ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_one_gamma9_seg_{seg_ratio}_reverse/ckpt"
+        ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_9_seg_{seg_ratio}_reverse/ckpt"
         # lora
-        ckpt_path =f"/home/u5649209/workspace/flow_matching/meanf/seg/lora_seg_{seg_ratio}"
+        # ckpt_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{seg_ratio}/ckpt"
         # fft
-        # ckpt_path = "/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_0.1/ckpt"
+        # ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{seg_ratio}/ckpt"
         emd_distance_list = []
-        for i in [1, 10, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]:
-            meanflow = segment_MeanFlow(baseline = True, segment_point=0.1, is_lora = False, is_reinit = False, gamma = 9)
+        for i in [1, 10, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]:
+            meanflow = segment_MeanFlow(baseline = True, segment_point=seg_ratio, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
             path = f"{ckpt_path}/{i}"
             print(path)
             meanflow.load_model(path, is_lora = is_lora)
             
-            _, emd_distance = evaluate_result(meanflow, data_mode="up_shift", visualize=False, emd_value=True, segment=True)
+            _, emd_distance = evaluate_result(meanflow, data_mode="half_up_shift", visualize=False, emd_value=True, segment=True)
             emd_distance_list.append(emd_distance)
         # Write emd_distance_list into txt file under ckpt_path
         # if last dir is ckpt, use parent dir

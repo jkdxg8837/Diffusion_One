@@ -38,7 +38,7 @@ import os
 # training arguments
 lr = 0.001
 batch_size = 4096
-iterations = 100
+iterations = 5000
 # iterations = 10000
 print_every = 50
 hidden_dim = 512
@@ -49,8 +49,8 @@ is_pre_train = False
 is_lora = True
 is_eval = False 
 is_reinit = True
-gamma = 100
-mode = "up_shift"
+
+mode = "half_up_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \
@@ -113,7 +113,6 @@ class special_MeanFlow(MeanFlow):
 meanflow = special_MeanFlow(baseline = is_baseline)
 u_list = np.array([])
 u_tgt_list = np.array([])
-iterations = 1
 for i in range(iterations):
     # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
     x_1, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=is_pre_train, mode = mode) # sample data
@@ -130,18 +129,18 @@ for i in range(iterations):
 
 
     # New gradient method, path loss
-    gth_path = np.load('/home/u5649209/workspace/flow_matching/fft_baseline_path.npy')
-    gth_path = gth_path[:, 1:, :]   # shape -> (20000, 20, 2)
-    gth_path = gth_path.swapaxes(0, 1)
-    gth_path = torch.tensor(gth_path).float().to(device)
-    fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
-    pred_x_dict = meanflow.sample(vf, fixed_random_noise, 20)
-    # Convert dict to tensor
-    pred_path = []
-    for key in pred_x_dict.keys():
-        pred_path.append(pred_x_dict[key].unsqueeze(0))
-    pred_path = torch.cat(pred_path, dim=0).to(device)  # shape -> (20, 20000, 2)
-    loss = nn.MSELoss()(pred_path, gth_path)
+    # gth_path = np.load('/home/u5649209/workspace/flow_matching/fft_baseline_path.npy')
+    # gth_path = gth_path[:, 1:, :]   # shape -> (20000, 20, 2)
+    # gth_path = gth_path.swapaxes(0, 1)
+    # gth_path = torch.tensor(gth_path).float().to(device)
+    # fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
+    # pred_x_dict = meanflow.sample(vf, fixed_random_noise, 20)
+    # # Convert dict to tensor
+    # pred_path = []
+    # for key in pred_x_dict.keys():
+    #     pred_path.append(pred_x_dict[key].unsqueeze(0))
+    # pred_path = torch.cat(pred_path, dim=0).to(device)  # shape -> (20, 20000, 2)
+    # loss = nn.MSELoss()(pred_path, gth_path)
     # loss = 0
 
     loss_history.append(loss.item())
@@ -179,5 +178,5 @@ for key in layer_gradients.keys():
 import pickle
 
 # If using pretrained gradients, use this save
-with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}_path_grad.pkl", "wb") as f:
+with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}_grad_5000.pkl", "wb") as f:
     pickle.dump(layer_gradients, f)
