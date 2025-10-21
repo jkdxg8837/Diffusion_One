@@ -49,11 +49,11 @@ is_eval = False
 is_reinit = True
 is_baseline = True
 gamma = 9
-mode = "half_up_shift"
+mode = "up_down_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \
-    # "lora-ga", \
+    "lora-ga", \
     # "lora-sb"\
 ]
 # Baseline for 20; MeanF for 5 or 1
@@ -62,11 +62,10 @@ if is_baseline:
 else:
     meanF_step = 5
 if is_reinit:
-    for segment_point in [0.0, 0.9, 0.7, 0.5, 0.3, 0.1]:
-    # for segment_point in [0.1, 0.3, 0.5, 0.7, 0.9]:
-        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True)
+    for segment_point in [0.0]:
+        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode)
         meanflow.train()
 else:
-    for segment_point in [0.0]:
-        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True)
+    for segment_point in [0.0, 0.1]:
+        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode)
         meanflow.train()

@@ -54,7 +54,7 @@ is_eval = False
 is_reinit = False
 is_baseline = True
 gamma = 100
-mode = "up_shift"
+mode = "up_down_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \
@@ -98,28 +98,33 @@ class special_MeanFlow(MeanFlow):
 # meanflow = MeanFlow(baseline = is_baseline)
 
 
-ckpt_number_list = [1, 10, 200, 1000]
-
+# ckpt_number_list = [1, 10, 200, 400, 1000, 5000, 10000]
+ckpt_number_list = [10000, 10, 200, 400, 1000, 5000]
 from flow_matching_utils import compute_emd_distance
 source_x, _ = train_moon_gen(batch_size=20000, device=device, is_pretrain=False, mode=mode)
-
+fft_data_target_filter_dict = {}
+lora_data_target_filter_dict = {}
+lora_one_data_target_filter_dict = {}
+fft_filter_idx = None
+lora_filter_idx = None
+lora_one_filter_idx = None
 for ckpt_number in ckpt_number_list:
     # Load fft
     fft_model_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg/fft_seg_0.0/ckpt"
-    # path = f"{ckpt_path}/{ckpt_number}"
-    path = f"{ckpt_path}/10000"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_0.0_up_down_shift/ckpt"
+    path = f"{ckpt_path}/{ckpt_number}"
+    # path = f"{ckpt_path}/10000"
     print(path)
     fft_model_mf.load_model(path, is_lora = False)
     # Load Lora
     lora_model_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=False)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_0.0/ckpt"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_0.0_up_down_shift/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
     lora_model_mf.load_model(path, is_lora = True)
     # Load Lora+Lora-one
     failed_lora_one_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=False)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma9_seg_0.0_reverse_ooooold/ckpt"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma9_seg_0.0_reverse_up_down_shift/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
     failed_lora_one_mf.load_model(path, is_lora = True)
@@ -131,7 +136,7 @@ for ckpt_number in ckpt_number_list:
     seg_lora_mf.load_model(path, is_lora = True)
     # Load Seg-lora+Lora-one
     seg_loraone_mf = MeanFlow(baseline = True, segment_point=0.1, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma9_seg_0.1_reverse/ckpt"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora-one/lora_one_gamma9_seg_0.1_reverse/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
     seg_loraone_mf.load_model(path, is_lora = True)
@@ -303,20 +308,6 @@ for ckpt_number in ckpt_number_list:
     def plot(data1, data2, data3 = None, data4 = None):
         # 1. 找到所有数据的全局范围
         all_data = np.concatenate([data1[:path_number], data2[:path_number], data3[:path_number], data4[:path_number]], axis=0)
-        x_min, y_min = all_data[..., 0].min(), all_data[..., 1].min()
-        x_max, y_max = all_data[..., 0].max(), all_data[..., 1].max()
-
-        # 2. 计算最大跨度，并增加一点边距 (padding)
-        x_range = x_max - x_min
-        y_range = y_max - y_min
-        max_range = max(x_range, y_range) * 1.01  # 增加1%的边距
-
-        # 3. 计算新的中心点和统一的坐标限制
-        x_center = (x_max + x_min) / 2
-        y_center = (y_max + y_min) / 2
-        
-        xlim = [x_center - max_range / 2, x_center + max_range / 2]
-        ylim = [y_center - max_range / 2, y_center + max_range / 2]
 
         # fig, axes = plt.subplots(1, path_number, figsize=(30 / 10 * path_number, 4 / 10 * path_number))  # 1行10列 = 10 个子图
         fig, axes = plt.subplots(4, 4, figsize=(10 / 10 * path_number, 10 / 10 * path_number))  # 1行10列 = 10 个子图
@@ -443,35 +434,117 @@ for ckpt_number in ckpt_number_list:
         plt.xlabel('X')
         plt.ylabel('Y')
         plt.show()
-        plt.savefig(f'./fig1/{path_number}grid_plot{ckpt_number}_m3_newone_is_better_higher_half.png')
+        plt.savefig(f'./fig1-1/{path_number}grid_plot{ckpt_number}_m3_newone_is_better_higher_half.png')
+    def point_to_polyline_distance(point, polyline):
+        """
+        计算一个点到由若干点组成的折线的最短距离。
+
+        参数:
+            point: (2,) ndarray
+            polyline: (N, 2) ndarray
+
+        返回:
+            min_dist: float, 最短距离
+            closest_point: (2,) ndarray, 折线上距离该点最近的点坐标
+        """
+        p = np.array(point)
+        min_dist = float('inf')
+        closest_point = None
+
+        for i in range(len(polyline) - 1):
+            a = polyline[i]
+            b = polyline[i + 1]
+            ab = b - a
+            ap = p - a
+            t = np.dot(ap, ab) / np.dot(ab, ab)
+            t = np.clip(t, 0, 1)  # 限制在线段内
+            projection = a + t * ab  # 投影点
+            dist = np.linalg.norm(p - projection)
+            if dist < min_dist:
+                min_dist = dist
+                closest_point = projection
+
+        return min_dist, closest_point
+    from tqdm import tqdm
+    def plot_target_filter(data):
+        target_point = data[:, -1, :]
+        data_points, _ = train_moon_gen(4000, device=device, is_pretrain=False, mode="up_shift")
+        distance_list = []
+        for idx in tqdm(range(2000)):
+            distance, _ = point_to_polyline_distance(target_point[idx], data_points)
+            distance_list.append(distance)
+        distance_list = np.array(distance_list)
+        
+        sorted_idx = np.argsort(distance_list)
+        filtered_idx = sorted_idx[:100]
+        # Shuffle sorted_idx
+        np.random.seed(42)
+        np.random.shuffle(filtered_idx)
+        # filtered_idx.sort()
+        # filtered_data = data[filtered_idx]
+        return filtered_idx
+    
     data1 = data1.reshape((path_number, len(path_point_number_list) + 1, 2))
     data2 = data2.reshape((path_number, len(path_point_number_list) + 1, 2))
 
     data3 = data3.reshape((path_number, len(path_point_number_list) + 1, 2))
     data4 = data4.reshape((path_number, len(path_point_number_list) + 1, 2))
 
-    data_m2, data_m3, data_m4 = plot_diff(data1, data2, data3, data4)
-    plot_grid(data1[:, -1, :], data2[:, -1, :], data3[:, -1, :], np.array(data_m2)[:,15], np.array(data_m3)[:,15], np.array(data_m4)[:,15])
+    data_m2, data_m3, data_m4 = plot_diff(data1,data2, data3, data4)
+    plot_grid(data1[:, 0, :], data2[:, 0, :], data3[:, 0, :], np.array(data_m2)[:,15], np.array(data_m3)[:,15], np.array(data_m4)[:,15])
     # visualize data1
-    plt.figure(figsize=(8, 6))
-    plt.scatter(data1[:, -1, 0], data1[:, -1, 1], c='blue', label='FFT', alpha=0.5)
-    plt.scatter(data2[:, -1, 0], data2[:, -1, 1], c='orange', label='Lora', alpha=0.5)
-    plt.scatter(data3[:, -1, 0], data3[:, -1, 1], c='green', label='Failed Lora-One', alpha=0.5)
-    plt.scatter(data4[:, -1, 0], data4[:, -1, 1], c='red', label='Seg Lora-One', alpha=0.5)
-    plt.title(f'Scatter Plot of Final Points at ckpt {ckpt_number}')
-    plt.xlabel('X-axis')
-    plt.ylabel('Y-axis')
-    plt.legend()
-    plt.grid(True)
-    if is_baseline:
-        plt.savefig(f'./fig1/{path_number}scatter_plot_{ckpt_number}_base.png')
-    else:
-        plt.savefig(f'./fig1/{path_number}scatter_plot_{ckpt_number}.png')
-    plt.show()
+    # if ckpt_number == 10000:
+    #     fft_filter_idx = plot_target_filter(data1)
+    #     # lora_filter_idx = plot_target_filter(data2)
+    #     # lora_one_filter_idx = plot_target_filter(data3)
+    #     fft_data_target_filter_dict[ckpt_number] = data1[fft_filter_idx]
+    #     lora_data_target_filter_dict[ckpt_number] = data2[fft_filter_idx]
+    #     lora_one_data_target_filter_dict[ckpt_number] = data3[fft_filter_idx]
+    # else:
+    #     fft_data_target_filter_dict[ckpt_number] = data1[fft_filter_idx]
+    #     lora_data_target_filter_dict[ckpt_number] = data2[fft_filter_idx]
+    #     lora_one_data_target_filter_dict[ckpt_number] = data3[fft_filter_idx]
 
     # plot(data1, data2, data3, data4)
 
+def plot_target_visualize(data_dict, name):
+    """
+    data_dict:
+        key: ckpt 名称
+        value: shape = [20, N, 2]
+    功能:
+        画出 16 个子图，每个子图对应同一个 path 的不同 ckpt 曲线
+    """
+    os.makedirs('./fig_target', exist_ok=True)
+    path_number = 16  # 前 16 条路径
 
+    ckpt_names = list(data_dict.keys())
+    n_ckpt = len(ckpt_names)
+
+    # 创建 4x4 网格的子图
+    fig, axes = plt.subplots(4, 4, figsize=(16, 12))
+    axes = axes.flatten()
+
+    for i in range(path_number):
+        ax = axes[i]
+        for ckpt, data in data_dict.items():
+            ax.plot(data[i, :, 0], data[i, :, 1], label=ckpt)
+        ax.set_title(f'Path {i}', fontsize=10)
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+
+        # 仅在左上角几个子图显示图例，避免太密集
+        if i == 0:
+            ax.legend(fontsize=8)
+
+    # 调整布局
+    plt.suptitle(f'Target Visualization - {name}', fontsize=14)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    plt.savefig(f'./fig_target/target_visualize_{name}_grid_up_down_shift.png', dpi=300)
+    plt.show()
+# plot_target_visualize(fft_data_target_filter_dict, "FFT")
+# plot_target_visualize(lora_data_target_filter_dict, "Lora")
+# plot_target_visualize(lora_one_data_target_filter_dict, "Lora-One")
 
 
 # Try to get some qualititative results

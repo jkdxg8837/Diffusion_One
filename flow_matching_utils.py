@@ -144,7 +144,7 @@ class MFMLP(nn.Module):
 # Model class
 import os
 class seg_MFMLP(nn.Module):
-    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 512, segment_point=0.5, is_lora = True, is_reinit = True, reverse = False):
+    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 512, segment_point=0.5, is_lora = True, is_reinit = True, reverse = False, data_mode = "up_down_shift"):
         super().__init__()
 
         self.input_dim = input_dim
@@ -160,6 +160,7 @@ class seg_MFMLP(nn.Module):
         self.is_reinit = is_reinit
         self.reverse = reverse
         self.init_weights(is_lora = is_lora, is_reinit = is_reinit)
+        self.data_mode = data_mode
     def init_weights(self, is_lora = False, is_reinit = False):
         state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000.pth", map_location=device)
         self.smaller_main.load_state_dict(state_dict)
@@ -189,7 +190,8 @@ class seg_MFMLP(nn.Module):
             with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/old_loraone_up_shift.pkl", 'rb') as f:
                 named_grad = pickle.load(f)
             # 必须马上改回来 x2
-            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_half_up_shift_grad_5000.pkl", 'rb') as f:
+            # with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_half_up_shift_grad_5000.pkl", 'rb') as f:
+            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_up_down_shift_grad_1.pkl", 'rb') as f:
                 named_grad = pickle.load(f)
             if not self.reverse:
                 _ = reinit_lora(self.smaller_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
@@ -275,22 +277,22 @@ class seg_MFMLP(nn.Module):
     def save(self, step_name, image_object = None, loss_history = None):
         if self.is_lora:
             if self.is_reinit:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_{self.gamma}_seg_{self.segment_point}_reverse/ckpt/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_1step/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 # 保存 LoRA adapter
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_{self.gamma}_seg_{self.segment_point}_reverse/images"           
+                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_1step/images"           
             else:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{self.segment_point}/ckpt/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_{self.segment_point}_{self.data_mode}/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{self.segment_point}/images"
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_{self.segment_point}_{self.data_mode}/images"
         else:
-            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_half_seg_{self.segment_point}/{step_name}.pth"
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{self.segment_point}_{self.data_mode}/{step_name}.pth"
             if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save({
@@ -299,7 +301,7 @@ class seg_MFMLP(nn.Module):
                 "gamma": self.gamma,
             }, save_path)
             if image_object is not None:
-                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_half_seg_{self.segment_point}/images"
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{self.segment_point}_{self.data_mode}/images"
         if image_object is not None:
             os.makedirs(img_save_path, exist_ok=True)
             self.save_points(image_object, f"{img_save_path}/step_{step_name}.png")
@@ -466,6 +468,9 @@ def train_moon_gen(batch_size: int = 200, device: str = "cpu", is_pretrain: bool
             )
             if mode == "up_shift":
                 X[:, 1] += 0.25
+            elif mode == "up_down_shift":
+                X[:n_sample_out, 1] += 0.25
+                X[n_sample_out:, 1] -= 0.5
             return X, y
         else:
             full_x, full_y = make_moons(n_samples=3 * batch_size, noise=0, random_state=42)
@@ -481,8 +486,8 @@ def evaluate_result(vf, data_mode="new", visualize = True, emd_value = True, seg
         z = vf.sample(20, random_noise = fixed_random_noise)
         source_x, _ = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode=data_mode)
         # source_x = torch.tensor(source_x, dtype=torch.float32).to(device)
-        emd_distance = compute_emd_distance(source_x, z[19][:4096].detach().cpu().numpy())
-        print(f"EMD distance is {emd_distance}")
+        emd_distance = compute_emd_distance(source_x, z[19][:4096].detach().cpu().numpy()) * 1000
+        # print(f"EMD distance is {emd_distance}")
         return "hello", emd_distance
     vf.eval()
     wrapped_vf = WrappedModel(vf)
@@ -898,7 +903,7 @@ class segment_MeanFlow:
 
         self.data_mode = data_mode
         lr = 0.001
-        model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse)
+        model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse, data_mode = data_mode)
         if is_lora:
             self.optim = torch.optim.Adam(model.parameters(), lr=lr)
             self.optim.param_groups[0]['params'] = [p for n, p in model.named_parameters() if 'lora_' in n]
@@ -1090,26 +1095,32 @@ if __name__ == "__main__":
     hidden_dim = 512
     gradient_base = 3
     gradient_iter = 4000
-    is_lora = True
+    is_lora = False
     
 
-    for seg_ratio in [0.0, 0.9, 0.7, 0.5, 0.3, 0.1]:
-    # for seg_ratio in [0.0]:
+    # for seg_ratio in [0.0, 0.1, 0.3, 0.5, 0.7, 0.9]:
+    for seg_ratio in [0.0]:
         # lora-one
-        ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma_half_9_seg_{seg_ratio}_reverse/ckpt"
+        # ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma9_seg_{seg_ratio}_reverse_up_down_shift/ckpt"
         # lora
-        # ckpt_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_half_seg_{seg_ratio}/ckpt"
+        # ckpt_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_{seg_ratio}_up_down_shift/ckpt"
         # fft
-        # ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{seg_ratio}/ckpt"
+        ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{seg_ratio}_up_down_shift/ckpt"
         emd_distance_list = []
+        best_step = -1
+        best_emd = 1e10
         for i in [1, 10, 200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000]:
             meanflow = segment_MeanFlow(baseline = True, segment_point=seg_ratio, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
             path = f"{ckpt_path}/{i}"
-            print(path)
+            # print(path)
             meanflow.load_model(path, is_lora = is_lora)
             
-            _, emd_distance = evaluate_result(meanflow, data_mode="half_up_shift", visualize=False, emd_value=True, segment=True)
+            _, emd_distance = evaluate_result(meanflow, data_mode="up_down_shift", visualize=False, emd_value=True, segment=True)
+            if emd_distance < best_emd:
+                best_emd = emd_distance
+                best_step = i
             emd_distance_list.append(emd_distance)
+        print(f"Best step is {best_step} with EMD {best_emd}")
         # Write emd_distance_list into txt file under ckpt_path
         # if last dir is ckpt, use parent dir
         if ckpt_path.split("/")[-1] == "ckpt":

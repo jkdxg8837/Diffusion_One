@@ -38,7 +38,7 @@ import os
 # training arguments
 lr = 0.001
 batch_size = 4096
-iterations = 5000
+iterations = 1
 # iterations = 10000
 print_every = 50
 hidden_dim = 512
@@ -50,7 +50,7 @@ is_lora = True
 is_eval = False 
 is_reinit = True
 
-mode = "half_up_shift"
+mode = "up_down_shift"
 loss_history = []
 lora_init_mode_list = [\
     "lora-one", \
@@ -83,6 +83,7 @@ for name, param in vf.named_parameters():
         hooks.append(hook) 
 # Load path from which checkpoint
 # state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
+# /home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000
 dir_path = f'/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights'
 state_dict_path = f'{dir_path}/raw_model_{pretrain_iter}.pth'
 state_dict = torch.load(state_dict_path, map_location=device)
@@ -126,7 +127,7 @@ for i in range(iterations):
     loss, mse_val, u, u_tgt, end_point, start_point= meanflow.loss(vf, x_1, None, False, True)
     u_list = np.concatenate((u_list, u.detach().cpu().numpy()), axis=0) if u_list.size else u.detach().cpu().numpy()
     u_tgt_list = np.concatenate((u_tgt_list, u_tgt.detach().cpu().numpy()), axis=0) if u_tgt_list.size else u_tgt.detach().cpu().numpy()
-
+    
 
     # New gradient method, path loss
     # gth_path = np.load('/home/u5649209/workspace/flow_matching/fft_baseline_path.npy')
@@ -142,6 +143,9 @@ for i in range(iterations):
     # pred_path = torch.cat(pred_path, dim=0).to(device)  # shape -> (20, 20000, 2)
     # loss = nn.MSELoss()(pred_path, gth_path)
     # loss = 0
+
+
+    # DMD method, using kl divergence as loss to predict the whole domain gap
 
     loss_history.append(loss.item())
     if i == 0:
@@ -178,5 +182,5 @@ for key in layer_gradients.keys():
 import pickle
 
 # If using pretrained gradients, use this save
-with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}_grad_5000.pkl", "wb") as f:
+with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}_grad_1.pkl", "wb") as f:
     pickle.dump(layer_gradients, f)
