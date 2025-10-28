@@ -144,7 +144,8 @@ class MFMLP(nn.Module):
 # Model class
 import os
 class seg_MFMLP(nn.Module):
-    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 512, segment_point=0.5, is_lora = True, is_reinit = True, reverse = False, data_mode = "up_down_shift"):
+    def __init__(self, input_dim: int = 2, time_dim: int = 1, hidden_dim: int = 512, segment_point=0.5, is_lora = True, is_reinit = True, reverse = False, data_mode = "up_down_shift", gamma =4, 
+                 batch_size_scale = 1):
         super().__init__()
 
         self.input_dim = input_dim
@@ -155,12 +156,13 @@ class seg_MFMLP(nn.Module):
 
         self.smaller_main = MFMLP(input_dim=input_dim, time_dim=time_dim, hidden_dim=hidden_dim)
         self.larger_main = MFMLP(input_dim=input_dim, time_dim=time_dim, hidden_dim=hidden_dim)
-        self.gamma = 9
+        self.gamma = gamma
         self.is_lora = is_lora
         self.is_reinit = is_reinit
         self.reverse = reverse
-        self.init_weights(is_lora = is_lora, is_reinit = is_reinit)
+        self.batch_size_scale = batch_size_scale
         self.data_mode = data_mode
+        self.init_weights(is_lora = is_lora, is_reinit = is_reinit)
     def init_weights(self, is_lora = False, is_reinit = False):
         state_dict = torch.load(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000.pth", map_location=device)
         self.smaller_main.load_state_dict(state_dict)
@@ -191,15 +193,16 @@ class seg_MFMLP(nn.Module):
                 named_grad = pickle.load(f)
             # 必须马上改回来 x2
             # with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_half_up_shift_grad_5000.pkl", 'rb') as f:
-            with open("/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_up_down_shift_grad_1.pkl", 'rb') as f:
+            # with open(f"/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/pretrained_16000_up_down_shift_grad_{self.batch_size_scale}.pkl", 'rb') as f:
+            with open("/home/u5649209/workspace/flow_matching/temp_gradient_100.pkl", 'rb') as f:
                 named_grad = pickle.load(f)
             if not self.reverse:
-                _ = reinit_lora(self.smaller_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
+                _ = reinit_lora(self.smaller_main, self.gamma, named_grad, init_mode = "lora-ga", lora_config = lora_config)
                 for param in self.smaller_main.parameters():
                     param.data = param.data.contiguous()
                 print("Smaller main reinit done")
             else:
-                _ = reinit_lora(self.larger_main, self.gamma, named_grad, init_mode = "lora-one", lora_config = lora_config)
+                _ = reinit_lora(self.larger_main, self.gamma, named_grad, init_mode = "lora-ga", lora_config = lora_config)
                 for param in self.larger_main.parameters():
                     param.data = param.data.contiguous()
                 print("Larger main reinit done")
@@ -269,7 +272,6 @@ class seg_MFMLP(nn.Module):
             ax.set_aspect("equal")  # 保持比例尺一致
             # ax.set_xlim(xlim)            # 设置统一的X轴范围
             # ax.set_ylim(ylim)            # 设置统一的Y轴范围
-
         plt.tight_layout()
         process_path = path[:-4] + "_path.png"
         plt.savefig(process_path)
@@ -277,22 +279,22 @@ class seg_MFMLP(nn.Module):
     def save(self, step_name, image_object = None, loss_history = None):
         if self.is_lora:
             if self.is_reinit:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_1step/ckpt/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_ga_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_100/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 # 保存 LoRA adapter
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_1step/images"           
+                    img_save_path =f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_ga_gamma{self.gamma}_seg_{self.segment_point}_reverse_{self.data_mode}_100/images"
             else:
-                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_{self.segment_point}_{self.data_mode}/ckpt/{step_name}"
+                save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_seg_{self.segment_point}_{self.data_mode}_100/ckpt/{step_name}"
                 os.makedirs(save_path, exist_ok=True)
                 self.smaller_main.save_pretrained(save_path + "/smaller_lora")
                 self.larger_main.save_pretrained(save_path + "/larger_lora")
                 if image_object is not None:
-                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_{self.segment_point}_{self.data_mode}/images"
+                    img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_seg_{self.segment_point}_{self.data_mode}_100/images"
         else:
-            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{self.segment_point}_{self.data_mode}/{step_name}.pth"
+            save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/fft_seg_{self.segment_point}_{self.data_mode}_100/{step_name}.pth"
             if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(os.path.dirname(save_path), exist_ok=True)
             torch.save({
@@ -301,7 +303,7 @@ class seg_MFMLP(nn.Module):
                 "gamma": self.gamma,
             }, save_path)
             if image_object is not None:
-                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_{self.segment_point}_{self.data_mode}/images"
+                img_save_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/fft_seg_{self.segment_point}_{self.data_mode}_100/images"
         if image_object is not None:
             os.makedirs(img_save_path, exist_ok=True)
             self.save_points(image_object, f"{img_save_path}/step_{step_name}.png")
@@ -790,7 +792,12 @@ class MeanFlow:
         # if gradient_generation:
         #     t_ = torch.ones_like(t_) * 0.999
         #     r_ = torch.zeros_like(r_)
+        # print("For 100 fixed point test~!!!!!!!!!!!")
         e = torch.randn_like(x)
+        # e = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
+        # e = e[:x.shape[0], :]
+
+
         # x = self.normer.norm(x)
 
         z = (1 - t_) * x + t_ * e
@@ -881,7 +888,8 @@ class segment_MeanFlow:
         baseline = False,
         compare_data = None,
         segment_point = 0.6,
-        is_lora = False, is_reinit = False, gamma = 9, reverse =False, data_mode = "half_up_shift"):
+        is_lora = False, is_reinit = False, gamma = 9, reverse =False, data_mode = "half_up_shift",
+        batch_size_scale = 1):
         super().__init__()
         # self.normer = Normalizer.from_list(normalizer)
         self.time_dist = time_dist
@@ -900,10 +908,10 @@ class segment_MeanFlow:
         # Normally, baseline is the fft result of baseline model
         if not compare_data:
             self.compare_data = compare_data
-
+        self.batch_size_scale = batch_size_scale
         self.data_mode = data_mode
-        lr = 0.001
-        model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse, data_mode = data_mode)
+        lr = 0.001 * batch_size_scale
+        model = seg_MFMLP(segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, reverse = reverse, data_mode = data_mode, gamma=gamma, batch_size_scale = batch_size_scale)
         if is_lora:
             self.optim = torch.optim.Adam(model.parameters(), lr=lr)
             self.optim.param_groups[0]['params'] = [p for n, p in model.named_parameters() if 'lora_' in n]
@@ -925,18 +933,19 @@ class segment_MeanFlow:
             self.model.larger_main.load_state_dict(checkpoint["larger_main"])
     def train(self):
         loss_history = []
-        print_every = 200
+        print_every = 2000
         meanF_step = 20
         fixed_random_noise = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
-        for i in range(10000):
+        for i in range(10):
             start_time = time.time()
             self.optim.zero_grad() 
             
             # sample data (user's responsibility): in this case, (X_0,X_1) ~ pi(X_0,X_1) = N(X_0|0,I)q(X_1)
-            x_1, y = train_moon_gen(batch_size=4096, device=device, is_pretrain=False, mode = self.data_mode) # sample data
+            x_1, y = train_moon_gen(batch_size=4096 * self.batch_size_scale, device=device, is_pretrain=False, mode = self.data_mode) # sample data
             # print(y)
             x_1 = torch.tensor(x_1).float().to(device)
-
+            x_fixed_100 = torch.load("/home/u5649209/workspace/flow_matching/fixed_100_target_point.pt").to(device)
+            x_1 = x_fixed_100
 
             # Mean flow insert
             loss, mse_val = self.loss(x_1)
@@ -959,7 +968,7 @@ class segment_MeanFlow:
                 self.model.save(i+1, z, loss_history)
             self.optim.step() # update
             # log loss
-            if ((i+1) % print_every == 0) or (i in range(10)):
+            if ((i+1) % print_every == 0) or (i in range(100) and (i+1) % 1 == 0):
                 elapsed = time.time() - start_time
                 print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
                     .format(i, elapsed*1000/print_every, loss.item())) 
@@ -1016,7 +1025,10 @@ class segment_MeanFlow:
         # if gradient_generation:
         #     t_ = torch.ones_like(t_) * 0.999
         #     r_ = torch.zeros_like(r_)
-        e = torch.randn_like(x)
+        # e = torch.randn_like(x)
+        print("For 100 fixed point test~!!!!!!!!!!!")
+        e = torch.load("/home/u5649209/workspace/flow_matching/random_noise.pt").to(device)
+        e = e[:x.shape[0], :]
         # x = self.normer.norm(x)
 
         z = (1 - t_) * x + t_ * e
@@ -1072,10 +1084,16 @@ class segment_MeanFlow:
             z = random_noise.to(device)
         else:
             z = torch.randn(20000, 2, device=device)
-        t_vals = torch.linspace(1.0, 0.0, sample_steps + 1, device=device)
+        if self.is_baseline:
+            t_vals = torch.linspace(1.0, 0.0, sample_steps+1, device=device)
+        else:
+            t_vals = torch.linspace(1.0, 0.0, sample_steps + 1, device=device)
         for i in range(sample_steps):
             t = torch.full((z.size(0),), t_vals[i], device=device)
-            r = torch.full((z.size(0),), t_vals[i + 1], device=device)
+            if self.is_baseline:
+                r = torch.full((z.size(0),), t_vals[i + 1], device=device)
+            else:
+                r = torch.full((z.size(0),), t_vals[i + 1], device=device)
 
 
             t_ = rearrange(t, "b -> b 1").detach().clone()

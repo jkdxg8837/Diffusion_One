@@ -99,7 +99,7 @@ class special_MeanFlow(MeanFlow):
 
 
 # ckpt_number_list = [1, 10, 200, 400, 1000, 5000, 10000]
-ckpt_number_list = [10000, 10, 200, 400, 1000, 5000]
+ckpt_number_list = [1]
 from flow_matching_utils import compute_emd_distance
 source_x, _ = train_moon_gen(batch_size=20000, device=device, is_pretrain=False, mode=mode)
 fft_data_target_filter_dict = {}
@@ -111,29 +111,29 @@ lora_one_filter_idx = None
 for ckpt_number in ckpt_number_list:
     # Load fft
     fft_model_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/fft_seg_0.0_up_down_shift/ckpt"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/fft_seg_0.0_up_down_shift_100/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     # path = f"{ckpt_path}/10000"
     print(path)
     fft_model_mf.load_model(path, is_lora = False)
     # Load Lora
     lora_model_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=False)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_0.0_up_down_shift/ckpt"
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_seg_0.0_up_down_shift_100/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
     lora_model_mf.load_model(path, is_lora = True)
     # Load Lora+Lora-one
-    failed_lora_one_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=False)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_one_gamma9_seg_0.0_reverse_up_down_shift/ckpt"
+    lora_one_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_one_gamma4_seg_0.0_reverse_up_down_shift_100/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
-    failed_lora_one_mf.load_model(path, is_lora = True)
+    lora_one_mf.load_model(path, is_lora = True)
     # Load Seg-lora
-    seg_lora_mf = MeanFlow(baseline = True, segment_point=0.1, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
-    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora_seg_0.1/ckpt"
+    lora_ga_mf = MeanFlow(baseline = True, segment_point=0.0, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
+    ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/100_test/lora_ga_gamma64_seg_0.0_reverse_up_down_shift_100/ckpt"
     path = f"{ckpt_path}/{ckpt_number}"
     print(path)
-    seg_lora_mf.load_model(path, is_lora = True)
+    lora_ga_mf.load_model(path, is_lora = True)
     # Load Seg-lora+Lora-one
     seg_loraone_mf = MeanFlow(baseline = True, segment_point=0.1, is_lora = False, is_reinit = False, gamma = 9, reverse=True)
     ckpt_path = f"/home/u5649209/workspace/flow_matching/meanf/seg_base/lora-one/lora_one_gamma9_seg_0.1_reverse/ckpt"
@@ -182,9 +182,9 @@ for ckpt_number in ckpt_number_list:
     pred_x_dict = fft_model_mf.sample(meanF_step, "cuda", fixed_random_noise, )
 
     pred_x_dict_2 = lora_model_mf.sample(meanF_step, "cuda", fixed_random_noise, )
-    pred_x_dict_3 = failed_lora_one_mf.sample(meanF_step, "cuda", fixed_random_noise, )
-    pred_x_dict_4 = seg_loraone_mf.sample(meanF_step, "cuda", fixed_random_noise, )
-    pred_x_dict_5 = seg_lora_mf.sample(meanF_step, "cuda", fixed_random_noise, )
+    pred_x_dict_3 = lora_one_mf.sample(meanF_step, "cuda", fixed_random_noise, )
+    # pred_x_dict_4 = seg_loraone_mf.sample(meanF_step, "cuda", fixed_random_noise, )
+    pred_x_dict_4 = lora_ga_mf.sample(meanF_step, "cuda", fixed_random_noise, )
 
     # EMD Distance
     # emd_1 = compute_emd_distance(pred_x_dict[meanF_step-1].detach().cpu().numpy(), source_x)
@@ -221,21 +221,20 @@ for ckpt_number in ckpt_number_list:
     #         data3 = np.append(data3, pred_x_dict_3[path_point_number][path_number_].detach().cpu().numpy())
     #         data4 = np.append(data4, pred_x_dict_4[path_point_number][path_number_].detach().cpu().numpy())
     #         data5 = np.append(data5, pred_x_dict_5[path_point_number][path_number_].detach().cpu().numpy())
-    data_list = [[], [], [], [], []]  # 分别对应 data1~data5
+    data_list = [[], [], [], []]  # 分别对应 data1~data4
 
     for path_number_ in range(path_number):
         for path_point_number in path_point_number_list:
-            for i, pred_dict in enumerate([pred_x_dict, pred_x_dict_2, pred_x_dict_3, pred_x_dict_4, pred_x_dict_5]):
+            for i, pred_dict in enumerate([pred_x_dict, pred_x_dict_2, pred_x_dict_3, pred_x_dict_4]):
                 data_list[i].append(pred_dict[path_point_number][path_number_].detach().cpu().numpy())
 
     # 循环结束后一次性合并
-    data1, data2, data3, data4, data5 = [np.concatenate(d) for d in data_list]
+    data1, data2, data3, data4 = [np.concatenate(d) for d in data_list]
 
     data1 = data1.reshape((path_number, len(path_point_number_list), 2))
     data2 = data2.reshape((path_number, len(path_point_number_list), 2))
     data3 = data3.reshape((path_number, len(path_point_number_list), 2))
     data4 = data4.reshape((path_number, len(path_point_number_list), 2))
-    data5 = data5.reshape((path_number, len(path_point_number_list), 2))
 
         
     # Add start point
@@ -304,6 +303,32 @@ for ckpt_number in ckpt_number_list:
                 angles.append(total_angle)
             angles_list.append(angles)
         return angles_list
+    def relative_angle_customize(reference_data, g1_data, end_point):
+        # Calculate relative angles between 2 sets of points
+        angles_list = []
+        for i in range(reference_data.shape[0]):
+            angles = []
+            ref_points = reference_data[i]
+            g1_points = g1_data[i]
+            total_angle = 0
+            for j in range(1, end_point):
+                vec1 = ref_points[j] - ref_points[j-1]
+                vec2 = g1_points[j] - g1_points[j-1]
+                dot_product = np.dot(vec1, vec2)
+                norm_vec1 = np.linalg.norm(vec1)
+                norm_vec2 = np.linalg.norm(vec2)
+                cos_angle = dot_product / (norm_vec1 * norm_vec2 + 1e-8)
+                cos_angle = np.clip(cos_angle, -1.0, 1.0)  # Ensure within valid range for arccos
+                angle = np.arccos(cos_angle)
+                total_angle += angle
+                angles.append(total_angle)
+
+                # Using 2-norm distance as distance metric
+                # dist = np.linalg.norm(ref_points[j] - g1_points[j])
+                # total_angle += dist
+                # angles.append(total_angle)
+            angles_list.append(angles)
+        return angles_list
 
     def plot(data1, data2, data3 = None, data4 = None):
         # 1. 找到所有数据的全局范围
@@ -355,9 +380,15 @@ for ckpt_number in ckpt_number_list:
         # 16 x 20+1 x 2
         # 先不normalize未免影响relative angle的效果
         # data1, data2, data3, data4 = normalize_x_y(data1, data2, data3, data4)
-        data_m1 = relative_angle(data1, data2)
-        data_m2 = relative_angle(data1, data3)
-        data_m3 = relative_angle(data1, data4)
+        data_m1 = relative_angle_customize(data1, data2, 2)
+        # set mean to data_m1
+        mean_data_m1 = np.mean([data_m1[i][-1] for i in range(len(data_m1))])
+        
+        data_m2 = relative_angle_customize(data1, data3, 2)
+        mean_data_m2 = np.mean([data_m2[i][-1] for i in range(len(data_m2))])
+        data_m3 = relative_angle_customize(data1, data4, 2)
+        mean_data_m3 = np.mean([data_m3[i][-1] for i in range(len(data_m3))])
+        print(f"Mean relative angle up to step 2: Lora: {mean_data_m1}, Lora-One: {mean_data_m2}, Lora-ga: {mean_data_m3}")
 
         # print(data_m2[0])
         # print(data_m3[0])
@@ -491,7 +522,7 @@ for ckpt_number in ckpt_number_list:
     data4 = data4.reshape((path_number, len(path_point_number_list) + 1, 2))
 
     data_m2, data_m3, data_m4 = plot_diff(data1,data2, data3, data4)
-    plot_grid(data1[:, 0, :], data2[:, 0, :], data3[:, 0, :], np.array(data_m2)[:,15], np.array(data_m3)[:,15], np.array(data_m4)[:,15])
+    # plot_grid(data1[:, 0, :], data2[:, 0, :], data3[:, 0, :], np.array(data_m2)[:,15], np.array(data_m3)[:,15], np.array(data_m4)[:,15])
     # visualize data1
     # if ckpt_number == 10000:
     #     fft_filter_idx = plot_target_filter(data1)

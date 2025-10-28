@@ -6,7 +6,6 @@ random_t = torch.rand(100)
 hidden_z_list = np.array([])
 velocity_list = np.array([])
 for i in range(100):
-
     hidden_z = (1-random_t[i]) * data_sample + random_sample[i].unsqueeze(0) * random_t[i]
     print(hidden_z)
     hidden_z_list = np.append(hidden_z_list, hidden_z.detach().numpy())

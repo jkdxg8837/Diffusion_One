@@ -48,7 +48,8 @@ is_lora = True
 is_eval = False 
 is_reinit = True
 is_baseline = True
-gamma = 9
+batch_size_scale_list = [2,3,4,5, 6, 7, 8,9,10]
+gamma = 64
 mode = "up_down_shift"
 loss_history = []
 lora_init_mode_list = [\
@@ -62,10 +63,16 @@ if is_baseline:
 else:
     meanF_step = 5
 if is_reinit:
+    # for batch_size_scale in batch_size_scale_list:
     for segment_point in [0.0]:
-        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode)
+        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode, batch_size_scale = 1)
         meanflow.train()
+        # Add fft and lora training
+        # meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = False, is_reinit = False, gamma = gamma, reverse=True, data_mode=mode, batch_size_scale = 1)
+        # meanflow.train()
+        # meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = True, is_reinit = False, gamma = gamma, reverse=True, data_mode=mode, batch_size_scale = 1)
+        # meanflow.train()
 else:
     for segment_point in [0.0, 0.1]:
-        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode)
+        meanflow = segment_MeanFlow(baseline = is_baseline, segment_point=segment_point, is_lora = is_lora, is_reinit = is_reinit, gamma = gamma, reverse=True, data_mode=mode, batch_size_scale = 1)
         meanflow.train()

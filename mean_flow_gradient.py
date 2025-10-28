@@ -37,8 +37,10 @@ import os
 
 # training arguments
 lr = 0.001
-batch_size = 4096
-iterations = 1
+batch_size = 100
+batch_size_scale = 1
+batch_size = batch_size * batch_size_scale
+iterations = 1000
 # iterations = 10000
 print_every = 50
 hidden_dim = 512
@@ -57,7 +59,7 @@ lora_init_mode_list = [\
     "lora-ga", \
     # "lora-sb"
 ]
-is_baseline = True
+is_baseline = False
 # velocity field model init
 layer_gradients = {}
 
@@ -83,7 +85,7 @@ for name, param in vf.named_parameters():
         hooks.append(hook) 
 # Load path from which checkpoint
 # state_dict_path = f'/home/u5649209/workspace/flow_matching/ckpts/full/{gradient_step}_new.pth'
-# /home/u5649209/workspace/flow_matching/meanf/new_baseline/weights/raw_model_16000
+# dir_path = '/home/u5649209/workspace/flow_matching/meanf/weights'
 dir_path = f'/home/u5649209/workspace/flow_matching/meanf/new_baseline/weights'
 state_dict_path = f'{dir_path}/raw_model_{pretrain_iter}.pth'
 state_dict = torch.load(state_dict_path, map_location=device)
@@ -119,7 +121,10 @@ for i in range(iterations):
     x_1, y = train_moon_gen(batch_size=batch_size, device=device, is_pretrain=is_pre_train, mode = mode) # sample data
     # # print(y)
     x_1 = torch.tensor(x_1).float().to(device)
-
+    # save x_1 for test
+    # torch.save(x_1, f"/home/u5649209/workspace/flow_matching/fixed_100_target_point.pt")
+    x_fixed_100 = torch.load("/home/u5649209/workspace/flow_matching/fixed_100_target_point.pt").to(device)
+    x_1 = x_fixed_100
 
     # # Mean flow insert
     # # False + is_baseline indicates the raw method of lora-one re-init
@@ -148,11 +153,6 @@ for i in range(iterations):
     # DMD method, using kl divergence as loss to predict the whole domain gap
 
     loss_history.append(loss.item())
-    if i == 0:
-        elapsed = time.time() - start_time
-        print('| iter {:6d} | {:5.2f} ms/step | loss {:8.3f} ' 
-            .format(i+1, elapsed*1000/print_every, loss.item())) 
-        start_time = time.time()
 
     # optimizer step
     loss.backward() # backward
@@ -178,9 +178,12 @@ else:
     pass
 from tqdm import tqdm
 for key in layer_gradients.keys():
+    print(torch.stack(layer_gradients[key], dim=0).var())
     layer_gradients[key] = torch.stack(layer_gradients[key], dim=0).mean(dim=0)
+    # Compute variance as well
+    
 import pickle
 
 # If using pretrained gradients, use this save
-with open(f"{dir_path}/pretrained_{pretrain_iter}_{mode}_grad_1.pkl", "wb") as f:
+with open(f"/home/u5649209/workspace/flow_matching/temp_gradient_100.pkl", "wb") as f:
     pickle.dump(layer_gradients, f)
