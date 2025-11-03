@@ -5,7 +5,7 @@ import subprocess
 os.environ["MODEL_NAME"] = "stabilityai/stable-diffusion-3-medium-diffusers"
 os.environ["INSTANCE_DIR"] = "dog"
 # os.environ["OUTPUT_DIR"] = "sd3-dog-singlecard-reinit80-randomseed-woprecondition-POS-crossAtt-scaleLR"
-os.environ["OUTPUT_DIR"] = "dog-test"
+os.environ["OUTPUT_DIR"] = "dog-seg"
 time_step = 0.2
 re_init_schedule = "multi"
 re_init_bsz = 1
@@ -55,7 +55,7 @@ cmd = [
             # "--push_to_hub"
 ]
 
-# 构造命令``
+# 构造命令
 eval_cmd = [
     "accelerate", "launch", "../eval_dreambooth_sd3.py",
     "--pretrained_model_name_or_path", os.environ.get("MODEL_NAME"), # 使用 os.environ.get 提供默认值以防环境变量未设置

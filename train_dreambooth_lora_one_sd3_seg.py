@@ -1486,7 +1486,8 @@ def main(args):
         target_modules=target_modules,
     )
 
-    transformer.add_adapter(transformer_lora_config)
+    transformer.add_adapter(transformer_lora_config, adapter_name="small")
+    transformer.add_adapter(transformer_lora_config, adapter_name="large")
     if not args.baseline:
         init_conf['direction'] = args.direction
         # init_conf['stable_gamma'] = args.stable_gamma
@@ -1924,14 +1925,53 @@ def main(args):
                 sigmas = get_sigmas(timesteps, n_dim=model_input.ndim, dtype=model_input.dtype)
                 noisy_model_input = (1.0 - sigmas) * model_input + sigmas * noise
 
-                # Predict the noise residual
-                model_pred = transformer(
-                    hidden_states=noisy_model_input,
-                    timestep=timesteps,
-                    encoder_hidden_states=prompt_embeds,
-                    pooled_projections=pooled_prompt_embeds,
-                    return_dict=False,
-                )[0]
+                # === mask 分支 ===
+                mask = (timesteps < args.segment_point)  # [B]
+                pred = torch.zeros_like(noisy_model_input)     # 存放最终预测
+                if mask.sum() > 0:
+                    mask_indices = mask.nonzero(as_tuple=True)[0]
+                    mask_noisy_model_input = noisy_model_input[mask_indices]
+                    mask_timesteps = timesteps[mask_indices]
+                    mask_prompt_embeds = prompt_embeds[mask_indices]
+                    mask_pooled_prompt_embeds = pooled_prompt_embeds[mask_indices]
+                    transformer.set_adapter("small")
+                    mask_model_pred = transformer(
+                        hidden_states=mask_noisy_model_input,
+                        timestep=mask_timesteps,
+                        encoder_hidden_states=mask_prompt_embeds,
+                        pooled_projections=mask_pooled_prompt_embeds,
+                        return_dict=False,
+                    )[0]
+                    if args.precondition_outputs:
+                        mask_model_pred = mask_model_pred * (-sigmas[mask_indices]) + mask_noisy_model_input
+                    pred[mask_indices] = mask_model_pred
+                if (~mask).sum() > 0:
+                    unmask_indices = (~mask).nonzero(as_tuple=True)[0]
+                    unmask_noisy_model_input = noisy_model_input[unmask_indices]
+                    unmask_timesteps = timesteps[unmask_indices]
+                    unmask_prompt_embeds = prompt_embeds[unmask_indices]
+                    unmask_pooled_prompt_embeds = pooled_prompt_embeds[unmask_indices]
+                    transformer.set_adapter("large")
+                    unmask_model_pred = transformer(
+                        hidden_states=unmask_noisy_model_input,
+                        timestep=unmask_timesteps,
+                        encoder_hidden_states=unmask_prompt_embeds,
+                        pooled_projections=unmask_pooled_prompt_embeds,
+                        return_dict=False,
+                    )[0]
+                    if args.precondition_outputs:
+                        unmask_model_pred = unmask_model_pred * (-sigmas[unmask_indices]) + unmask_noisy_model_input
+                    pred[unmask_indices] = unmask_model_pred
+                model_pred = pred
+                # === mask 分支 Done ===
+                # # Predict the noise residual
+                # model_pred = transformer(
+                #     hidden_states=noisy_model_input,
+                #     timestep=timesteps,
+                #     encoder_hidden_states=prompt_embeds,
+                #     pooled_projections=pooled_prompt_embeds,
+                #     return_dict=False,
+                # )[0]
 
                 # Follow: Section 5 of https://arxiv.org/abs/2206.00364.
                 # Preconditioning of the model outputs.

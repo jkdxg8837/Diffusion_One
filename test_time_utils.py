@@ -421,7 +421,7 @@ def reinit_lora_modules(name, module, init_config, additional_info):
         init_config["lora_A"] = "kaiming"
         init_config["lora_B"] = "zeros"
         inited_signal = False 
-
+    
     if init_mode == "simple":
         match init_config["lora_A"]:
             case "gaussian":
@@ -513,15 +513,16 @@ def reinit_lora_modules(name, module, init_config, additional_info):
     elif init_mode == "gradient":
         named_grad = additional_info["named_grads"]
         print("*************************")
+        print(name)
         grad_name = name + '.weight'
-        grads = named_grad[grad_name][0]
+        grads = named_grad[grad_name]
 
         if init_config['direction'] == 'LoRA-One':
             # V = V.T
             grads = -grads.cuda().float()
             m, n = grads.shape
             print(m,n)
-            # grads = grads * (m**0.5)
+            grads = grads * (m**0.5)
             U, S, V = torch.linalg.svd(grads)
             print(grads.numel()**0.5)
             rank = (S > 1e-5).sum().item()

@@ -52,7 +52,7 @@ from train_dreambooth_lora_one_sd3 import(
     tokenize_prompt
 )
 unique_token = "sks"
-class_token = "car"
+class_token = "dog"
 # prompt_list = [
 # 'a {0} {1} in the jungle'.format(unique_token, class_token),
 # 'a {0} {1} in the snow'.format(unique_token, class_token),
@@ -1371,6 +1371,7 @@ def main(args):
                     torch_dtype=weight_dtype,
                     prompt_number = prompt_idx
                 )
+                torch.cuda.empty_cache()
                 prompt_idx+=1
 
         if args.push_to_hub:

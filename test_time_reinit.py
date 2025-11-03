@@ -1498,7 +1498,7 @@ def main(args):
     # **********************
     if not args.baseline:
         init_conf['direction'] = args.direction
-        # init_conf['stable_gamma'] = args.stable_gamma
+        init_conf['stable_gamma'] = args.stable_gamma
         reinit_strategy = args.reinit_strategy
         if reinit_strategy.lower() == "medium":
             init_conf['reinit_pos_start'] = 10
@@ -1518,13 +1518,13 @@ def main(args):
          602.1506,  560.6250,  515.0721,  464.8760,  409.2888,  347.3926,
          278.0488,  199.8270,  110.9057,    8.9286])
         for step in testTime_step:
-            return_dict = torch.load(f'./named_grads/{step:.4f}_return_dict.pt', map_location="cuda", weights_only=False)
+            return_dict = torch.load(f'./past_expr/{step:.4f}_return_dict.pt', map_location="cuda", weights_only=False)
             additional_info = {
             "named_grads": return_dict,
             }
             _, inited_modules = reinit_lora(transformer, init_conf, additional_info)
             transformer = accelerator.prepare(transformer)
-            save_path = os.path.join(args.output_dir, f"checkpoint-{step:04f}")
+            save_path = os.path.join(args.output_dir, f"checkpoint-{step:.4f}")
             accelerator.save_state(save_path)
     # ************************
     
